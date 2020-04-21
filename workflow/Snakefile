@@ -1,18 +1,31 @@
-# The main entry point of your workflow.
+# The main entry point of workflow.
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
-
-
-report: "report/workflow.rst"
-
-# Allow users to fix the underlying OS via singularity.
-singularity: "docker://continuumio/miniconda3"
-
-
-rule all:
-    input:
-        # The first rule should define the default target files
-        # Subsequent target rules can be specified below. They should start with all_*.
-
+from pathlib import Path
+import glob
 
 include: "rules/common.smk"
-include: "rules/other.smk"
+include: "rules/qc.smk"
+
+reads_names = set()
+path = glob.glob(config["reads_dir"]+"/*.fq")
+for p in path:
+    reads_names.add(Path(p).stem)
+
+def all_input(wildcards):
+
+    wanted_input = []
+
+    wanted_input.extend(
+        expand (
+            [
+                "results/qc/fastqc/{filename}.fq_fastqc.zip",
+                "results/qc/fastqc/reports/{filename}.fq.html"
+            ],
+            filename=reads_names
+        )
+    )
+
+    return wanted_input
+
+rule all:
+    input: all_input
