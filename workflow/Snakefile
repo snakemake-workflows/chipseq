@@ -1,29 +1,45 @@
 # The main entry point of workflow.
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
-from pathlib import Path
-import glob
+
+# import os
 
 include: "rules/common.smk"
 include: "rules/qc.smk"
 
-reads_names = set()
-path = glob.glob(config["reads_dir"]+"/*.fq")
-for p in path:
-    reads_names.add(Path(p).stem)
-
 def all_input(wildcards):
 
     wanted_input = []
+    # sample_unit_read_set = set()
 
-    wanted_input.extend(
-        expand (
-            [
-                "results/qc/fastqc/{filename}.fq_fastqc.zip",
-                "results/qc/fastqc/reports/{filename}.fq.html"
-            ],
-            filename=reads_names
+    for (sample, unit) in units.index:
+        reads = [ "1", "2" ]
+        if is_single_end(sample, unit):
+            reads = [ "0" ]
+        # for read in reads:
+            # sample_unit_read_set.add(str(sample) + "." + str(unit) + "." + str(read))
+            # print(str(sample) + "." + str(unit) + "." + str(read))
+
+        wanted_input.extend(
+            expand (
+                [
+                    "results/samples_fq/{sample}.{unit}.{reads}.fq",
+                    "results/qc/fastqc/zip-files/{sample}.{unit}.{reads}.fq_fastqc.zip",
+                    "results/qc/fastqc/reports/{sample}.{unit}.{reads}.fq.html",
+                    # "results/qc/fastqc/txt-files/{sample}.{unit}.{reads}.fastqc_data.txt",
+                    "results/qc/multiqc/multiqc.html"
+                ],
+                sample = sample,
+                unit = unit,
+                reads = reads
+            )
         )
-    )
+    # if os.path.exists("results/qc/fastqc/txt-files"):
+        # wanted_input.extend(
+        #     expand (
+        #         [ "results/qc/multiqc.html" ],
+        #         samples = sample_unit_read_set
+        #     )
+        # )
 
     return wanted_input
 

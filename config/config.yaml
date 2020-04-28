@@ -3,6 +3,3 @@
 # one row per sample. It can be parsed easily via pandas.
 samples: "config/samples.tsv"
 units: "config/units.tsv"
-
-# directory where the reads are
-reads_dir: "data/reads"
