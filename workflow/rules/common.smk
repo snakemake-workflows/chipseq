@@ -1,7 +1,5 @@
 from snakemake.utils import validate
 import pandas as pd
-import os
-from pathlib import Path
 
 # this container defines the underlying OS for each job when using the workflow
 # with --use-conda --use-singularity
@@ -53,6 +51,27 @@ def get_individual_fastq(wildcards):
     elif wildcards.read == "2":
         return units.loc[ (wildcards.sample, wildcards.unit), "fq2" ]
 
-# def get_samples_list(directory_path, format):
-#     return([Path(file).stem for file in os.listdir(directory_path) if file.endswith(format)])
-#     return [str(directory_path)+"/"+str(file) for file in os.listdir(directory_path) if file.endswith(format)]
+def get_fastqc_list(wildcards):
+    return multiqc_input
+
+##### FastQC #####
+
+multiqc_input = []
+
+for (sample, unit) in units.index:
+    reads = [ "1", "2" ]
+    if is_single_end(sample, unit):
+        reads = [ "0" ]
+
+    multiqc_input.extend(
+        expand (
+            [
+                "results/qc/fastqc/{sample}.{unit}.{reads}.fq_fastqc.zip",
+                "results/qc/fastqc/{sample}.{unit}.{reads}.fq.html",
+
+            ],
+            sample = sample,
+            unit = unit,
+            reads = reads
+        )
+    )
