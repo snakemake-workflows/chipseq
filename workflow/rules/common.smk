@@ -51,27 +51,22 @@ def get_individual_fastq(wildcards):
     elif wildcards.read == "2":
         return units.loc[ (wildcards.sample, wildcards.unit), "fq2" ]
 
-def get_fastqc_list(wildcards):
-    return multiqc_input
+def get_multiqc_input(wildcards):
+    multiqc_input = []
+    for (sample, unit) in units.index:
+        reads = [ "1", "2" ]
+        if is_single_end(sample, unit):
+            reads = [ "0" ]
 
-##### FastQC #####
-
-multiqc_input = []
-
-for (sample, unit) in units.index:
-    reads = [ "1", "2" ]
-    if is_single_end(sample, unit):
-        reads = [ "0" ]
-
-    multiqc_input.extend(
-        expand (
-            [
-                "results/qc/fastqc/{sample}.{unit}.{reads}.fq_fastqc.zip",
-                "results/qc/fastqc/{sample}.{unit}.{reads}.fq.html",
-
-            ],
-            sample = sample,
-            unit = unit,
-            reads = reads
+        multiqc_input.extend(
+            expand (
+                [
+                    "results/qc/fastqc/{sample}.{unit}.{reads}_fastqc.zip",
+                    "results/qc/fastqc/{sample}.{unit}.{reads}.html"
+                ],
+                sample = sample,
+                unit = unit,
+                reads = reads
+            )
         )
-    )
+    return multiqc_input
