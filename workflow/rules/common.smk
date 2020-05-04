@@ -70,3 +70,11 @@ def get_multiqc_input(wildcards):
             )
         )
     return multiqc_input
+
+def get_fastqs(wildcards):
+    """Get raw FASTQ files from unit sheet."""
+    if is_single_end(wildcards.sample, wildcards.unit):
+        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
+    else:
+        u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
+        return [ f"{u.fq1}", f"{u.fq2}" ]
