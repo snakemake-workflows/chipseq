@@ -6,9 +6,8 @@ rule cutadapt_pe:
         fastq2="results/trimmed/{sample}-{unit}.2.fastq.gz",
         qc="results/trimmed/{sample}-{unit}.pe.qc.txt"
     params:
-        adapters = "-a AGAGCACACGTCTGAACTCCAGTCAC -g AGATCGGAAGAGCACACGT -A AGAGCACACGTCTGAACTCCAGTCAC -G AGATCGGAAGAGCACACGT",
-        others = "--minimum-length 1 -q 20"
-        # "{}".format(config["params"]["cutadapt-pe"])
+        adapters = config["params"]["cutadapt-pe"],
+        others = config["params"]["cutadapt-others"]
     log:
         "results/logs/cutadapt/{sample}-{unit}.log"
     wrapper:
@@ -21,8 +20,10 @@ rule cutadapt_se:
         fastq="results/trimmed/{sample}-{unit}.fastq.gz",
         qc="results/trimmed/{sample}-{unit}.se.qc.txt"
     params:
-        "-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -q 20"
-        # "{}".format(config["params"]["cutadapt-se"])
+        "{} {}".format(
+            config["params"]["cutadapt-se"],
+            config["params"]["cutadapt-others"]
+            )
     log:
         "results/logs/cutadapt/{sample}-{unit}.log"
     wrapper:
