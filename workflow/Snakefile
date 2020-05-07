@@ -3,12 +3,37 @@
 
 include: "rules/common.smk"
 include: "rules/qc.smk"
+include: "rules/cutadapt.smk"
 
 def all_input(wildcards):
 
     wanted_input = []
 
     wanted_input.extend(["results/qc/multiqc/multiqc.html"])
+
+    for (sample, unit) in units.index:
+        if is_single_end(sample, unit):
+            wanted_input.extend(expand(
+                    [
+                        "results/trimmed/{sample}-{unit}.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.se.qc.txt"
+                    ],
+                    sample = sample,
+                    unit = unit
+                )
+            )
+        else:
+            wanted_input.extend(
+                expand (
+                    [
+                        "results/trimmed/{sample}-{unit}.1.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.2.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.pe.qc.txt"
+                    ],
+                    sample = sample,
+                    unit = unit
+            )
+        )
 
     return wanted_input
 
