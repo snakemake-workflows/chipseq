@@ -35,16 +35,6 @@ def all_input(wildcards):
             )
         )
 
-        wanted_input.extend(
-            expand (
-                [
-                    "results/mapped/{sample}-{unit}.bam"
-                ],
-                sample = sample,
-                unit = unit
-        )
-    )
-
     return wanted_input
 
 rule all:
