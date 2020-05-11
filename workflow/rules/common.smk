@@ -78,3 +78,29 @@ def get_fastqs(wildcards):
     else:
         u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
         return [ f"{u.fq1}", f"{u.fq2}" ]
+
+def get_map_reads_input(wildcards):
+    if is_single_end(wildcards.sample, wildcards.unit):
+        return "results/trimmed/{sample}-{unit}.fastq.gz"
+    return ["results/trimmed/{sample}-{unit}.1.fastq.gz", "results/trimmed/{sample}-{unit}.2.fastq.gz"]
+
+def get_read_group(wildcards):
+    """Denote sample name and platform in read group."""
+    return r"-R '@RG\tID:{sample}-{unit}\tSM:{sample}-{unit}\tPL:{platform}'".format(
+        sample=wildcards.sample,
+        unit=wildcards.unit,
+        platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
+
+def get_dedup_bams(wildcards):
+    merge_bams_input = []
+    for (sample, unit) in units.index:
+        merge_bams_input.extend(
+            expand (
+                [
+                    "results/mapped/dedup/{sample}-{unit}.bam"
+                ],
+                sample = sample,
+                unit = unit
+            )
+        )
+    return merge_bams_input
