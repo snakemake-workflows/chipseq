@@ -42,14 +42,9 @@ def all_input(wildcards):
     wanted_input.extend(
         expand (
             [
-                "results/mapped/{sample}-{unit}.bam",
-                "results/mapped/dedup/{sample}-{unit}.bam",
-                "results/mapped/dedup/{sample}-{unit}.metrics.txt",
-                "results/mapped/merged_with_dups.bam",
-                "results/mapped/merged.bam"
+                "results/merged/dedup/{sample}.bam"
             ],
-            sample = sample,
-            unit = unit
+            sample = sample
         )
     )
 

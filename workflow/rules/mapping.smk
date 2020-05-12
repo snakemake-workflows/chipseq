@@ -29,12 +29,12 @@ rule bwa_mem:
 
 rule mark_duplicates:
     input:
-        rules.bwa_mem.output
+        "results/mapped/{sample}-{unit}.bam"
     output:
         bam=temp("results/mapped/dedup/{sample}-{unit}.bam"),
         metrics="results/mapped/dedup/{sample}-{unit}.metrics.txt"
     log:
-        "logs/picard/dedup_{sample}-{unit}.log"
+        "logs/picard/dedup/{sample}-{unit}.log"
     params:
         "REMOVE_DUPLICATES=true"
     wrapper:
@@ -42,11 +42,14 @@ rule mark_duplicates:
 
 rule merge_bams:
     input:
-        get_dedup_bams
+        lambda w: expand("results/mapped/dedup/{sample}-{unit}.bam",
+            sample = w.sample,
+            unit = units.loc[units['sample'] == w.sample].unit.to_list()
+        )
     output:
-        temp("results/mapped/merged_with_dups.bam")
+        temp("results/merged/{sample}.bam")
     log:
-        "logs/picard/mergebamfiles.log"
+        "logs/picard/mergebamfiles/{sample}.log"
     params:
         "VALIDATION_STRINGENCY=LENIENT"
     wrapper:
@@ -54,12 +57,12 @@ rule merge_bams:
 
 rule mark_merged_duplicates:
     input:
-        "results/mapped/merged_with_dups.bam"
+        "results/merged/{sample}.bam"
     output:
-        bam="results/mapped/merged.bam",
-        metrics="results/mapped/dedup/merged.metrics.txt"
+        bam="results/merged/dedup/{sample}.bam",
+        metrics="results/merged/dedup/{sample}.metrics.txt"
     log:
-        "logs/picard/dedup_merged.log"
+        "logs/picard/dedup_merged/{sample}.log"
     params:
         "REMOVE_DUPLICATES=true"
     wrapper:

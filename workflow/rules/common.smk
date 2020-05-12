@@ -57,16 +57,31 @@ def get_multiqc_input(wildcards):
         reads = [ "1", "2" ]
         if is_single_end(sample, unit):
             reads = [ "0" ]
+            multiqc_input.extend(expand (["logs/cutadapt/{sample}-{unit}.se.log"],sample = sample,
+            unit = unit))
+        else:
+            multiqc_input.extend(expand (["logs/cutadapt/{sample}-{unit}.pe.log"],sample = sample,
+            unit = unit))
 
         multiqc_input.extend(
             expand (
                 [
                     "results/qc/fastqc/{sample}.{unit}.{reads}_fastqc.zip",
-                    "results/qc/fastqc/{sample}.{unit}.{reads}.html"
+                    "results/qc/fastqc/{sample}.{unit}.{reads}.html",
+                    "results/mapped/dedup/{sample}-{unit}.metrics.txt"
                 ],
                 sample = sample,
                 unit = unit,
                 reads = reads
+            )
+        )
+    for sample in samples.index:
+        multiqc_input.extend(
+            expand (
+                [
+                    "results/merged/dedup/{sample}.metrics.txt"
+                ],
+                sample = sample
             )
         )
     return multiqc_input
@@ -90,17 +105,3 @@ def get_read_group(wildcards):
         sample=wildcards.sample,
         unit=wildcards.unit,
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
-
-def get_dedup_bams(wildcards):
-    merge_bams_input = []
-    for (sample, unit) in units.index:
-        merge_bams_input.extend(
-            expand (
-                [
-                    "results/mapped/dedup/{sample}-{unit}.bam"
-                ],
-                sample = sample,
-                unit = unit
-            )
-        )
-    return merge_bams_input
