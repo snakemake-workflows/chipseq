@@ -67,8 +67,7 @@ def get_multiqc_input(wildcards):
             expand (
                 [
                     "results/qc/fastqc/{sample}.{unit}.{reads}_fastqc.zip",
-                    "results/qc/fastqc/{sample}.{unit}.{reads}.html",
-                    "results/mapped/dedup/{sample}-{unit}.metrics.txt"
+                    "results/qc/fastqc/{sample}.{unit}.{reads}.html"
                 ],
                 sample = sample,
                 unit = unit,
