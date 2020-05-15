@@ -57,11 +57,11 @@ def get_multiqc_input(wildcards):
         reads = [ "1", "2" ]
         if is_single_end(sample, unit):
             reads = [ "0" ]
-            multiqc_input.extend(expand (["logs/cutadapt/{sample}-{unit}.se.log"],sample = sample,
-            unit = unit))
+            multiqc_input.extend(expand (["logs/cutadapt/{sample}-{unit}.se.log"],
+            sample = sample, unit = unit))
         else:
-            multiqc_input.extend(expand (["logs/cutadapt/{sample}-{unit}.pe.log"],sample = sample,
-            unit = unit))
+            multiqc_input.extend(expand (["logs/cutadapt/{sample}-{unit}.pe.log"],
+            sample = sample, unit = unit))
 
         multiqc_input.extend(
             expand (
