@@ -5,6 +5,7 @@ include: "rules/common.smk"
 include: "rules/qc.smk"
 include: "rules/cutadapt.smk"
 include: "rules/mapping.smk"
+include: "rules/filtering.smk"
 
 def all_input(wildcards):
 
@@ -39,14 +40,16 @@ def all_input(wildcards):
         )
 
     # mapping and merging bam-files
-    wanted_input.extend(
-        expand (
-            [
-                "results/merged/dedup/{sample}.bam"
-            ],
-            sample = sample
+    for sample in samples.index:
+        wanted_input.extend(
+            expand (
+                [
+                    # "results/merged/dedup/{sample}.bam",
+                    "results/filtered/sam-view/{sample}.bam"
+                ],
+                sample = sample
+            )
         )
-    )
 
     return wanted_input
 

@@ -15,7 +15,7 @@ rule bwa_mem:
         reads = get_map_reads_input,
         idx = rules.bwa_index.output
     output:
-        temp("results/merged/{sample}-{unit}.bam")
+        temp("results/mapped/{sample}-{unit}.bam")
     log:
         "logs/bwa/bwa_mem/{sample}-{unit}.log"
     params:
@@ -29,7 +29,7 @@ rule bwa_mem:
 
 rule merge_bams:
     input:
-        lambda w: expand("results/merged/{sample}-{unit}.bam",
+        lambda w: expand("results/mapped/{sample}-{unit}.bam",
             sample = w.sample,
             unit = units.loc[units['sample'] == w.sample].unit.to_list()
         )
