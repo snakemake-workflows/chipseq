@@ -4,13 +4,16 @@
 include: "rules/common.smk"
 include: "rules/qc.smk"
 include: "rules/cutadapt.smk"
+include: "rules/mapping.smk"
 
 def all_input(wildcards):
 
     wanted_input = []
 
+    # QC with fastQC and multiQC
     wanted_input.extend(["results/qc/multiqc/multiqc.html"])
 
+    # trimming reads
     for (sample, unit) in units.index:
         if is_single_end(sample, unit):
             wanted_input.extend(expand(
@@ -34,6 +37,16 @@ def all_input(wildcards):
                     unit = unit
             )
         )
+
+    # mapping and merging bam-files
+    wanted_input.extend(
+        expand (
+            [
+                "results/merged/dedup/{sample}.bam"
+            ],
+            sample = sample
+        )
+    )
 
     return wanted_input
 

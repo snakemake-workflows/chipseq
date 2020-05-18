@@ -4,6 +4,11 @@
 samples: "config/samples.tsv"
 units: "config/units.tsv"
 
+resources:
+  ref:
+    # path to referece genome file in FASTA format
+    genome: "resources/ref/genome.chr21.fa"
+    
 params:
   # these cutadapt parameters need to contain the required flag(s) for
   # the type of adapter(s) to trim, i.e.:
