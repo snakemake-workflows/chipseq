@@ -44,8 +44,10 @@ def all_input(wildcards):
         wanted_input.extend(
             expand (
                 [
-                    # "results/merged/dedup/{sample}.bam",
-                    "results/filtered/sam-view/{sample}.bam"
+                    "results/filtered/sam-view/{sample}.bam"#,
+                    # "results/filtered/sorted/flagstat/{sample}.bam.flagstat", # -> to multiqu-input?
+                    # "results/filtered/sorted/idxstats/{sample}.bam.idxstats", # -> to multiqu-input?
+                    # "results/filtered/sorted/stats/{sample}.txt"              # -> to multiqu-input?
                 ],
                 sample = sample
             )
