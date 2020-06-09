@@ -78,7 +78,14 @@ def get_multiqc_input(wildcards):
         multiqc_input.extend(
             expand (
                 [
-                    "results/merged/dedup/{sample}.metrics.txt"
+                    "results/merged/dedup/{sample}.metrics.txt",
+                    "results/filtered/flagstat/filtered_{sample}.flagstat",
+                    "results/filtered/idxstats/filtered_{sample}.idxstats",
+                    "results/filtered/stats/filtered_{sample}.stats.txt",
+                    "results/filtered/orphan_rm/{sample}_bampe_rm_orphan.log",
+                    "results/filtered/idxstats/sorted_{sample}.idxstats",
+                    "results/filtered/flagstat/sorted_{sample}.flagstat",
+                    "results/filtered/stats/sorted_{sample}.stats.txt"
                 ],
                 sample = sample
             )

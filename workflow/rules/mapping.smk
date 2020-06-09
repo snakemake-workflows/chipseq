@@ -8,7 +8,7 @@ rule bwa_index:
     params:
         algorithm="bwtsw"
     wrapper:
-        "0.55.1/bio/bwa/index"
+        "0.60.0/bio/bwa/index"
 
 rule bwa_mem:
     input:
@@ -25,7 +25,7 @@ rule bwa_mem:
         sort_order="coordinate",
     threads: 8
     wrapper:
-        "0.52.0/bio/bwa/mem"
+        "0.60.0/bio/bwa/mem"
 
 rule merge_bams:
     input:
@@ -40,17 +40,17 @@ rule merge_bams:
     params:
         "VALIDATION_STRINGENCY=LENIENT"
     wrapper:
-        "0.55.1/bio/picard/mergesamfiles"
+        "0.60.0/bio/picard/mergesamfiles"
 
 rule mark_merged_duplicates:
     input:
         "results/merged/{sample}.bam"
     output:
-        bam="results/merged/dedup/{sample}.bam",
+        bam=temp("results/merged/dedup/{sample}.bam"),
         metrics="results/merged/dedup/{sample}.metrics.txt"
     log:
         "logs/picard/dedup_merged/{sample}.log"
     params:
         "REMOVE_DUPLICATES=false ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT"
     wrapper:
-        "0.55.1/bio/picard/markduplicates"
+        "0.60.0/bio/picard/markduplicates"
