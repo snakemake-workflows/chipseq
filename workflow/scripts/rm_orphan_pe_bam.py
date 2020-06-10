@@ -91,12 +91,11 @@ def bampe_rm_orphan(BAMIn,BAMOut,onlyFRPairs=False):
 
     ## ITERATE THROUGH BAM FILE
     EOF = 0
-    SAMFin = pysam.Samfile(BAMIn,"rb")
-    SAMFout = pysam.Samfile(BAMOut, "wb",header=SAMFin.header)
-    iterator = iter(SAMFin)       #!# AVI: an iterator was added because the Samfile object has no next attribute
-    currRead = next(iterator)     #!# AVI: adapted for the use of the iterator, original code: currRead = SAMFin.next()
+    SAMFin = pysam.AlignmentFile(BAMIn,"rb")  #!# AVI: changed to new API from pysam.Samfile
+    SAMFout = pysam.AlignmentFile(BAMOut, "wb",header=SAMFin.header)   #!# AVI: changed to new API from pysam.Samfile
+    currRead = next(SAMFin)     #!# AVI: adapted for the use of the iterator, original code: currRead = SAMFin.next()
 
-    for read in SAMFin:
+    for read in SAMFin.fetch(until_eof=True): #!# AVI: added .fetch() to explicitly use new API
         totalReads += 1
         if currRead.qname == read.qname:
             pair1 = currRead; pair2 = read
@@ -135,7 +134,7 @@ def bampe_rm_orphan(BAMIn,BAMOut,onlyFRPairs=False):
             ## RESET COUNTER
             try:
                 totalReads += 1
-                currRead = SAMFin.next()
+                currRead = next(SAMFin)   #!# AVI: adapted for the use of the iterator, original code: currRead = SAMFin.next()
             except:
                 StopIteration
                 EOF = 1

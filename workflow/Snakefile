@@ -6,6 +6,8 @@ include: "rules/qc.smk"
 include: "rules/cutadapt.smk"
 include: "rules/mapping.smk"
 include: "rules/filtering.smk"
+include: "rules/stats.smk"
+include: "rules/utils.smk"
 
 def all_input(wildcards):
 
@@ -44,7 +46,7 @@ def all_input(wildcards):
         wanted_input.extend(
             expand (
                 [
-                    "results/filtered/orphan_rm/{sample}.bam"
+                    "results/filtered/orphan_rm/orphan_rm_{sample}.sorted.bam"
                 ],
                 sample = sample
             )
