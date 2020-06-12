@@ -15,7 +15,7 @@ rule bwa_mem:
         reads = get_map_reads_input,
         idx = rules.bwa_index.output
     output:
-        temp("results/mapped/mapped_{sample}-{unit}.bam")
+        temp("results/mapped/{sample}-{unit}.bam")
     log:
         "logs/bwa/bwa_mem/{sample}-{unit}.log"
     params:
@@ -29,7 +29,7 @@ rule bwa_mem:
 
 rule merge_bams:
     input:
-        lambda w: expand("results/mapped/mapped_{sample}-{unit}.bam",
+        lambda w: expand("results/mapped/{sample}-{unit}.bam",
             sample = w.sample,
             unit = units.loc[units['sample'] == w.sample].unit.to_list()
         )
@@ -46,10 +46,10 @@ rule mark_merged_duplicates:
     input:
         "results/merged/{sample}.bam"
     output:
-        bam=temp("results/merged/dedup/merged_dedup_{sample}.bam"),
-        metrics="results/merged/dedup/merged_dedup_{sample}.metrics.txt"
+        bam=temp("results/_dedup/{sample}.bam"),
+        metrics="results/_dedup/{sample}.metrics.txt"
     log:
-        "logs/picard/dedup_merged/{sample}.log"
+        "logs/picard/_dedup/{sample}.log"
     params:
         "REMOVE_DUPLICATES=false ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT"
     wrapper:

@@ -1,30 +1,30 @@
 rule samtools_flagstat:
     input:
-        "results/{path_and_file_name}.bam"
+        "results/{step}/{samples_units}.bam"
     output:
-        "results/{path_and_file_name}.flagstat"
+        "results/{step,[^./]+}/{samples_units}.{step}.flagstat"
     wrapper:
         "0.60.0/bio/samtools/flagstat"
 
 rule samtools_idxstats:
     input:
-        bam = "results/{path_and_file_name}.bam",
-        idx = "results/{path_and_file_name}.bam.bai"
+        bam = "results/{step}/{samples_units}.bam",
+        idx = "results/{step}/{samples_units}.bam.bai"
     output:
-        "results/{path_and_file_name}.idxstats"
+        "results/{step,[^./]+}/{samples_units}.{step}.idxstats"
     log:
-        "logs/{path_and_file_name}.log"
+        "logs/{step,[^./]+}/{samples_units}.{step}.log"
     wrapper:
         "0.60.0/bio/samtools/idxstats"
 
 rule samtools_stats:
     input:
-        "results/{path_and_file_name}.bam"
+        "results/{step}/{samples_units}.bam"
     output:
-        "results/{path_and_file_name}.stats.txt"
+        "results/{step,[^./]+}/{samples_units}.{step}.stats.txt"
     params:
         ""
     log:
-        "logs/{path_and_file_name}.log"
+        "logs/{step,[^./]+}/{samples_units}.{step}.log"
     wrapper:
         "0.60.0/bio/samtools/stats"

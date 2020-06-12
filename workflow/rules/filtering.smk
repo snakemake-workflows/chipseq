@@ -1,8 +1,8 @@
 rule samtools_view:
     input:
-        "results/merged/dedup/merged_dedup_{sample}.bam"
+        "results/_dedup/{sample}.bam"
     output:
-        pipe(temp("results/filtered/sam-view/{sample}.bam"))
+        pipe(temp("results/sam-view/{sample}.bam"))
     params:
         "-b -F 0x004 -G 0x009 -f 0x001"
         # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
@@ -14,24 +14,24 @@ rule samtools_view:
 
 rule bamtools_filter_json:
     input:
-        "results/filtered/sam-view/{sample}.bam"
+        "results/sam-view/{sample}.bam"
     output:
-        temp("results/filtered/bamtools/filtered_{sample}.bam")
+        temp("results/filtered/{sample}.bam")
     params:
           # filters mismatches in all reads and filters pe-reads within a size range given in json-file
         json="../config/bamtools_filtering_rules.json"
     log:
-        "logs/filtered/bamtools/{sample}.log"
+        "logs/filtered/{sample}.log"
     wrapper:
         "0.60.0/bio/bamtools/filter_json"
 
 #TODO for later: customize and substitute rm_orphan_pe_bam.py with some existing tool
 rule orphan_remove:
     input:
-        "results/filtered/bamtools/filtered_{sample}.bam"
+        "results/filtered/{sample}.bam"
     output:
-        bam=temp("results/filtered/orphan_rm/{sample}.bam"),
-        qc="results/filtered/orphan_rm/{sample}_bampe_rm_orphan.log"
+        bam=temp("results/orphan_rm/{sample}.bam"),
+        qc="results/orphan_rm/{sample}_bampe_rm_orphan.log"
     params:
         "--only_fr_pairs"
     conda:
@@ -41,9 +41,9 @@ rule orphan_remove:
 
 rule samtools_sort:
     input:
-        "results/filtered/orphan_rm/{sample}.bam"
+        "results/orphan_rm/{sample}.bam"
     output:
-        "results/filtered/orphan_rm/orphan_rm_{sample}.sorted.bam"
+        "results/orphan_rm_sorted/{sample}.bam"
     params:
         ""
     threads:  # Samtools takes additional threads through its option -@

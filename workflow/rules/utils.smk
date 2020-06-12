@@ -1,8 +1,8 @@
 rule samtools_index:
     input:
-        "results/{path_and_file_name}.bam"
+        "results/{step}/{samples_units}.bam"
     output:
-        "results/{path_and_file_name}.bam.bai"
+        "results/{step}/{samples_units}.bam.bai"
     params:
         "" # optional params string
     wrapper:

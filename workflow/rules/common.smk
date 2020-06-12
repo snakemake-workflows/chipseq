@@ -68,9 +68,9 @@ def get_multiqc_input(wildcards):
                 [
                     "results/qc/fastqc/{sample}.{unit}.{reads}_fastqc.zip",
                     "results/qc/fastqc/{sample}.{unit}.{reads}.html",
-                    "results/mapped/mapped_{sample}-{unit}.flagstat",
-                    "results/mapped/mapped_{sample}-{unit}.idxstats",
-                    "results/mapped/mapped_{sample}-{unit}.stats.txt"
+                    "results/mapped/{sample}-{unit}.mapped.flagstat",
+                    "results/mapped/{sample}-{unit}.mapped.idxstats",
+                    "results/mapped/{sample}-{unit}.mapped.stats.txt"
                 ],
                 sample = sample,
                 unit = unit,
@@ -81,16 +81,16 @@ def get_multiqc_input(wildcards):
         multiqc_input.extend(
             expand (
                 [
-                    "results/merged/dedup/merged_dedup_{sample}.metrics.txt",
-                    "results/merged/dedup/merged_dedup_{sample}.flagstat",
-                    "results/merged/dedup/merged_dedup_{sample}.idxstats",
-                    "results/merged/dedup/merged_dedup_{sample}.stats.txt",
-                    "results/filtered/bamtools/filtered_{sample}.flagstat",
-                    "results/filtered/bamtools/filtered_{sample}.idxstats",
-                    "results/filtered/bamtools/filtered_{sample}.stats.txt",
-                    "results/filtered/orphan_rm/orphan_rm_{sample}.sorted.idxstats",
-                    "results/filtered/orphan_rm/orphan_rm_{sample}.sorted.flagstat",
-                    "results/filtered/orphan_rm/orphan_rm_{sample}.sorted.stats.txt"
+                    "results/_dedup/{sample}.metrics.txt",
+                    "results/_dedup/{sample}._dedup.flagstat",
+                    "results/_dedup/{sample}._dedup.idxstats",
+                    "results/_dedup/{sample}._dedup.stats.txt",
+                    "results/filtered/{sample}.filtered.flagstat",
+                    "results/filtered/{sample}.filtered.idxstats",
+                    "results/filtered/{sample}.filtered.stats.txt",
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.idxstats",
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt"
                 ],
                 sample = sample
             )
