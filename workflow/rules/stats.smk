@@ -13,7 +13,7 @@ rule samtools_idxstats:
     output:
         "results/{step,[^./]+}/{samples_units}.{step}.idxstats"
     log:
-        "logs/{step,[^./]+}/{samples_units}.{step}.log"
+        "logs/samtools-idxstats/{step}/{samples_units}.{step}.log"
     wrapper:
         "0.60.0/bio/samtools/idxstats"
 
@@ -25,6 +25,6 @@ rule samtools_stats:
     params:
         ""
     log:
-        "logs/{step,[^./]+}/{samples_units}.{step}.log"
+        "logs/samtools-stats/{step}/{samples_units}.{step}.log"
     wrapper:
         "0.60.0/bio/samtools/stats"
