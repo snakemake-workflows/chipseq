@@ -46,10 +46,10 @@ rule mark_merged_duplicates:
     input:
         "results/merged/{sample}.bam"
     output:
-        bam=temp("results/_dedup/{sample}.bam"),
-        metrics="results/_dedup/{sample}.metrics.txt"
+        bam=temp("results/picard_dedup/{sample}.bam"),
+        metrics="results/picard_dedup/{sample}.metrics.txt"
     log:
-        "logs/picard/_dedup/{sample}.log"
+        "logs/picard/picard_dedup/{sample}.log"
     params:
         "REMOVE_DUPLICATES=false ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT"
     wrapper:

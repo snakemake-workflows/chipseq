@@ -1,6 +1,6 @@
 rule samtools_view:
     input:
-        "results/_dedup/{sample}.bam"
+        "results/picard_dedup/{sample}.bam"
     output:
         pipe(temp("results/sam-view/{sample}.bam"))
     params:

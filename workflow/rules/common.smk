@@ -81,10 +81,10 @@ def get_multiqc_input(wildcards):
         multiqc_input.extend(
             expand (
                 [
-                    "results/_dedup/{sample}.metrics.txt",
-                    "results/_dedup/{sample}._dedup.flagstat",
-                    "results/_dedup/{sample}._dedup.idxstats",
-                    "results/_dedup/{sample}._dedup.stats.txt",
+                    "results/picard_dedup/{sample}.metrics.txt",
+                    "results/picard_dedup/{sample}.picard_dedup.flagstat",
+                    "results/picard_dedup/{sample}.picard_dedup.idxstats",
+                    "results/picard_dedup/{sample}.picard_dedup.stats.txt",
                     "results/filtered/{sample}.filtered.flagstat",
                     "results/filtered/{sample}.filtered.idxstats",
                     "results/filtered/{sample}.filtered.stats.txt",
