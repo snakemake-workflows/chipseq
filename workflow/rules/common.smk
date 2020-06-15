@@ -67,7 +67,10 @@ def get_multiqc_input(wildcards):
             expand (
                 [
                     "results/qc/fastqc/{sample}.{unit}.{reads}_fastqc.zip",
-                    "results/qc/fastqc/{sample}.{unit}.{reads}.html"
+                    "results/qc/fastqc/{sample}.{unit}.{reads}.html",
+                    "results/mapped/{sample}-{unit}.mapped.flagstat",
+                    "results/mapped/{sample}-{unit}.mapped.idxstats",
+                    "results/mapped/{sample}-{unit}.mapped.stats.txt"
                 ],
                 sample = sample,
                 unit = unit,
@@ -78,7 +81,16 @@ def get_multiqc_input(wildcards):
         multiqc_input.extend(
             expand (
                 [
-                    "results/merged/dedup/{sample}.metrics.txt"
+                    "results/picard_dedup/{sample}.metrics.txt",
+                    "results/picard_dedup/{sample}.picard_dedup.flagstat",
+                    "results/picard_dedup/{sample}.picard_dedup.idxstats",
+                    "results/picard_dedup/{sample}.picard_dedup.stats.txt",
+                    "results/filtered/{sample}.filtered.flagstat",
+                    "results/filtered/{sample}.filtered.idxstats",
+                    "results/filtered/{sample}.filtered.stats.txt",
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.idxstats",
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt"
                 ],
                 sample = sample
             )
