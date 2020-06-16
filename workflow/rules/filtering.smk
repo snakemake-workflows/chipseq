@@ -2,7 +2,7 @@ rule samtools_view:
     input:
         "results/picard_dedup/{sample}.bam"
     output:
-        pipe(temp("results/sam-view/{sample}.bam"))
+        temp("results/sam-view/{sample}.bam")
     params:
         "-b -F 0x004 -G 0x009 -f 0x001"
         # if duplicates should be removed in this filtering, add "-F 0x0400" to the params

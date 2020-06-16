@@ -85,12 +85,14 @@ def get_multiqc_input(wildcards):
                     "results/picard_dedup/{sample}.picard_dedup.flagstat",
                     "results/picard_dedup/{sample}.picard_dedup.idxstats",
                     "results/picard_dedup/{sample}.picard_dedup.stats.txt",
+                    "results/preseq/{sample}.lc_extrap",
                     "results/filtered/{sample}.filtered.flagstat",
                     "results/filtered/{sample}.filtered.idxstats",
                     "results/filtered/{sample}.filtered.stats.txt",
                     "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.idxstats",
                     "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
-                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt"
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt",
+                    "results//alignment-summary/{sample}.summary.txt"
                 ],
                 sample = sample
             )

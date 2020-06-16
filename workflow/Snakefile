@@ -8,6 +8,7 @@ include: "rules/mapping.smk"
 include: "rules/filtering.smk"
 include: "rules/stats.smk"
 include: "rules/utils.smk"
+include: "rules/post-analysis.smk"
 
 def all_input(wildcards):
 
