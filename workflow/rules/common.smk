@@ -92,7 +92,15 @@ def get_multiqc_input(wildcards):
                     "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.idxstats",
                     "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
                     "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt",
-                    "results//alignment-summary/{sample}.summary.txt"
+                    "results/qc/multiple_metrics/{sample}.alignment_summary_metrics",
+                    "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle_metrics",
+                    "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle.pdf",
+                    "results/qc/multiple_metrics/{sample}.insert_size_metrics",
+                    "results/qc/multiple_metrics/{sample}.insert_size_histogram.pdf",
+                    "results/qc/multiple_metrics/{sample}.quality_by_cycle_metrics",
+                    "results/qc/multiple_metrics/{sample}.quality_by_cycle.pdf",
+                    "results/qc/multiple_metrics/{sample}.quality_distribution_metrics",
+                    "results/qc/multiple_metrics/{sample}.quality_distribution.pdf"
                 ],
                 sample = sample
             )

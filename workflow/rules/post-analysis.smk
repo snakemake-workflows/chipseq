@@ -4,30 +4,47 @@ rule preseq_lc_extrap:
     output:
         "results/preseq/{sample}.lc_extrap"
     params:
-        "-bam -v"   #optional parameters
+        "-v"   #optional parameters
     log:
         "logs/preseq/{sample}.log"
     conda:
         "../envs/temp_preseq.yaml"
     script:
         "../scripts/temp_preseq_lc_extrap.py"
- #TODO: add wrapper and remove script, env and cript and conda statement in this rule
+ #TODO: Add wrapper and remove script and env in workflow. Remove script and conda statements in this rule
     # wrapper:
     #     "xxxx/bio/preseq/lc_extrap"
 
-rule alignment_summary:
+rule collect_multiple_metrics:
     input:
-        ref=config["resources"]["ref"]["genome"],
-        bam="results/orphan_rm_sorted/{sample}.bam"
+         bam="results/orphan_rm_sorted/{sample}.bam",
+         ref=config["resources"]["ref"]["genome"]
     output:
-        "results//alignment-summary/{sample}.summary.txt"
+        multiext("{path}{sample}",
+                 ".alignment_summary_metrics",
+                 ".base_distribution_by_cycle_metrics",
+                 ".base_distribution_by_cycle.pdf",
+                 ".insert_size_metrics",
+                 ".insert_size_histogram.pdf",
+                 ".quality_by_cycle_metrics",
+                 ".quality_by_cycle.pdf",
+                 ".quality_distribution_metrics",
+                 ".quality_distribution.pdf"
+                 )
+    resources:
+        mem_gb=3
+    wildcard_constraints:
+        # the common path for all metrics must be defined here
+        path="results/qc/multiple_metrics/"
     log:
-        "logs/picard/alignment-summary/{sample}.log"
+        "logs/picard/{path}{sample}.log"
     params:
         # optional parameters
         "VALIDATION_STRINGENCY=LENIENT "
-        "METRIC_ACCUMULATION_LEVEL=null "
-        "METRIC_ACCUMULATION_LEVEL=SAMPLE"
-    wrapper:
-        "0.60.1/bio/picard/collectalignmentsummarymetrics"
-
+    conda:
+        "../envs/temp_collectmultiplemetrics.yaml"
+    script:
+        "../scripts/temp_picard_collectmultiplemetrics.py"
+    #TODO: Add wrapper and remove script and env in workflow. Remove script and conda statements in this rule
+    # wrapper:
+    #     "xxxx/bio/picard/collectmultiplemetrics"
