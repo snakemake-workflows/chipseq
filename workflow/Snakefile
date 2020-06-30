@@ -47,7 +47,7 @@ def all_input(wildcards):
         wanted_input.extend(
             expand (
                 [
-                    "results/orphan_rm_sorted/{sample}.bam"
+                    "results/big_wig/{sample}.bigWig"
                 ],
                 sample = sample
             )
