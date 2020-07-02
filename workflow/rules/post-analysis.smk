@@ -4,11 +4,11 @@ rule preseq_lc_extrap:
     output:
         "results/preseq/{sample}.lc_extrap"
     params:
-        "-v"   #optional parameters
+        "-v -seed 1"   #optional parameters
     log:
         "logs/preseq/{sample}.log"
     wrapper:
-        "0.61.0/bio/preseq/lc_extrap"
+        "0.62.0/bio/preseq/lc_extrap"
 
 rule collect_multiple_metrics:
     input:
@@ -39,13 +39,8 @@ rule collect_multiple_metrics:
     params:
         # optional parameters
         "VALIDATION_STRINGENCY=LENIENT "
-    conda:
-        "../envs/temp_collectmultiplemetrics.yaml"
-    script:
-        "../scripts/temp_picard_collectmultiplemetrics.py"
-    #TODO: Add wrapper and remove script and env in workflow. Remove script and conda statements in this rule
-    # wrapper:
-    #     "xxxx/bio/picard/collectmultiplemetrics"
+    wrapper:
+        "0.62.0/bio/picard/collectmultiplemetrics"
 
 rule genomecov:
     input:
@@ -57,13 +52,9 @@ rule genomecov:
         "logs/bed_graph/{sample}.log"
     params: #-fs option was not used because there are no single end reads any more
         "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | awk '{print 1000000/$1}')"
-    conda:
-        "../envs/temp_genomecov.yaml"
-    script:
-        "../scripts/temp_bedtools_genomecoveragebed.py"
-    #TODO: Add wrapper and remove script and env in workflow. Remove script and conda statements in this rule
-    # wrapper:
-    #     "xxxx/bio/bedtools/genomecov"
+
+    wrapper:
+        "0.62.0/bio/bedtools/genomecov"
 
 rule sort_genomecov:
     input:
@@ -73,9 +64,19 @@ rule sort_genomecov:
     shell:
         "sort -k1,1 -k2,2n {input} > {output}"
 
+rule samtools_faidx:
+    input:
+        config["resources"]["ref"]["genome"]
+    output:
+        config["resources"]["ref"]["genome"]+".fai"
+    params:
+        ""
+    wrapper:
+        "0.62.0/bio/samtools/faidx"
+
 rule chromosome_size:
     input:
-        config["resources"]["ref"]["index"]
+        config["resources"]["ref"]["genome"]+".fai"
     output:
         "ngs-test-data/ref/genome.chrom.sizes"
     shell:
@@ -91,3 +92,12 @@ rule bedGraphToBigWig:
         ""
     wrapper:
         "0.61.0/bio/ucsc/bedGraphToBigWig"
+
+# ToDo: find-exec solution with snakemake, quoting for {}
+rule create_igv:
+    input:
+        expand("results/big_wig/{sample}.bigWig", sample = samples.index)
+    output:
+        "results/IGV/merged_library.bigWig.igv.txt"
+    shell:
+        "for i in {input}; do echo -e \"$i\"'\t0,0,178'; done > {output}"
