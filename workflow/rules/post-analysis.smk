@@ -8,12 +8,12 @@ rule preseq_lc_extrap:
     log:
         "logs/preseq/{sample}.log"
     wrapper:
-        "0.62.0/bio/preseq/lc_extrap"
+        "0.63.0/bio/preseq/lc_extrap"
 
 rule collect_multiple_metrics:
     input:
          bam="results/orphan_rm_sorted/{sample}.bam",
-         ref=config["resources"]["ref"]["genome"]
+         ref="resources/ref/genome.fasta"
     output:
         # Through the output file extensions the different tools for the metrics can be selected
         # so that it is not necessary to specify them under params with the "PROGRAM" option.
@@ -40,7 +40,7 @@ rule collect_multiple_metrics:
         # optional parameters
         "VALIDATION_STRINGENCY=LENIENT "
     wrapper:
-        "0.62.0/bio/picard/collectmultiplemetrics"
+        "0.63.0/bio/picard/collectmultiplemetrics"
 
 rule genomecov:
     input:
@@ -54,7 +54,7 @@ rule genomecov:
         "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | awk '{print 1000000/$1}')"
 
     wrapper:
-        "0.62.0/bio/bedtools/genomecov"
+        "0.63.0/bio/bedtools/genomecov"
 
 rule sort_genomecov:
     input:
@@ -64,40 +64,105 @@ rule sort_genomecov:
     shell:
         "sort -k1,1 -k2,2n {input} > {output}"
 
-rule samtools_faidx:
-    input:
-        config["resources"]["ref"]["genome"]
-    output:
-        config["resources"]["ref"]["genome"]+".fai"
-    params:
-        ""
-    wrapper:
-        "0.62.0/bio/samtools/faidx"
-
-rule chromosome_size:
-    input:
-        config["resources"]["ref"]["genome"]+".fai"
-    output:
-        "ngs-test-data/ref/genome.chrom.sizes"
-    shell:
-        "cut -f 1,2 {input} > {output}"
-
 rule bedGraphToBigWig:
     input:
         bedGraph="results/bed_graph/{sample}.sorted.bedgraph",
-        chromsizes="ngs-test-data/ref/genome.chrom.sizes"
+        chromsizes="resources/ref/genome.chrom.sizes"
     output:
         "results/big_wig/{sample}.bigWig"
     params:
         ""
     wrapper:
-        "0.61.0/bio/ucsc/bedGraphToBigWig"
+        "0.63.0/bio/ucsc/bedGraphToBigWig"
 
-# ToDo: find-exec solution with snakemake, quoting for {}
 rule create_igv:
     input:
-        expand("results/big_wig/{sample}.bigWig", sample = samples.index)
+        "resources/ref/genome.bed", # remove after testings
+        expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
         "results/IGV/merged_library.bigWig.igv.txt"
     shell:
-        "for i in {input}; do echo -e \"$i\"'\t0,0,178'; done > {output}"
+        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/big_wig/\"{{}}\"\t0,0,178' \;  > {output}"
+
+rule compute_matrix:
+    input:
+         bed="resources/ref/genome.bed",
+         bigwig=expand("results/big_wig/{sample}.bigWig", sample=samples.index)
+    output:
+        # Usable output variables, their extensions and which option they implicitly call are listed here:
+        #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/computematrix.html.
+        matrix_gz="results/deeptools/matrix_files/matrix.gz",
+        matrix_tab="results/deeptools/matrix_files/matrix.tab"
+    log:
+        "logs/deeptools/compute_matrix.log"
+    params:
+        command="scale-regions",
+        extra="--regionBodyLength 1000 "
+              "--beforeRegionStartLength 3000 "
+              "--afterRegionStartLength 3000 "
+              "--skipZeros "
+              "--smartLabels "
+              "--numberOfProcessors 2 "
+    conda:
+        "../envs/tmp_deeptools.yaml"
+    script:
+        "../scripts/tmp_deeptools_computematrix.py"
+    # ToDo: add wrapper after release and remove script and env
+    # wrapper:
+    #     "xxx/bio/deeptools/computematrix"
+
+rule plot_profile:
+    input:
+         "results/deeptools/matrix_files/matrix.gz"
+    output:
+        # Usable output variables, their extensions and which option they implicitly call are listed here:
+        #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotprofile.html.
+        plot_img="results/deeptools/plot_profile.pdf",
+        data="results/deeptools/plot_profile_data.tab"
+    log:
+        "logs/deeptools/plot_profile.log"
+    params:
+        ""
+    conda:
+        "../envs/tmp_deeptools.yaml"
+    script:
+        "../scripts/tmp_deeptools_plotprofile.py"
+    # ToDo: add wrapper after release and remove script and env
+    # wrapper:
+    #     "xxx/bio/deeptools/plotprofile"
+
+rule plot_heatmap:
+    input:
+         "results/deeptools/matrix_files/matrix.gz"
+    output:
+        # Usable output variables, their extensions and which option they implicitly call are listed here:
+        #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotheatmap.html.
+        heatmap_img="results/deeptools/heatmap.pdf",
+        heatmap_matrix="results/deeptools/heatmap_matrix.tab"
+    log:
+        "logs/deeptools/heatmap.log"
+    params:
+        ""
+    conda:
+        "../envs/tmp_deeptools.yaml"
+    script:
+        "../scripts/tmp_deeptools_plotheatmap.py"
+    # ToDo: add wrapper after release and remove script and env
+    # wrapper:
+    #     "xxx/bio/deeptools/plotheatmap"
+
+rule phantompeakqualtools:
+    input:
+         "results/orphan_rm_sorted/{sample}.bam"
+    output:
+        res_phantom="results/phantompeakqualtools/{sample}.phantompeak",
+        r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
+        plot="results/phantompeakqualtools/{sample}.phantompeak.pdf"
+    threads:
+        8
+    conda:
+        "../envs/phantompeakqualtools.yaml"
+    shell:
+        "Rscript -e \"library(caTools); source('../workflow/scripts/run_spp.R')\" "
+        "-c={input} -savp={output.plot} -savd={output.r_data} "
+        "-out={output.res_phantom} -p={threads}"

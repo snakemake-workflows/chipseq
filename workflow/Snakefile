@@ -2,6 +2,7 @@
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
 
 include: "rules/common.smk"
+include: "rules/ref.smk"
 include: "rules/qc.smk"
 include: "rules/cutadapt.smk"
 include: "rules/mapping.smk"
@@ -47,8 +48,13 @@ def all_input(wildcards):
         wanted_input.extend(
             expand (
                 [
-                    "results/big_wig/{sample}.bigWig",
-                    "results/IGV/merged_library.bigWig.igv.txt"
+                    "results/IGV/merged_library.bigWig.igv.txt",
+                    "results/deeptools/plot_profile.pdf",
+                    "results/deeptools/heatmap.pdf",
+                    "results/deeptools/heatmap_matrix.tab",
+                    "results/phantompeakqualtools/{sample}.phantompeak",
+                    "results/phantompeakqualtools/{sample}.phantompeak.Rdata",
+                    "results/phantompeakqualtools/{sample}.phantompeak.pdf"
                 ],
                 sample = sample
             )

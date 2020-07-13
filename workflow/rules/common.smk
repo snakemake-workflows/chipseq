@@ -100,7 +100,8 @@ def get_multiqc_input(wildcards):
                     "results/qc/multiple_metrics/{sample}.quality_by_cycle_metrics",
                     "results/qc/multiple_metrics/{sample}.quality_by_cycle.pdf",
                     "results/qc/multiple_metrics/{sample}.quality_distribution_metrics",
-                    "results/qc/multiple_metrics/{sample}.quality_distribution.pdf"
+                    "results/qc/multiple_metrics/{sample}.quality_distribution.pdf",
+                    "results/deeptools/plot_profile_data.tab"
                 ],
                 sample = sample
             )

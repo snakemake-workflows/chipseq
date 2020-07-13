@@ -10,7 +10,7 @@ rule samtools_view:
         # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
         # please provide a respective bed file via "-L path/to/regions.bed"
     wrapper:
-        "0.60.0/bio/samtools/view"
+        "0.63.0/bio/samtools/view"
 
 rule bamtools_filter_json:
     input:
@@ -23,7 +23,7 @@ rule bamtools_filter_json:
     log:
         "logs/filtered/{sample}.log"
     wrapper:
-        "0.60.0/bio/bamtools/filter_json"
+        "0.63.0/bio/bamtools/filter_json"
 
 #TODO for later: customize and substitute rm_orphan_pe_bam.py with some existing tool
 rule orphan_remove:
@@ -49,4 +49,4 @@ rule samtools_sort:
     threads:  # Samtools takes additional threads through its option -@
         8
     wrapper:
-        "0.60.0/bio/samtools/sort"
+        "0.63.0/bio/samtools/sort"

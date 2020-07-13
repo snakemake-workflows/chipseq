@@ -1,15 +1,3 @@
-rule bwa_index:
-    input:
-        config["resources"]["ref"]["genome"]
-    output:
-        multiext(config["resources"]["ref"]["genome"], ".amb", ".ann", ".bwt", ".pac", ".sa")
-    log:
-        "logs/bwa/bwa_index.log"
-    params:
-        algorithm="bwtsw"
-    wrapper:
-        "0.60.0/bio/bwa/index"
-
 rule bwa_mem:
     input:
         reads = get_map_reads_input,
