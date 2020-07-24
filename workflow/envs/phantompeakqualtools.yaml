@@ -2,7 +2,6 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - r-base ==4.0.2
   - phantompeakqualtools ==1.2.2
   - samtools ==1.10
   - r-snow ==0.4_3

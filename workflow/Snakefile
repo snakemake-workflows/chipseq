@@ -52,8 +52,6 @@ def all_input(wildcards):
                     "results/deeptools/plot_profile.pdf",
                     "results/deeptools/heatmap.pdf",
                     "results/deeptools/heatmap_matrix.tab",
-                    "results/phantompeakqualtools/{sample}.phantompeak",
-                    "results/phantompeakqualtools/{sample}.phantompeak.Rdata",
                     "results/phantompeakqualtools/{sample}.phantompeak.pdf"
                 ],
                 sample = sample

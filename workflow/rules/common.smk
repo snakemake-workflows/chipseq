@@ -101,7 +101,11 @@ def get_multiqc_input(wildcards):
                     "results/qc/multiple_metrics/{sample}.quality_by_cycle.pdf",
                     "results/qc/multiple_metrics/{sample}.quality_distribution_metrics",
                     "results/qc/multiple_metrics/{sample}.quality_distribution.pdf",
-                    "results/deeptools/plot_profile_data.tab"
+                    "results/deeptools/plot_profile_data.tab",
+                    "results/phantompeakqualtools/{sample}.phantompeak.spp.out",
+                    "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
+                    "results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
+                    "results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
                 ],
                 sample = sample
             )

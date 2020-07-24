@@ -155,7 +155,7 @@ rule phantompeakqualtools:
     input:
          "results/orphan_rm_sorted/{sample}.bam"
     output:
-        res_phantom="results/phantompeakqualtools/{sample}.phantompeak",
+        res_phantom="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
         r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
         plot="results/phantompeakqualtools/{sample}.phantompeak.pdf"
     threads:
@@ -166,3 +166,31 @@ rule phantompeakqualtools:
         "Rscript -e \"library(caTools); source('../workflow/scripts/run_spp.R')\" "
         "-c={input} -savp={output.plot} -savd={output.r_data} "
         "-out={output.res_phantom} -p={threads}"
+
+rule phantompeak_correlation:
+    input:
+        data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
+        header="../workflow/header/spp_corr_header.txt"
+    output:
+        "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv"
+    shell:
+        "cp {input.header} {output} && "
+        "Rscript -e \"args = commandArgs(TRUE); load(args[1]); "
+        "write.table(crosscorr['cross.correlation'], file=args[2], "
+        "sep=',', quote=FALSE, row.names=FALSE, col.names=FALSE, "
+        "append=TRUE)\" '--args {input.data} {output}' "
+
+rule phantompeak_multiqc:
+    # NSC (Normalized strand cross-correlation) and RSC (relative strand cross-correlation) metrics use cross-correlation
+    input:
+        data="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
+        nsc_header="../workflow/header/nsc_header.txt",
+        rsc_header="../workflow/header/rsc_header.txt"
+    output:
+        nsc="results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
+        rsc="results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
+    conda:
+        "../envs/gawk.yaml"
+    shell:
+        "gawk -v OFS='\t' '{{print $1, $9}}' {input.data} | cat {input.nsc_header} - > {output.nsc} && "
+        "gawk -v OFS='\t' '{{print $1, $10}}' {input.data} | cat {input.rsc_header} - > {output.rsc}"
