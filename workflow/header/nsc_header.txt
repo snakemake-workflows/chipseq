@@ -1,7 +1,8 @@
+#parent_id: spp
+#parent_name: 'ChIP-seq processing pipeline'
 #id: 'nsc_coefficient'
-#section_name: 'MERGED LIB: spp NSC coefficient'
-#description: "generated using run_spp.R script from
-#              <a href='https://github.com/kundajelab/phantompeakqualtools' target='_blank'>phantompeakqualtools</a>."
+#section_name: 'NSC coefficient'
+#description: "generated using run_spp.R script from <a href='https://github.com/kundajelab/phantompeakqualtools' target='_blank'>phantompeakqualtools</a>."
 #plot_type: 'bargraph'
 #anchor: 'nsc_coefficient'
 #pconfig:

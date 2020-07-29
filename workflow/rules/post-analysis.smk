@@ -8,7 +8,7 @@ rule preseq_lc_extrap:
     log:
         "logs/preseq/{sample}.log"
     wrapper:
-        "0.63.0/bio/preseq/lc_extrap"
+        "0.64.0/bio/preseq/lc_extrap"
 
 rule collect_multiple_metrics:
     input:
@@ -40,7 +40,7 @@ rule collect_multiple_metrics:
         # optional parameters
         "VALIDATION_STRINGENCY=LENIENT "
     wrapper:
-        "0.63.0/bio/picard/collectmultiplemetrics"
+        "0.64.0/bio/picard/collectmultiplemetrics"
 
 rule genomecov:
     input:
@@ -54,7 +54,7 @@ rule genomecov:
         "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | awk '{print 1000000/$1}')"
 
     wrapper:
-        "0.63.0/bio/bedtools/genomecov"
+        "0.64.0/bio/bedtools/genomecov"
 
 rule sort_genomecov:
     input:
@@ -73,7 +73,7 @@ rule bedGraphToBigWig:
     params:
         ""
     wrapper:
-        "0.63.0/bio/ucsc/bedGraphToBigWig"
+        "0.64.0/bio/ucsc/bedGraphToBigWig"
 
 rule create_igv:
     input:
@@ -103,13 +103,8 @@ rule compute_matrix:
               "--skipZeros "
               "--smartLabels "
               "--numberOfProcessors 2 "
-    conda:
-        "../envs/tmp_deeptools.yaml"
-    script:
-        "../scripts/tmp_deeptools_computematrix.py"
-    # ToDo: add wrapper after release and remove script and env
-    # wrapper:
-    #     "xxx/bio/deeptools/computematrix"
+    wrapper:
+        "0.64.0/bio/deeptools/computematrix"
 
 rule plot_profile:
     input:
@@ -123,13 +118,8 @@ rule plot_profile:
         "logs/deeptools/plot_profile.log"
     params:
         ""
-    conda:
-        "../envs/tmp_deeptools.yaml"
-    script:
-        "../scripts/tmp_deeptools_plotprofile.py"
-    # ToDo: add wrapper after release and remove script and env
-    # wrapper:
-    #     "xxx/bio/deeptools/plotprofile"
+    wrapper:
+        "0.64.0/bio/deeptools/plotprofile"
 
 rule plot_heatmap:
     input:
@@ -143,13 +133,8 @@ rule plot_heatmap:
         "logs/deeptools/heatmap.log"
     params:
         ""
-    conda:
-        "../envs/tmp_deeptools.yaml"
-    script:
-        "../scripts/tmp_deeptools_plotheatmap.py"
-    # ToDo: add wrapper after release and remove script and env
-    # wrapper:
-    #     "xxx/bio/deeptools/plotheatmap"
+    wrapper:
+        "0.64.0/bio/deeptools/plotheatmap"
 
 rule phantompeakqualtools:
     input:
@@ -194,3 +179,17 @@ rule phantompeak_multiqc:
     shell:
         "gawk -v OFS='\t' '{{print $1, $9}}' {input.data} | cat {input.nsc_header} - > {output.nsc} && "
         "gawk -v OFS='\t' '{{print $1, $10}}' {input.data} | cat {input.rsc_header} - > {output.rsc}"
+
+# rule phantompeak_multiqc:
+#     input:
+#         data="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
+#         # R_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
+#         header="../workflow/header/spp_corr_header.txt",
+#         nsc_header="../workflow/header/nsc_header.txt",
+#         rsc_header="../workflow/header/rsc_header.txt"
+#     output:
+#         # corr="results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
+#         nsc="results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
+#         rsc="results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
+#     script:
+#         "../scripts/test_multiqc_phantompeak.py"
