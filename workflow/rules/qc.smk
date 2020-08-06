@@ -7,7 +7,7 @@ rule fastqc:
     log:
         "logs/fastqc/{sample}.{unit}.{read}.log"
     wrapper:
-        "0.60.0/bio/fastqc"
+        "0.64.0/bio/fastqc"
 
 rule multiqc:
     input:
@@ -17,4 +17,4 @@ rule multiqc:
     log:
         "logs/multiqc.log"
     wrapper:
-        "0.60.0/bio/multiqc"
+        "0.64.0/bio/multiqc"
