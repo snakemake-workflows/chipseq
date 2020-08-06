@@ -1,7 +1,0 @@
-# parent_id: custom_section
-# parent_name: 'This data is grouped'
-# description: 'This is a description for a module sub-section'
-# plot_type: 'table'
-# section_name: 'Lane Statistics'
-Lane	Total # Reads	Total # PF Reads	Undetermined
-1	196,298,213	186,009,926	5.45%

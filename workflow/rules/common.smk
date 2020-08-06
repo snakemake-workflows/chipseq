@@ -105,9 +105,7 @@ def get_multiqc_input(wildcards):
                     "results/phantompeakqualtools/{sample}.phantompeak.spp.out",
                     "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
                     "results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
-                    "results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv",
-                    "../workflow/header/test_table_mqc.txt",
-                    "../workflow/header/test_bargraph_mqc.txt"
+                    "results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
                 ],
                 sample = sample
             )

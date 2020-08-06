@@ -152,6 +152,7 @@ rule phantompeakqualtools:
         "-c={input} -savp={output.plot} -savd={output.r_data} "
         "-out={output.res_phantom} -p={threads}"
 
+#ToDo waiting for next multiqc release to check the grouping of headers in the multiqc-navigation
 rule phantompeak_correlation:
     input:
         data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
@@ -165,6 +166,7 @@ rule phantompeak_correlation:
         "sep=',', quote=FALSE, row.names=FALSE, col.names=FALSE, "
         "append=TRUE)\" '--args {input.data} {output}' "
 
+#ToDo waiting for next multiqc release to check the grouping of headers in the multiqc-navigation
 rule phantompeak_multiqc:
     # NSC (Normalized strand cross-correlation) and RSC (relative strand cross-correlation) metrics use cross-correlation
     input:
@@ -180,16 +182,3 @@ rule phantompeak_multiqc:
         "gawk -v OFS='\t' '{{print $1, $9}}' {input.data} | cat {input.nsc_header} - > {output.nsc} && "
         "gawk -v OFS='\t' '{{print $1, $10}}' {input.data} | cat {input.rsc_header} - > {output.rsc}"
 
-# rule phantompeak_multiqc:
-#     input:
-#         data="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
-#         # R_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
-#         header="../workflow/header/spp_corr_header.txt",
-#         nsc_header="../workflow/header/nsc_header.txt",
-#         rsc_header="../workflow/header/rsc_header.txt"
-#     output:
-#         # corr="results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
-#         nsc="results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
-#         rsc="results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
-#     script:
-#         "../scripts/test_multiqc_phantompeak.py"
