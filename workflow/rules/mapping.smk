@@ -13,7 +13,7 @@ rule bwa_mem:
         sort_order="coordinate",
     threads: 8
     wrapper:
-        "0.60.0/bio/bwa/mem"
+        "0.64.0/bio/bwa/mem"
 
 rule merge_bams:
     input:
@@ -28,7 +28,7 @@ rule merge_bams:
     params:
         "VALIDATION_STRINGENCY=LENIENT"
     wrapper:
-        "0.60.0/bio/picard/mergesamfiles"
+        "0.64.0/bio/picard/mergesamfiles"
 
 rule mark_merged_duplicates:
     input:
@@ -41,4 +41,4 @@ rule mark_merged_duplicates:
     params:
         "REMOVE_DUPLICATES=false ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT"
     wrapper:
-        "0.60.0/bio/picard/markduplicates"
+        "0.64.0/bio/picard/markduplicates"

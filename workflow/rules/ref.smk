@@ -10,7 +10,7 @@ rule get_genome:
         release=config["resources"]["ref"]["release"]
     cache: True
     wrapper:
-        "0.63.0/bio/reference/ensembl-sequence"
+        "0.64.0/bio/reference/ensembl-sequence"
 
 rule get_annotation:
     output:
@@ -25,7 +25,7 @@ rule get_annotation:
         "logs/ref/get_annotation.log"
     cache: True  # save space and time with between workflow caching (see docs)
     wrapper:
-        "0.63.0/bio/reference/ensembl-annotation"
+        "0.64.0/bio/reference/ensembl-annotation"
 
 rule gtf2bed:
     input:
@@ -46,7 +46,7 @@ rule genome_faidx:
         "logs/ref/genome-faidx.log"
     cache: True
     wrapper:
-        "0.63.0/bio/samtools/faidx"
+        "0.64.0/bio/samtools/faidx"
 
 rule bwa_index:
     input:
@@ -58,7 +58,7 @@ rule bwa_index:
     params:
         algorithm="bwtsw"
     wrapper:
-        "0.60.0/bio/bwa/index"
+        "0.64.0/bio/bwa/index"
 
 rule chromosome_size:
     input:

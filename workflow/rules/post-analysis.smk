@@ -77,7 +77,7 @@ rule bedGraphToBigWig:
 
 rule create_igv:
     input:
-        "resources/ref/genome.bed", # remove after testings
+        "resources/ref/genome.bed",
         expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
         "results/IGV/merged_library.bigWig.igv.txt"
@@ -152,7 +152,6 @@ rule phantompeakqualtools:
         "-c={input} -savp={output.plot} -savd={output.r_data} "
         "-out={output.res_phantom} -p={threads}"
 
-#ToDo waiting for next multiqc release to check the grouping of headers in the multiqc-navigation
 rule phantompeak_correlation:
     input:
         data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
@@ -166,7 +165,6 @@ rule phantompeak_correlation:
         "sep=',', quote=FALSE, row.names=FALSE, col.names=FALSE, "
         "append=TRUE)\" '--args {input.data} {output}' "
 
-#ToDo waiting for next multiqc release to check the grouping of headers in the multiqc-navigation
 rule phantompeak_multiqc:
     # NSC (Normalized strand cross-correlation) and RSC (relative strand cross-correlation) metrics use cross-correlation
     input:
@@ -181,4 +179,3 @@ rule phantompeak_multiqc:
     shell:
         "gawk -v OFS='\t' '{{print $1, $9}}' {input.data} | cat {input.nsc_header} - > {output.nsc} && "
         "gawk -v OFS='\t' '{{print $1, $10}}' {input.data} | cat {input.rsc_header} - > {output.rsc}"
-
