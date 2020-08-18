@@ -9,6 +9,7 @@ rule fastqc:
     wrapper:
         "0.64.0/bio/fastqc"
 
+# ToDo: add wrapper again and remove temporary script and env after wrapper release with matplotlib dependency
 rule multiqc:
     input:
         get_multiqc_input
@@ -16,5 +17,9 @@ rule multiqc:
          "results/qc/multiqc/multiqc.html"
     log:
         "logs/multiqc.log"
-    wrapper:
-        "0.64.0/bio/multiqc"
+    conda:
+        "../envs/temp_multiqc.yaml"
+    script:
+        "../scripts/temp_multiqc_wrapper.py"
+    # wrapper:
+    #     "0.64.0/bio/multiqc"

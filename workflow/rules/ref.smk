@@ -32,10 +32,12 @@ rule gtf2bed:
         "resources/ref/annotation.gtf"
     output:
         "resources/ref/genome.bed"
+    log:
+        "logs/ref/gtf2bed.log"
     conda:
         "../envs/perl.yaml"
     shell:
-        "../workflow/scripts/gtf2bed {input} > {output}"
+        "../workflow/scripts/gtf2bed {input} > {output} 2> {log}"
 
 rule genome_faidx:
     input:
@@ -65,5 +67,7 @@ rule chromosome_size:
         "resources/ref/genome.fasta.fai"
     output:
         "resources/ref/genome.chrom.sizes"
+    log:
+        "logs/ref/chromosome_size.log"
     shell:
-        "cut -f 1,2 {input} > {output}"
+        "cut -f 1,2 {input} > {output} 2> {log}"

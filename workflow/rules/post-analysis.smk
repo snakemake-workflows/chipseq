@@ -52,7 +52,6 @@ rule genomecov:
         "logs/bed_graph/{sample}.log"
     params: #-fs option was not used because there are no single end reads any more
         "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | awk '{print 1000000/$1}')"
-
     wrapper:
         "0.64.0/bio/bedtools/genomecov"
 
@@ -70,6 +69,8 @@ rule bedGraphToBigWig:
         chromsizes="resources/ref/genome.chrom.sizes"
     output:
         "results/big_wig/{sample}.bigWig"
+    log:
+        "logs/big_wig/{sample}.log"
     params:
         ""
     wrapper:
@@ -145,12 +146,14 @@ rule phantompeakqualtools:
         plot="results/phantompeakqualtools/{sample}.phantompeak.pdf"
     threads:
         8
+    log:
+        "logs/phantompeakqualtools/{sample}.phantompeak.log"
     conda:
         "../envs/phantompeakqualtools.yaml"
     shell:
-        "Rscript -e \"library(caTools); source('../workflow/scripts/run_spp.R')\" "
-        "-c={input} -savp={output.plot} -savd={output.r_data} "
-        "-out={output.res_phantom} -p={threads}"
+        "( Rscript -e \"library(caTools); source('../workflow/scripts/run_spp.R')\" "
+        "  -c={input} -savp={output.plot} -savd={output.r_data} "
+        "  -out={output.res_phantom} -p={threads} 2>&1 ) >{log}"
 
 rule phantompeak_correlation:
     input:
@@ -158,12 +161,14 @@ rule phantompeak_correlation:
         header="../workflow/header/spp_corr_header.txt"
     output:
         "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv"
+    log:
+        "logs/phantompeakqualtools/correlation/{sample}.spp_corr.log"
     shell:
-        "cp {input.header} {output} && "
-        "Rscript -e \"args = commandArgs(TRUE); load(args[1]); "
-        "write.table(crosscorr['cross.correlation'], file=args[2], "
-        "sep=',', quote=FALSE, row.names=FALSE, col.names=FALSE, "
-        "append=TRUE)\" '--args {input.data} {output}' "
+        "( cp {input.header} {output} && "
+        "  Rscript -e \"args = commandArgs(TRUE); load(args[1]); "
+        "  write.table(crosscorr['cross.correlation'], file=args[2], "
+        "  sep=',', quote=FALSE, row.names=FALSE, col.names=FALSE, "
+        "  append=TRUE)\" '--args {input.data} {output}' 2>&1 ) >{log}"
 
 rule phantompeak_multiqc:
     # NSC (Normalized strand cross-correlation) and RSC (relative strand cross-correlation) metrics use cross-correlation
@@ -174,8 +179,10 @@ rule phantompeak_multiqc:
     output:
         nsc="results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
         rsc="results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
+    log:
+        "logs/phantompeakqualtools/correlation/{sample}.nsc_rsc.log"
     conda:
         "../envs/gawk.yaml"
     shell:
-        "gawk -v OFS='\t' '{{print $1, $9}}' {input.data} | cat {input.nsc_header} - > {output.nsc} && "
-        "gawk -v OFS='\t' '{{print $1, $10}}' {input.data} | cat {input.rsc_header} - > {output.rsc}"
+        "( gawk -v OFS='\t' '{{print $1, $9}}' {input.data} | cat {input.nsc_header} - > {output.nsc} && "
+        "  gawk -v OFS='\t' '{{print $1, $10}}' {input.data} | cat {input.rsc_header} - > {output.rsc} 2>&1 ) >{log}"
