@@ -17,9 +17,5 @@ rule multiqc:
          "results/qc/multiqc/multiqc.html"
     log:
         "logs/multiqc.log"
-    conda:
-        "../envs/temp_multiqc.yaml"
-    script:
-        "../scripts/temp_multiqc_wrapper.py"
-    # wrapper:
-    #     "0.64.0/bio/multiqc"
+    wrapper:
+        "0.64.0/bio/multiqc"

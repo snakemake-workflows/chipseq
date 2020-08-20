@@ -1,6 +1,6 @@
 *
-analysis
-analysis/*
+results
+results/*
 !analysis/README.md
 !config
 !config/*
