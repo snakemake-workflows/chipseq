@@ -6,9 +6,16 @@ units: "config/units.tsv"
 
 resources:
   ref:
-    # path to referece genome file in FASTA format
-    genome: "resources/ref/genome.chr21.fa"
-    
+    # Number of chromosomes to consider for calling.
+    # The first n entries of the FASTA will be considered.
+    n_chromosomes: 25
+    # Ensembl species name
+    species: homo_sapiens
+    # Ensembl release
+    release: 100
+    # Genome build
+    build: GRCh38
+
 params:
   # these cutadapt parameters need to contain the required flag(s) for
   # the type of adapter(s) to trim, i.e.:
