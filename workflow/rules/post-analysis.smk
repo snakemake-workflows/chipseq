@@ -60,8 +60,10 @@ rule sort_genomecov:
         "results/bed_graph/{sample}.bedgraph"
     output:
         "results/bed_graph/{sample}.sorted.bedgraph"
+    log:
+        "logs/sort_genomecov/{sample}.log"
     shell:
-        "sort -k1,1 -k2,2n {input} > {output}"
+        "sort -k1,1 -k2,2n {input} > {output} 2> {log}"
 
 rule bedGraphToBigWig:
     input:
@@ -82,8 +84,10 @@ rule create_igv:
         expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
         "results/IGV/merged_library.bigWig.igv.txt"
+    log:
+        "logs/igv/create_igv.log"
     shell:
-        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/big_wig/\"{{}}\"\t0,0,178' \;  > {output}"
+        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/big_wig/\"{{}}\"\t0,0,178' \;  > {output} 2> {log}"
 
 rule compute_matrix:
     input:

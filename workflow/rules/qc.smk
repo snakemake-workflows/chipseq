@@ -14,7 +14,7 @@ rule multiqc:
     input:
         get_multiqc_input
     output:
-         "results/qc/multiqc/multiqc.html"
+        "results/qc/multiqc/multiqc.html"
     log:
         "logs/multiqc.log"
     wrapper:

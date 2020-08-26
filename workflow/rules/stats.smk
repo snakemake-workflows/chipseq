@@ -3,6 +3,8 @@ rule samtools_flagstat:
         "results/{step}/{samples_units}.bam"
     output:
         "results/{step,[^./]+}/{samples_units}.{step}.flagstat"
+    log:
+        "logs/samtools-flagstat/{step}/{samples_units}.{step}.log"
     wrapper:
         "0.64.0/bio/samtools/flagstat"
 

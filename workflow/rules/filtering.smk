@@ -9,6 +9,8 @@ rule samtools_view:
         # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
         # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
         # please provide a respective bed file via "-L path/to/regions.bed"
+    log:
+        "logs/samtools-view/{sample}.log"
     wrapper:
         "0.64.0/bio/samtools/view"
 
@@ -34,10 +36,12 @@ rule orphan_remove:
         qc="results/orphan_rm/{sample}_bampe_rm_orphan.log"
     params:
         "--only_fr_pairs"
+    log:
+        "logs/orphan_remove/{sample}.log"
     conda:
         "../envs/pysam.yaml"
     shell:
-        " ../workflow/scripts/rm_orphan_pe_bam.py {input} {output.bam} {params} "
+        " ../workflow/scripts/rm_orphan_pe_bam.py {input} {output.bam} {params} 2> {log}"
 
 rule samtools_sort:
     input:
@@ -46,6 +50,8 @@ rule samtools_sort:
         "results/orphan_rm_sorted/{sample}.bam"
     params:
         ""
+    log:
+        "logs/samtools-sort/{sample}.log"
     threads:  # Samtools takes additional threads through its option -@
         8
     wrapper:
