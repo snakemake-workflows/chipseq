@@ -131,3 +131,52 @@ def get_read_group(wildcards):
         sample=wildcards.sample,
         unit=wildcards.unit,
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
+
+def all_input(wildcards):
+
+    wanted_input = []
+
+    # QC with fastQC and multiQC
+    wanted_input.extend(["results/qc/multiqc/multiqc.html"])
+
+    # trimming reads
+    for (sample, unit) in units.index:
+        if is_single_end(sample, unit):
+            wanted_input.extend(expand(
+                    [
+                        "results/trimmed/{sample}-{unit}.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.se.qc.txt"
+                    ],
+                    sample = sample,
+                    unit = unit
+                )
+            )
+        else:
+            wanted_input.extend(
+                expand (
+                    [
+                        "results/trimmed/{sample}-{unit}.1.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.2.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.pe.qc.txt"
+                    ],
+                    sample = sample,
+                    unit = unit
+            )
+        )
+
+    # mapping, merging and filtering bam-files
+    for sample in samples.index:
+        wanted_input.extend(
+            expand (
+                [
+                    "results/IGV/merged_library.bigWig.igv.txt",
+                    "results/deeptools/plot_profile.pdf",
+                    "results/deeptools/heatmap.pdf",
+                    "results/deeptools/heatmap_matrix.tab",
+                    "results/phantompeakqualtools/{sample}.phantompeak.pdf"
+                ],
+                sample = sample
+            )
+        )
+
+    return wanted_input
