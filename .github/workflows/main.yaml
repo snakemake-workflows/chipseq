@@ -33,7 +33,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 10 --cache --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba --cache get_genome get_annotation genome_faidx"
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
