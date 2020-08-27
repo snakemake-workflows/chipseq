@@ -28,11 +28,6 @@ jobs:
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
 
-    - name: Create cache location
-      run: mkdir -p $SNAKEMAKE_OUTPUT_CACHE
-      env:
-        SNAKEMAKE_OUTPUT_CACHE: snakemake-cache
-
     - name: Test workflow (local test data)
       env:
         SNAKEMAKE_OUTPUT_CACHE: snakemake-cache
@@ -40,7 +35,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba --cache get_genome get_annotation genome_faidx"
+        args: "--use-conda --cache get_genome get_annotation genome_faidx --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
