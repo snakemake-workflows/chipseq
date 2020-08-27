@@ -13,5 +13,6 @@ results/*
 !.editorconfig
 !.travis.yml
 !.test
+!.test/config/*
 !LICENSE
 !README.md
