@@ -28,9 +28,9 @@ jobs:
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
 
-    - run: export SNAKEMAKE_OUTPUT_CACHE=/mnt/snakemake-cache/
-
     - name: Test workflow (local test data)
+      env:
+        SNAKEMAKE_OUTPUT_CACHE: /mnt/snakemake-cache/
       uses: snakemake/snakemake-github-action@v1.9.0
       with:
         directory: .test
