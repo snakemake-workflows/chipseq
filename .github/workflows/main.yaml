@@ -34,8 +34,6 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-        stagein: |
-          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
