@@ -35,10 +35,10 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
-          rm -rf .test/resources .test/results
-          mkdir snakemake-cache
           export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
           export TMPDIR=/tmp
+          rm -rf .test/resources .test/results
+          if [ -d $SNAKEMAKE_OUTPUT_CACHE ] ; then echo "cache-dir exists, clean and continue..." ; rm -rf $SNAKEMAKE_OUTPUT_CACHE && mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE; else echo "cache-dir does not exist, creating..." ; mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE;fi
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
