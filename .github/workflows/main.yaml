@@ -19,6 +19,8 @@ jobs:
         directory: .
         snakefile: workflow/Snakefile
         args: "--lint"
+        stagein: |
+          export TMPDIR=/tmp
 
   Testing:
     runs-on: ubuntu-latest
@@ -35,10 +37,11 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
-          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
           export TMPDIR=/tmp
           rm -rf .test/resources .test/results
-          if [ -d $SNAKEMAKE_OUTPUT_CACHE ] ; then echo "cache-dir exists, clean and continue..." ; rm -rf $SNAKEMAKE_OUTPUT_CACHE && mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE; else echo "cache-dir does not exist, creating..." ; mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE;fi
+          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+          if [ -d $SNAKEMAKE_OUTPUT_CACHE ] ; then rm -rf $SNAKEMAKE_OUTPUT_CACHE ;fi
+          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
 
     - name: Test report
       uses: snakemake/snakemake-github-action@v1.9.0
@@ -46,3 +49,5 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--report report.zip"
+        stagein: |
+          export TMPDIR=/tmp
