@@ -40,7 +40,6 @@ jobs:
           export TMPDIR=/tmp
           rm -rf .test/resources .test/results
           export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
-          if [ -d $SNAKEMAKE_OUTPUT_CACHE ] ; then rm -rf $SNAKEMAKE_OUTPUT_CACHE ;fi
           mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
 
     - name: Test report
