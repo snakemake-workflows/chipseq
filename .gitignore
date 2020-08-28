@@ -14,5 +14,6 @@ results/*
 !.travis.yml
 !.test
 !.test/config/*
+!.test/ngs-test-data
 !LICENSE
 !README.md
