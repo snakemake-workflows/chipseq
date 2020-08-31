@@ -167,12 +167,8 @@ rule phantompeak_correlation:
         "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv"
     log:
         "logs/phantompeakqualtools/correlation/{sample}.spp_corr.log"
-    shell:
-        "( cp {input.header} {output} && "
-        "  Rscript -e \"args = commandArgs(TRUE); load(args[1]); "
-        "  write.table(crosscorr['cross.correlation'], file=args[2], "
-        "  sep=',', quote=FALSE, row.names=FALSE, col.names=FALSE, "
-        "  append=TRUE)\" '--args {input.data} {output}' 2>&1 ) >{log}"
+    script:
+        "../scripts/phantompeak_correlation.R"
 
 rule phantompeak_multiqc:
     # NSC (Normalized strand cross-correlation) and RSC (relative strand cross-correlation) metrics use cross-correlation
