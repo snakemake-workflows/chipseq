@@ -85,7 +85,6 @@ def get_multiqc_input(wildcards):
                     "results/picard_dedup/{sample}.picard_dedup.flagstat",
                     "results/picard_dedup/{sample}.picard_dedup.idxstats",
                     "results/picard_dedup/{sample}.picard_dedup.stats.txt",
-                    "results/preseq/{sample}.lc_extrap",
                     "results/filtered/{sample}.filtered.flagstat",
                     "results/filtered/{sample}.filtered.idxstats",
                     "results/filtered/{sample}.filtered.stats.txt",
@@ -110,6 +109,8 @@ def get_multiqc_input(wildcards):
                 sample = sample
             )
         )
+        if config["params"]["lc_extrap"]:
+                multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
     return multiqc_input
 
 def get_fastqs(wildcards):

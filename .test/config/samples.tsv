@@ -1,5 +1,5 @@
-sample	condition	batch_effect
-A	treated	batch1
-B	untreated	batch1
-C	treated	batch2
-D	untreated	batch2
+sample	condition	batch_effect	control	antibody
+A	treated	batch1	D	BCATENIN
+B	untreated	batch2	D	BCATENIN
+C	treated	batch1	D	TCF4
+D	untreated	batch2		

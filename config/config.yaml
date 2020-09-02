@@ -8,15 +8,16 @@ resources:
   ref:
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
-    n_chromosomes: 25
+    n_chromosomes: 17
     # Ensembl species name
-    species: homo_sapiens
+    species: saccharomyces_cerevisiae
     # Ensembl release
-    release: 100
+    release: 98
     # Genome build
-    build: GRCh38
+    build: R64-1-1
 
 params:
+  lc_extrap: False
   # these cutadapt parameters need to contain the required flag(s) for
   # the type of adapter(s) to trim, i.e.:
   # * https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types

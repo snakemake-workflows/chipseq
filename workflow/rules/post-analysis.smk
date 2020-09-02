@@ -4,7 +4,7 @@ rule preseq_lc_extrap:
     output:
         "results/preseq/{sample}.lc_extrap"
     params:
-        "-v -seed 1"   #optional parameters
+        "-v -seed 1"
     log:
         "logs/preseq/{sample}.log"
     wrapper:
