@@ -1,16 +1,32 @@
-rule get_genome:
+# rule get_genome:
+#     output:
+#         "resources/ref/genome.fasta"
+#     log:
+#         "logs/ref/get-genome.log"
+#     params:
+#         species=config["resources"]["ref"]["species"],
+#         datatype="dna",
+#         build=config["resources"]["ref"]["build"],
+#         release=config["resources"]["ref"]["release"]
+#     cache: True
+#     wrapper:
+#         "0.64.0/bio/reference/ensembl-sequence"
+
+rule get_genome_test_data:
     output:
         "resources/ref/genome.fasta"
     log:
         "logs/ref/get-genome.log"
     params:
         species=config["resources"]["ref"]["species"],
+        spec_up=config["resources"]["ref"]["species"].capitalize(),
         datatype="dna",
         build=config["resources"]["ref"]["build"],
+        suffix="chromosome.21",
         release=config["resources"]["ref"]["release"]
     cache: True
-    wrapper:
-        "0.64.0/bio/reference/ensembl-sequence"
+    shell:
+        "curl -L ftp://ftp.ensembl.org/pub/release-{params.release}/fasta/{params.species}/{params.datatype}/{params.spec_up}.{params.build}.{params.datatype}.{params.suffix}.fa.gz |gzip -d > {output} 2> {log}"
 
 rule get_annotation:
     output:
