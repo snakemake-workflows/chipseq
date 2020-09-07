@@ -25,6 +25,8 @@ rule get_genome_test_data:
         suffix="chromosome.21",
         release=config["resources"]["ref"]["release"]
     cache: True
+    conda:
+        "../envs/curl.yaml"
     shell:
         "curl -L ftp://ftp.ensembl.org/pub/release-{params.release}/fasta/{params.species}/{params.datatype}/{params.spec_up}.{params.build}.{params.datatype}.{params.suffix}.fa.gz |gzip -d > {output} 2> {log}"
 
