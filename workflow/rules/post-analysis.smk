@@ -167,6 +167,8 @@ rule phantompeak_correlation:
         "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv"
     log:
         "logs/phantompeakqualtools/correlation/{sample}.spp_corr.log"
+    conda:
+        "../envs/phantom_corr.yaml"
     script:
         "../scripts/phantompeak_correlation.R"
 
