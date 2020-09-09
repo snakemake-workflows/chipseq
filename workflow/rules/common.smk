@@ -10,7 +10,7 @@ container: "docker://continuumio/miniconda3"
 configfile: "config/config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
-samples = pd.read_csv(config["samples"], sep="\t", dtype = str).set_index("sample", drop=False)
+samples = pd.read_csv(config["samples"], dtype=str, sep="\t").set_index(["sample"], drop=False)
 samples.index.names = ["sample_id"]
 validate(samples, schema="../schemas/samples.schema.yaml")
 
@@ -50,6 +50,18 @@ def get_individual_fastq(wildcards):
         return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
     elif wildcards.read == "2":
         return units.loc[ (wildcards.sample, wildcards.unit), "fq2" ]
+
+def is_control(control):
+    return pd.isnull(control)
+
+def get_sample_and_control(wildcards):
+    out = []
+    for sample in samples["sample"]:
+        control = samples.loc[sample]["control"]
+        if not is_control(control):
+            out.extend(expand(["results/orphan_rm_sorted/{sample}.bam", "results/orphan_rm_sorted/{control}.bam"],
+                              sample=str(samples.loc[sample]["sample"]), control=str(control)))
+    return out
 
 def get_multiqc_input(wildcards):
     multiqc_input = []
@@ -174,10 +186,10 @@ def all_input(wildcards):
                     "results/deeptools/plot_profile.pdf",
                     "results/deeptools/heatmap.pdf",
                     "results/deeptools/heatmap_matrix.tab",
-                    "results/phantompeakqualtools/{sample}.phantompeak.pdf"
+                    "results/phantompeakqualtools/{sample}.phantompeak.pdf",
+                    "results/test.txt"
                 ],
                 sample = sample
             )
         )
-
     return wanted_input
