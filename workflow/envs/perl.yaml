@@ -1,0 +1,5 @@
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - perl-getopt-long ==2.50

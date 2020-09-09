@@ -3,8 +3,10 @@ rule samtools_flagstat:
         "results/{step}/{samples_units}.bam"
     output:
         "results/{step,[^./]+}/{samples_units}.{step}.flagstat"
+    log:
+        "logs/samtools-flagstat/{step}/{samples_units}.{step}.log"
     wrapper:
-        "0.60.0/bio/samtools/flagstat"
+        "0.64.0/bio/samtools/flagstat"
 
 rule samtools_idxstats:
     input:
@@ -15,7 +17,7 @@ rule samtools_idxstats:
     log:
         "logs/samtools-idxstats/{step}/{samples_units}.{step}.log"
     wrapper:
-        "0.60.0/bio/samtools/idxstats"
+        "0.64.0/bio/samtools/idxstats"
 
 rule samtools_stats:
     input:
@@ -27,4 +29,4 @@ rule samtools_stats:
     log:
         "logs/samtools-stats/{step}/{samples_units}.{step}.log"
     wrapper:
-        "0.60.0/bio/samtools/stats"
+        "0.64.0/bio/samtools/stats"

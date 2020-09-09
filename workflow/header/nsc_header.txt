@@ -1,0 +1,19 @@
+# parent_id: spp
+# parent_name: 'ChIP-seq processing pipeline'
+# id: nsc_coefficient
+# section_name: 'Normalized strand cross-correlation coefficient (NSC)'
+# description: "The normalized strand cross-correlation coefficient is a quality control metric based on strand-shift cross-correlation plot.
+# The barplot is generated using run_spp.R script from
+# <a href='https://github.com/kundajelab/phantompeakqualtools' target='_blank'>phantompeakqualtools</a> and shows for each sample on y-axis the
+# normalized strand cross-correlation coefficient on x-axis.
+# The coefficient is defined by the ratio of maximal cross-correlation value divided by the background cross-correlation.
+# The higher NSC values are the better the enrichment.
+# For more information about calculation and interpretation of this value please see
+# <a href='https://hbctraining.github.io/In-depth-NGS-Data-Analysis-Course/sessionV/lessons/CC_metrics_extra.html' target='_blank'>Quality Metrics Based on Cross-Correlation</a>."
+# format: 'tsv'
+# plot_type: 'bargraph'
+# pconfig:
+#    title: 'Normalized strand cross-correlation coefficient'
+#    ylab: 'NSC coefficient'
+#    ymin: 1
+#    tt_decimals: 1

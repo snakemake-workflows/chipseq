@@ -2,57 +2,14 @@
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
 
 include: "rules/common.smk"
+include: "rules/ref.smk"
 include: "rules/qc.smk"
 include: "rules/cutadapt.smk"
 include: "rules/mapping.smk"
 include: "rules/filtering.smk"
 include: "rules/stats.smk"
 include: "rules/utils.smk"
-
-def all_input(wildcards):
-
-    wanted_input = []
-
-    # QC with fastQC and multiQC
-    wanted_input.extend(["results/qc/multiqc/multiqc.html"])
-
-    # trimming reads
-    for (sample, unit) in units.index:
-        if is_single_end(sample, unit):
-            wanted_input.extend(expand(
-                    [
-                        "results/trimmed/{sample}-{unit}.fastq.gz",
-                        "results/trimmed/{sample}-{unit}.se.qc.txt"
-                    ],
-                    sample = sample,
-                    unit = unit
-                )
-            )
-        else:
-            wanted_input.extend(
-                expand (
-                    [
-                        "results/trimmed/{sample}-{unit}.1.fastq.gz",
-                        "results/trimmed/{sample}-{unit}.2.fastq.gz",
-                        "results/trimmed/{sample}-{unit}.pe.qc.txt"
-                    ],
-                    sample = sample,
-                    unit = unit
-            )
-        )
-
-    # mapping, merging and filtering bam-files
-    for sample in samples.index:
-        wanted_input.extend(
-            expand (
-                [
-                    "results/orphan_rm_sorted/{sample}.bam"
-                ],
-                sample = sample
-            )
-        )
-
-    return wanted_input
+include: "rules/post-analysis.smk"
 
 rule all:
     input: all_input

@@ -3,7 +3,7 @@ import pandas as pd
 
 # this container defines the underlying OS for each job when using the workflow
 # with --use-conda --use-singularity
-singularity: "docker://continuumio/miniconda3"
+container: "docker://continuumio/miniconda3"
 
 ##### load config and sample sheets #####
 
@@ -90,11 +90,27 @@ def get_multiqc_input(wildcards):
                     "results/filtered/{sample}.filtered.stats.txt",
                     "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.idxstats",
                     "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
-                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt"
+                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt",
+                    "results/qc/multiple_metrics/{sample}.alignment_summary_metrics",
+                    "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle_metrics",
+                    "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle.pdf",
+                    "results/qc/multiple_metrics/{sample}.insert_size_metrics",
+                    "results/qc/multiple_metrics/{sample}.insert_size_histogram.pdf",
+                    "results/qc/multiple_metrics/{sample}.quality_by_cycle_metrics",
+                    "results/qc/multiple_metrics/{sample}.quality_by_cycle.pdf",
+                    "results/qc/multiple_metrics/{sample}.quality_distribution_metrics",
+                    "results/qc/multiple_metrics/{sample}.quality_distribution.pdf",
+                    "results/deeptools/plot_profile_data.tab",
+                    "results/phantompeakqualtools/{sample}.phantompeak.spp.out",
+                    "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
+                    "results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
+                    "results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
                 ],
                 sample = sample
             )
         )
+        if config["params"]["lc_extrap"]:
+                multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
     return multiqc_input
 
 def get_fastqs(wildcards):
@@ -116,3 +132,52 @@ def get_read_group(wildcards):
         sample=wildcards.sample,
         unit=wildcards.unit,
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
+
+def all_input(wildcards):
+
+    wanted_input = []
+
+    # QC with fastQC and multiQC
+    wanted_input.extend(["results/qc/multiqc/multiqc.html"])
+
+    # trimming reads
+    for (sample, unit) in units.index:
+        if is_single_end(sample, unit):
+            wanted_input.extend(expand(
+                    [
+                        "results/trimmed/{sample}-{unit}.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.se.qc.txt"
+                    ],
+                    sample = sample,
+                    unit = unit
+                )
+            )
+        else:
+            wanted_input.extend(
+                expand (
+                    [
+                        "results/trimmed/{sample}-{unit}.1.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.2.fastq.gz",
+                        "results/trimmed/{sample}-{unit}.pe.qc.txt"
+                    ],
+                    sample = sample,
+                    unit = unit
+            )
+        )
+
+    # mapping, merging and filtering bam-files
+    for sample in samples.index:
+        wanted_input.extend(
+            expand (
+                [
+                    "results/IGV/merged_library.bigWig.igv.txt",
+                    "results/deeptools/plot_profile.pdf",
+                    "results/deeptools/heatmap.pdf",
+                    "results/deeptools/heatmap_matrix.tab",
+                    "results/phantompeakqualtools/{sample}.phantompeak.pdf"
+                ],
+                sample = sample
+            )
+        )
+
+    return wanted_input

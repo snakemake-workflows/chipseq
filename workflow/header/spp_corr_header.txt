@@ -1,0 +1,21 @@
+# parent_id: spp
+# parent_name: 'ChIP-seq processing pipeline'
+# parent_description: 'The pipeline calculates the strand-shift cross-correlation and also the normalized and relative strand cross-correlation coefficients for each sample.'
+# id: strand_shift_correlation
+# section_name: 'Strand-shift cross-correlation'
+# description: "The strand-shift cross-correlation is a quality control metric.
+# The plot is generated for each sample using run_spp.R script from
+# <a href='https://github.com/kundajelab/phantompeakqualtools' target='_blank'>phantompeakqualtools</a>.
+# It computes the Pearsons's linear correlation between the minus and plus strand for each shift value after shifting minus strand by k base pairs.
+# Usually the plot shows two peaks: a maximal cross-correlation peak and a \"phantom\" peak corresponding to the read length.
+# These peaks are used to calculate the relative and the normalized strand cross-correlation coefficients.
+# For more information about calculation and interpretation of this values please see
+# <a href='https://hbctraining.github.io/In-depth-NGS-Data-Analysis-Course/sessionV/lessons/CC_metrics_extra.html' target='_blank'>Quality Metrics Based on Cross-Correlation</a>."
+# format: 'tsv'
+# plot_type: 'linegraph'
+# pconfig:
+#    title: 'Strand-shift correlation plot'
+#    ylab: 'Cross-correlation'
+#    xlab: 'Strand-shift (bp)'
+#    xDecimals: False
+#    tt_label: 'Strand-shift (bp) {point.x}: {point.y:.2f} Cross-correlation'
