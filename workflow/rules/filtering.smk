@@ -4,6 +4,7 @@ rule samtools_view:
     output:
         temp("results/sam-view/{sample}.bam")
     params:
+        # TODO: move to config.yaml, including the explanatory comments below
         "-b -F 0x004 -G 0x009 -f 0x001"
         # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
         # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params

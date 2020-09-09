@@ -1,3 +1,4 @@
+# TODO: reinstate the wrapper once it can handle downloading only a specific chromosome
 # rule get_genome:
 #     output:
 #         "resources/ref/genome.fasta"
@@ -75,6 +76,7 @@ rule bwa_index:
         multiext("resources/ref/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
     log:
         "logs/bwa/bwa_index.log"
+    cache: True
     params:
         algorithm="bwtsw"
     wrapper:

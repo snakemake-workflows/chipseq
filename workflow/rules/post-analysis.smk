@@ -37,7 +37,7 @@ rule collect_multiple_metrics:
     log:
         "logs/picard/{path}{sample}.log"
     params:
-        # optional parameters
+        # optional parameters, TODO: move to config.yaml and load from there
         "VALIDATION_STRINGENCY=LENIENT "
     wrapper:
         "0.64.0/bio/picard/collectmultiplemetrics"
@@ -100,6 +100,7 @@ rule compute_matrix:
         matrix_tab="results/deeptools/matrix_files/matrix.tab"
     log:
         "logs/deeptools/compute_matrix.log"
+    threads: 2
     params:
         command="scale-regions",
         extra="--regionBodyLength 1000 "
