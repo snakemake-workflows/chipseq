@@ -76,6 +76,7 @@ rule bwa_index:
         multiext("resources/ref/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
     log:
         "logs/bwa/bwa_index.log"
+    cache: True
     params:
         algorithm="bwtsw"
     wrapper:
