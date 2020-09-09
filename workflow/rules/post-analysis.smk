@@ -100,6 +100,7 @@ rule compute_matrix:
         matrix_tab="results/deeptools/matrix_files/matrix.tab"
     log:
         "logs/deeptools/compute_matrix.log"
+    threads: 2
     params:
         command="scale-regions",
         extra="--regionBodyLength 1000 "
