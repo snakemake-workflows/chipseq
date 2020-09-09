@@ -37,7 +37,7 @@ rule collect_multiple_metrics:
     log:
         "logs/picard/{path}{sample}.log"
     params:
-        # optional parameters
+        # optional parameters, TODO: move to config.yaml and load from there
         "VALIDATION_STRINGENCY=LENIENT "
     wrapper:
         "0.64.0/bio/picard/collectmultiplemetrics"

@@ -1,3 +1,4 @@
+# TODO: reinstate the wrapper once it can handle downloading only a specific chromosome
 # rule get_genome:
 #     output:
 #         "resources/ref/genome.fasta"
