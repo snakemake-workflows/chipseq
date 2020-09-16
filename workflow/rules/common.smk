@@ -59,20 +59,9 @@ def get_fastqs(wildcards):
         u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
         return [ f"{u.fq1}", f"{u.fq2}" ]
 
-def is_control(control):
+def is_control(sample):
+    control = samples.loc[sample]["control"]
     return pd.isna(control) or pd.isnull(control)
-
-def get_sample_control_input(wildcards):
-    sample = samples.loc[wildcards.sample].loc["sample"]
-    control = samples.loc[wildcards.sample].loc["control"]
-    if not is_control(control):
-        return [f"results/orphan_rm_sorted/{sample}.bam", f"results/orphan_rm_sorted/{control}.bam"]
-
-def get_sample_control_idx(wildcards):
-    sample = samples.loc[wildcards.sample].loc["sample"]
-    control = samples.loc[wildcards.sample].loc["control"]
-    if not is_control(control):
-        return [f"results/orphan_rm_sorted/{sample}.bam.bai", f"results/orphan_rm_sorted/{control}.bam.bai"]
 
 def get_multiqc_input(wildcards):
     multiqc_input = []
@@ -101,10 +90,6 @@ def get_multiqc_input(wildcards):
             )
         )
     for sample in samples.index:
-        controls = samples.loc[sample]["control"]
-        control = []
-        if not is_control(controls):
-            control.extend(controls)
         multiqc_input.extend(
             expand (
                 [
@@ -131,12 +116,21 @@ def get_multiqc_input(wildcards):
                     "results/phantompeakqualtools/{sample}.phantompeak.spp.out",
                     "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
                     "results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
-                    "results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv",
-                    "results/deeptools/fingerprint_qcmetrics.{sample}-{control}.txt",
-                    "results/deeptools/fingerprint_counts.{sample}-{control}.txt"
+                    "results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
+
                 ],
+                sample = sample
+            )
+        )
+        if not is_control(sample):
+            multiqc_input.extend(
+                expand (
+                    [
+                        "results/deeptools/fingerprint_qcmetrics.{sample}-{control}.txt",
+                        "results/deeptools/fingerprint_counts.{sample}-{control}.txt"
+                    ],
                 sample = sample,
-                control = control
+                control = samples.loc[sample]["control"]
             )
         )
         if config["params"]["lc_extrap"]:
@@ -197,10 +191,6 @@ def all_input(wildcards):
 
     # mapping, merging and filtering bam-files
     for sample in samples.index:
-        controls = samples.loc[sample]["control"]
-        control = []
-        if not is_control(controls):
-            control.extend(controls)
         wanted_input.extend(
             expand (
                 [
@@ -208,11 +198,20 @@ def all_input(wildcards):
                     "results/deeptools/plot_profile.pdf",
                     "results/deeptools/heatmap.pdf",
                     "results/deeptools/heatmap_matrix.tab",
-                    "results/phantompeakqualtools/{sample}.phantompeak.pdf",
-                    "results/deeptools/plot_fingerprint.{sample}-{control}.pdf"
+                    "results/phantompeakqualtools/{sample}.phantompeak.pdf"
                 ],
-                sample = sample,
-                control = control
+                sample = sample
             )
         )
+        if not is_control(sample):
+            wanted_input.extend(
+                expand (
+                    [
+                        "results/deeptools/plot_fingerprint.{sample}-{control}.pdf"
+                    ],
+                sample = sample,
+                control = samples.loc[sample]["control"]
+            )
+        )
+
     return wanted_input
