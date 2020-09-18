@@ -63,6 +63,26 @@ def is_control(sample):
     control = samples.loc[sample]["control"]
     return pd.isna(control) or pd.isnull(control)
 
+def get_fastqs(wildcards):
+    """Get raw FASTQ files from unit sheet."""
+    if is_single_end(wildcards.sample, wildcards.unit):
+        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
+    else:
+        u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
+        return [ f"{u.fq1}", f"{u.fq2}" ]
+
+def get_map_reads_input(wildcards):
+    if is_single_end(wildcards.sample, wildcards.unit):
+        return "results/trimmed/{sample}-{unit}.fastq.gz"
+    return ["results/trimmed/{sample}-{unit}.1.fastq.gz", "results/trimmed/{sample}-{unit}.2.fastq.gz"]
+
+def get_read_group(wildcards):
+    """Denote sample name and platform in read group."""
+    return r"-R '@RG\tID:{sample}-{unit}\tSM:{sample}-{unit}\tPL:{platform}'".format(
+        sample=wildcards.sample,
+        unit=wildcards.unit,
+        platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
+
 def get_multiqc_input(wildcards):
     multiqc_input = []
     for (sample, unit) in units.index:
@@ -117,7 +137,6 @@ def get_multiqc_input(wildcards):
                     "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
                     "results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
                     "results/phantompeakqualtools/{sample}.spp_rsc_mqc.tsv"
-
                 ],
                 sample = sample
             )
@@ -126,8 +145,9 @@ def get_multiqc_input(wildcards):
             multiqc_input.extend(
                 expand (
                     [
-                        "results/deeptools/fingerprint_qcmetrics.{sample}-{control}.txt",
-                        "results/deeptools/fingerprint_counts.{sample}-{control}.txt"
+                        "results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt",
+                        "results/deeptools/{sample}-{control}.fingerprint_counts.txt",
+                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.xls"
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"]
@@ -136,26 +156,6 @@ def get_multiqc_input(wildcards):
         if config["params"]["lc_extrap"]:
                 multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
     return multiqc_input
-
-def get_fastqs(wildcards):
-    """Get raw FASTQ files from unit sheet."""
-    if is_single_end(wildcards.sample, wildcards.unit):
-        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
-    else:
-        u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
-        return [ f"{u.fq1}", f"{u.fq2}" ]
-
-def get_map_reads_input(wildcards):
-    if is_single_end(wildcards.sample, wildcards.unit):
-        return "results/trimmed/{sample}-{unit}.fastq.gz"
-    return ["results/trimmed/{sample}-{unit}.1.fastq.gz", "results/trimmed/{sample}-{unit}.2.fastq.gz"]
-
-def get_read_group(wildcards):
-    """Denote sample name and platform in read group."""
-    return r"-R '@RG\tID:{sample}-{unit}\tSM:{sample}-{unit}\tPL:{platform}'".format(
-        sample=wildcards.sample,
-        unit=wildcards.unit,
-        platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
 
 def all_input(wildcards):
 
@@ -207,7 +207,11 @@ def all_input(wildcards):
             wanted_input.extend(
                 expand (
                     [
-                        "results/deeptools/plot_fingerprint.{sample}-{control}.pdf"
+                        "results/deeptools/{sample}-{control}.plot_fingerprint.pdf",
+                        "results/macs2_callpeak/{sample}-{control}.callpeak_treat_pileup.bdg",
+                        "results/macs2_callpeak/{sample}-{control}.callpeak_control_lambda.bdg",
+                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.broadPeak",
+                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.gappedPeak"
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"]
