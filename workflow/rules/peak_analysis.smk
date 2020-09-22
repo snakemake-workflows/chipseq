@@ -1,3 +1,5 @@
+SAMPLE_CONTROL=get_sample_control_combinations()
+
 rule plot_fingerprint:
     input:
         bam_files=["results/orphan_rm_sorted/{sample}.bam", "results/orphan_rm_sorted/{control}.bam"],
@@ -44,3 +46,44 @@ rule macs2_callpeak_broad:
         #  then "--broad" in params can be removed here in params
     wrapper:
         "0.66.0/bio/macs2/callpeak"
+
+# rule mqc_peaks_count:
+#     input:
+#         peaks="results/macs2_callpeak/{sample}-{control}.callpeak_peaks.broadPeak", # or narrowPeak if no --broad option
+#         header="../workflow/header/peaks_count_header.txt"
+#     output:
+#         "results/macs2_callpeak/stats/{sample}-{control}.peaks_count.tsv"
+#     log:
+#         "logs/macs2_callpeak/{sample}-{control}.peaks_count.log"
+#     conda:
+#         "../envs/gawk.yaml"
+#     shell:
+#         "( cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}\", $1}}' | cat {input.header} - > {output} 2>&1 ) >{log}"
+#
+
+rule mqc_peaks_count:
+    input:
+        peaks=expand("results/macs2_callpeak/{sam_contr}.callpeak_peaks.broadPeak", sam_contr=SAMPLE_CONTROL), # or narrowPeak if no --broad option
+        header="../workflow/header/peaks_count_header.txt"
+    output:
+        "results/macs2_callpeak/stats/peaks_count.tsv"
+    log:
+        "logs/macs2_callpeak/peaks_count.log"
+    conda:
+        "../envs/gawk.yaml"
+    shell:
+        "( cat {input.header} > {output}; for i in {input.peaks}; do cat $i | wc -l | gawk -v OFS='\t' '{{print $i, $1}}' >> {output}; done 2>&1 ) >{log}"
+
+
+rule bedtools_intersect:
+    input:
+        left="results/orphan_rm_sorted/{sample}.bam",
+        right="results/macs2_callpeak/{sample}-{control}.callpeak_peaks.broadPeak"
+    output:
+        "results/intersect/{sample}-{control}.intersected.bed"
+    params:
+        extra="-bed -c -f 0.20"
+    log:
+        "logs/intersect/{sample}-{control}.intersected.log"
+    wrapper:
+        "0.66.0/bio/bedtools/intersect"

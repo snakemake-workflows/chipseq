@@ -63,6 +63,13 @@ def is_control(sample):
     control = samples.loc[sample]["control"]
     return pd.isna(control) or pd.isnull(control)
 
+def get_sample_control_combinations():
+    sam_contr = []
+    for sample in samples.index:
+        if not is_control(sample):
+            sam_contr.extend(expand(["{sample}-{control}"], sample = sample, control = samples.loc[sample]["control"]))
+    return sam_contr
+
 def get_fastqs(wildcards):
     """Get raw FASTQ files from unit sheet."""
     if is_single_end(wildcards.sample, wildcards.unit):
@@ -82,6 +89,18 @@ def get_read_group(wildcards):
         sample=wildcards.sample,
         unit=wildcards.unit,
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
+
+def get_peak_count_input(wildcards):
+    peak_input = []
+    for sample in samples.index:
+        if not is_control(sample):
+            peak_input.extend(
+                expand (
+                    ["results/macs2_callpeak/{sample}-{control}.callpeak_peaks.xls"],
+                    sample = sample,
+                    control = samples.loc[sample]["control"])
+            )
+    return peak_input
 
 def get_multiqc_input(wildcards):
     multiqc_input = []
@@ -147,7 +166,8 @@ def get_multiqc_input(wildcards):
                     [
                         "results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt",
                         "results/deeptools/{sample}-{control}.fingerprint_counts.txt",
-                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.xls"
+                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.xls",
+                        "results/macs2_callpeak/stats/peaks_count.tsv"
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"]
@@ -211,7 +231,8 @@ def all_input(wildcards):
                         "results/macs2_callpeak/{sample}-{control}.callpeak_treat_pileup.bdg",
                         "results/macs2_callpeak/{sample}-{control}.callpeak_control_lambda.bdg",
                         "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.broadPeak",
-                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.gappedPeak"
+                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.gappedPeak",
+                        "results/intersect/{sample}-{control}.intersected.bed" ### add to multiqc later
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"]
