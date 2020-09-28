@@ -78,16 +78,16 @@ rule bedGraphToBigWig:
     wrapper:
         "0.64.0/bio/ucsc/bedGraphToBigWig"
 
-rule create_igv:
+rule create_igv_bigwig:
     input:
         "resources/ref/genome.bed",
         expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
-        "results/IGV/merged_library.bigWig.igv.txt"
+        "results/IGV/big_wig/merged_library.bigWig.igv.txt"
     log:
-        "logs/igv/create_igv.log"
+        "logs/igv/create_igv_bigwig.log"
     shell:
-        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/big_wig/\"{{}}\"\t0,0,178' \;  > {output} 2> {log}"
+        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/IGV/big_wig/\"{{}}\"\t0,0,178' \;  > {output} 2> {log}"
 
 rule compute_matrix:
     input:

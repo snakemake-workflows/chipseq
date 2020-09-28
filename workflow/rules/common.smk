@@ -90,18 +90,6 @@ def get_read_group(wildcards):
         unit=wildcards.unit,
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
 
-def get_peak_count_input(wildcards):
-    peak_input = []
-    for sample in samples.index:
-        if not is_control(sample):
-            peak_input.extend(
-                expand (
-                    ["results/macs2_callpeak/{sample}-{control}.callpeak_peaks.xls"],
-                    sample = sample,
-                    control = samples.loc[sample]["control"])
-            )
-    return peak_input
-
 def get_multiqc_input(wildcards):
     multiqc_input = []
     for (sample, unit) in units.index:
@@ -166,11 +154,13 @@ def get_multiqc_input(wildcards):
                     [
                         "results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt",
                         "results/deeptools/{sample}-{control}.fingerprint_counts.txt",
-                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.xls",
-                        "results/macs2_callpeak/stats/peaks_count.tsv"
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.xls",
+                        "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv",
+                        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
                     ],
                 sample = sample,
-                control = samples.loc[sample]["control"]
+                control = samples.loc[sample]["control"],
+                peak = config["params"]["peak_analysis"]
             )
         )
         if config["params"]["lc_extrap"]:
@@ -214,7 +204,7 @@ def all_input(wildcards):
         wanted_input.extend(
             expand (
                 [
-                    "results/IGV/merged_library.bigWig.igv.txt",
+                    "results/IGV/big_wig/merged_library.bigWig.igv.txt",
                     "results/deeptools/plot_profile.pdf",
                     "results/deeptools/heatmap.pdf",
                     "results/deeptools/heatmap_matrix.tab",
@@ -225,18 +215,40 @@ def all_input(wildcards):
         )
         if not is_control(sample):
             wanted_input.extend(
-                expand (
+                expand(
                     [
                         "results/deeptools/{sample}-{control}.plot_fingerprint.pdf",
-                        "results/macs2_callpeak/{sample}-{control}.callpeak_treat_pileup.bdg",
-                        "results/macs2_callpeak/{sample}-{control}.callpeak_control_lambda.bdg",
-                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.broadPeak",
-                        "results/macs2_callpeak/{sample}-{control}.callpeak_peaks.gappedPeak",
-                        "results/intersect/{sample}-{control}.intersected.bed" ### add to multiqc later
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_treat_pileup.bdg",
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_control_lambda.bdg",
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
+                        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
                     ],
                 sample = sample,
-                control = samples.loc[sample]["control"]
+                control = samples.loc[sample]["control"],
+                peak = config["params"]["peak_analysis"]
             )
         )
+            if config["params"]["peak_analysis"] == "broad":
+                wanted_input.extend(
+                    expand(
+                        [
+                            "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.gappedPeak"
+                        ],
+                        sample = sample,
+                        control = samples.loc[sample]["control"],
+                        peak = config["params"]["peak_analysis"]
+                    )
+                )
+            if config["params"]["peak_analysis"] == "narrow":
+                wanted_input.extend(
+                    expand(
+                        [
+                            "results/macs2_callpeak/{sample}-{control}.{peak}_summits.bed"
+                        ],
+                        sample = sample,
+                        control = samples.loc[sample]["control"],
+                        peak = config["params"]["peak_analysis"]
+                    )
+                )
 
     return wanted_input

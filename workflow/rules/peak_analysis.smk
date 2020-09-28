@@ -1,5 +1,3 @@
-SAMPLE_CONTROL=get_sample_control_combinations()
-
 rule plot_fingerprint:
     input:
         bam_files=["results/orphan_rm_sorted/{sample}.bam", "results/orphan_rm_sorted/{control}.bam"],
@@ -29,7 +27,7 @@ rule macs2_callpeak_broad:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/macs2/callpeak.html.
-        multiext("results/macs2_callpeak/{sample}-{control}.callpeak",
+        multiext("results/macs2_callpeak/{sample}-{control}.broad",
                  "_peaks.xls",
                  # these output extensions internally set the --bdg or -B option:
                  "_treat_pileup.bdg",
@@ -39,51 +37,85 @@ rule macs2_callpeak_broad:
                  "_peaks.gappedPeak"
                  )
     log:
-        "logs/macs2/callpeak.{sample}-{control}.log"
-    params: # ToDo: make --broad option (and other options?) selectable in config
+        "logs/macs2/callpeak.{sample}-{control}.broad.log"
+    params: # ToDo: move to config?
         "--broad --broad-cutoff 0.1 -f BAMPE -g hs --SPMR --qvalue 0.05 --keep-dup all"
         # ToDo: Update wrapper to check for " --broad$" or " --broad " instead of only "--broad" (line 47),
         #  then "--broad" in params can be removed here in params
     wrapper:
         "0.66.0/bio/macs2/callpeak"
 
-# rule mqc_peaks_count:
-#     input:
-#         peaks="results/macs2_callpeak/{sample}-{control}.callpeak_peaks.broadPeak", # or narrowPeak if no --broad option
-#         header="../workflow/header/peaks_count_header.txt"
-#     output:
-#         "results/macs2_callpeak/stats/{sample}-{control}.peaks_count.tsv"
-#     log:
-#         "logs/macs2_callpeak/{sample}-{control}.peaks_count.log"
-#     conda:
-#         "../envs/gawk.yaml"
-#     shell:
-#         "( cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}\", $1}}' | cat {input.header} - > {output} 2>&1 ) >{log}"
-#
+rule macs2_callpeak_narrow:
+    input:
+        treatment="results/orphan_rm_sorted/{sample}.bam",
+        control="results/orphan_rm_sorted/{control}.bam"
+    output:
+        # all output-files must share the same basename and only differ by it's extension
+        # Usable extensions (and which tools they implicitly call) are listed here:
+        #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/macs2/callpeak.html.
+        multiext("results/macs2_callpeak/{sample}-{control}.narrow",
+                 "_peaks.xls",
+                 # these output extensions internally set the --bdg or -B option:
+                 "_treat_pileup.bdg",
+                 "_control_lambda.bdg",
+                 # these output extensions internally set the --broad option:
+                 "_peaks.narrowPeak",
+                 "_summits.bed"
+                 )
+    log:
+        "logs/macs2/callpeak.{sample}-{control}.narrow.log"
+    params: # ToDo: move to config?
+        "-f BAMPE -g hs --SPMR --qvalue 0.05 --keep-dup all"
+    wrapper:
+        "0.66.0/bio/macs2/callpeak"
 
 rule mqc_peaks_count:
     input:
-        peaks=expand("results/macs2_callpeak/{sam_contr}.callpeak_peaks.broadPeak", sam_contr=SAMPLE_CONTROL), # or narrowPeak if no --broad option
+        peaks="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak", # or narrowPeak if no --broad option
         header="../workflow/header/peaks_count_header.txt"
     output:
-        "results/macs2_callpeak/stats/peaks_count.tsv"
+        "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv"
     log:
-        "logs/macs2_callpeak/peaks_count.log"
+        "logs/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.log"
     conda:
         "../envs/gawk.yaml"
     shell:
-        "( cat {input.header} > {output}; for i in {input.peaks}; do cat $i | wc -l | gawk -v OFS='\t' '{{print $i, $1}}' >> {output}; done 2>&1 ) >{log}"
-
+        "cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", $1}}' | cat {input.header} - > {output} 2> {log}"
 
 rule bedtools_intersect:
     input:
         left="results/orphan_rm_sorted/{sample}.bam",
-        right="results/macs2_callpeak/{sample}-{control}.callpeak_peaks.broadPeak"
+        right="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
-        "results/intersect/{sample}-{control}.intersected.bed"
+        pipe("results/intersect/{sample}-{control}.{peak}.intersected.bed")
     params:
         extra="-bed -c -f 0.20"
     log:
-        "logs/intersect/{sample}-{control}.intersected.log"
+        "logs/intersect/{sample}-{control}.{peak}.intersected.log"
     wrapper:
         "0.66.0/bio/bedtools/intersect"
+
+rule create_mqc_frip_score:
+    input:
+        intersect="results/intersect/{sample}-{control}.{peak}.intersected.bed",
+        flagstats="results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
+        header="../workflow/header/frip_score_header.txt"
+    output:
+        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
+    log:
+        "logs/intersect/{sample}-{control}.{peak}.peaks_frip.log"
+    conda:
+        "../envs/gawk.yaml"
+    shell:
+        "grep 'mapped (' {input.flagstats} | gawk -v a=$(gawk -F '\t' '{{sum += $NF}} END {{print sum}}' < {input.intersect}) -v OFS='\t' "
+        "'{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", a/$1}}' | cat {input.header} - > {output} 2> {log}"
+
+rule create_igv_peaks:
+    input:
+        "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
+    output:
+        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
+    log:
+        "logs/igv/create_igv_peaks/merged_library.{sample}-{control}.{peak}_peaks.log"
+    shell:
+        " find {input} -type f -name '*_peaks.{wildcards.peak}Peak' -exec echo -e 'results/IGV/macs2_callpeak/{wildcards.peak}/\"{{}}\"\t0,0,178' \; > {output} 2> {log}"
