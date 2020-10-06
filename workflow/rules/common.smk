@@ -70,6 +70,14 @@ def get_sample_control_combinations():
             sam_contr.extend(expand(["{sample}-{control}"], sample = sample, control = samples.loc[sample]["control"]))
     return sam_contr
 
+def get_sample_control_peak_combinations():
+    sam_contr_peak = " "
+    for sample in samples.index:
+        if not is_control(sample):
+            sam_contr_peak += "{sample}-{control}.{peak} ".format(sample = sample,
+                                                                 control = samples.loc[sample]["control"],peak =config["params"]["peak_analysis"])
+    return sam_contr_peak
+
 def get_fastqs(wildcards):
     """Get raw FASTQ files from unit sheet."""
     if is_single_end(wildcards.sample, wildcards.unit):
@@ -155,8 +163,8 @@ def get_multiqc_input(wildcards):
                         "results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt",
                         "results/deeptools/{sample}-{control}.fingerprint_counts.txt",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.xls",
-                        "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv",
-                        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
+                        "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv", # ToDo: as snakemake report
+                        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv" # ToDo: as snakemake report
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"],
@@ -165,6 +173,9 @@ def get_multiqc_input(wildcards):
         )
         if config["params"]["lc_extrap"]:
                 multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
+    multiqc_input.extend([
+        "results/homer/plots/mqc_annotatepeaks_plot_summary.tsv"
+    ])
     return multiqc_input
 
 def all_input(wildcards):
@@ -172,7 +183,13 @@ def all_input(wildcards):
     wanted_input = []
 
     # QC with fastQC and multiQC
-    wanted_input.extend(["results/qc/multiqc/multiqc.html"])
+    wanted_input.extend([
+        "results/qc/multiqc/multiqc.html",
+        "results/macs2_callpeak/plots/macs2_plot_summary.txt",
+        "results/macs2_callpeak/plots/macs2_plot.pdf",
+        "results/homer/plots/annotatepeaks_plot.pdf",
+        "results/macs2_callpeak/plots/plot_peaks_count.pdf"
+    ])
 
     # trimming reads
     for (sample, unit) in units.index:
@@ -221,7 +238,8 @@ def all_input(wildcards):
                         "results/macs2_callpeak/{sample}-{control}.{peak}_treat_pileup.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_control_lambda.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
-                        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
+                        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
+                        "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt"
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"],
@@ -244,6 +262,7 @@ def all_input(wildcards):
                     expand(
                         [
                             "results/macs2_callpeak/{sample}-{control}.{peak}_summits.bed"
+
                         ],
                         sample = sample,
                         control = samples.loc[sample]["control"],
