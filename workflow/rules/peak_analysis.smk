@@ -85,7 +85,7 @@ rule mqc_peaks_count:  # not displayed in multiqc.html -> added to snakemake-rep
 rule sm_report_peaks_count:
     input:
         expand("results/macs2_callpeak/peaks_count/{sam_contr}.{peak}.peaks_count.tsv",
-               sam_contr=get_sample_control_combinations(), peak =config["params"]["peak_analysis"])
+               sam_contr=get_sample_control_combinations(), peak=config['params']['peak_analysis'])
     output:
         report("results/macs2_callpeak/plots/plot_peaks_count.pdf", caption="../report/plot_peaks_count_macs2.rst", category="CallPeaks")
     log:
