@@ -82,17 +82,18 @@ rule mqc_peaks_count:  # not displayed in multiqc.html -> added to snakemake-rep
     shell:
         "cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", $1}}' | cat {input.header} - > {output} 2> {log}"
 
-# rule sm_report_peaks_count_plot:
-#     input:
-#         get_peaks_count_plot_input()
-#     output:  #ToDo: add description to report caption
-#         report("results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf", caption="../report/plot_peaks_count_macs2.rst", category="CallPeaks")
-#     log:
-#         "logs/macs2_callpeak/plot_{peak}_peaks_count.log"
-#     conda:
-#         "../envs/r_plots.yaml"
-#     script:
-#         "../scripts/plot_peaks_count_macs2.R"
+rule sm_report_peaks_count_plot:
+    input:
+        expand("results/macs2_callpeak/peaks_count/{sam_contr}.{{peak}}.peaks_count.tsv",
+               sam_contr=get_sample_control_combinations())
+    output:  #ToDo: add description to report caption
+        report("results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf", caption="../report/plot_peaks_count_macs2.rst", category="CallPeaks")
+    log:
+        "logs/macs2_callpeak/plot_{peak}_peaks_count.log"
+    conda:
+        "../envs/r_plots.yaml"
+    script:
+        "../scripts/plot_peaks_count_macs2.R"
 
 rule bedtools_intersect:
     input:

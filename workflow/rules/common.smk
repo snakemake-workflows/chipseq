@@ -77,14 +77,6 @@ def get_sample_control_peak_combinations_list():
             sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak_analysis"]))
     return sam_contr
 
-def get_sample_control_peak_combinations():
-    sam_contr_peak = " "
-    for sample in samples.index:
-        if not is_control(sample):
-            sam_contr_peak += "{sample}-{control}.{peak} ".format(sample = sample,
-                                                                 control = samples.loc[sample]["control"], peak =config["params"]["peak_analysis"])
-    return sam_contr_peak
-
 def get_peaks_count_plot_input():
     plot_in = []
     plot_in.extend(expand(["results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv"],
@@ -265,7 +257,7 @@ def all_input(wildcards):
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
                         "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
                         "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt",
-                        # "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
                         # "results/intersect/plot_{peak}_peaks_frip_score.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
