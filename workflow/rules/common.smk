@@ -70,13 +70,44 @@ def get_sample_control_combinations():
             sam_contr.extend(expand(["{sample}-{control}"], sample = sample, control = samples.loc[sample]["control"]))
     return sam_contr
 
+def get_sample_control_peak_combinations_list():
+    sam_contr = []
+    for sample in samples.index:
+        if not is_control(sample):
+            sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak_analysis"]))
+    return sam_contr
+
 def get_sample_control_peak_combinations():
     sam_contr_peak = " "
     for sample in samples.index:
         if not is_control(sample):
             sam_contr_peak += "{sample}-{control}.{peak} ".format(sample = sample,
-                                                                 control = samples.loc[sample]["control"],peak =config["params"]["peak_analysis"])
+                                                                 control = samples.loc[sample]["control"], peak =config["params"]["peak_analysis"])
     return sam_contr_peak
+
+def get_peaks_count_plot_input():
+    plot_in = []
+    plot_in.extend(expand(["results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list()))
+    return plot_in
+
+def get_frip_score_input():
+    plot_in = []
+    plot_in.extend(expand(["results/intersect/{sam_contr_peak}.peaks_frip.tsv"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list()))
+    return plot_in
+
+def get_plot_macs_qc_input():
+    plot_in = []
+    plot_in.extend(expand(["results/macs2_callpeak/{sam_contr_peak}_peaks.{peak}Peak"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list(), peak =config["params"]["peak_analysis"]))
+    return plot_in
+
+def get_plot_homer_annotatepeaks_input():
+    plot_in = []
+    plot_in.extend(expand(["results/homer/annotate_peaks/{sam_contr_peak}_peaks.annotatePeaks.txt"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list()))
+    return plot_in
 
 def get_fastqs(wildcards):
     """Get raw FASTQ files from unit sheet."""
@@ -163,8 +194,9 @@ def get_multiqc_input(wildcards):
                         "results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt",
                         "results/deeptools/{sample}-{control}.fingerprint_counts.txt",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.xls",
-                        "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv", # ToDo: as snakemake report
-                        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv" # ToDo: as snakemake report
+                        "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv",
+                        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv",
+                        "results/homer/plots/mqc_{peak}_annotatepeaks.tsv"
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"],
@@ -173,9 +205,6 @@ def get_multiqc_input(wildcards):
         )
         if config["params"]["lc_extrap"]:
                 multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
-    multiqc_input.extend([
-        "results/homer/plots/mqc_annotatepeaks_plot_summary.tsv"
-    ])
     return multiqc_input
 
 def all_input(wildcards):
@@ -184,11 +213,7 @@ def all_input(wildcards):
 
     # QC with fastQC and multiQC
     wanted_input.extend([
-        "results/qc/multiqc/multiqc.html",
-        "results/macs2_callpeak/plots/macs2_plot_summary.txt",
-        "results/macs2_callpeak/plots/macs2_plot.pdf",
-        "results/homer/plots/annotatepeaks_plot.pdf",
-        "results/macs2_callpeak/plots/plot_peaks_count.pdf"
+        "results/qc/multiqc/multiqc.html"
     ])
 
     # trimming reads
@@ -239,7 +264,13 @@ def all_input(wildcards):
                         "results/macs2_callpeak/{sample}-{control}.{peak}_control_lambda.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
                         "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
-                        "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt"
+                        "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
+                        # "results/intersect/plot_{peak}_peaks_frip_score.pdf",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
+                        "results/homer/plots/plot_{peak}_annotatepeaks.pdf"#,
+                        # "results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf"
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"],
@@ -269,5 +300,4 @@ def all_input(wildcards):
                         peak = config["params"]["peak_analysis"]
                     )
                 )
-
     return wanted_input

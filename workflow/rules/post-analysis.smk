@@ -14,7 +14,7 @@ rule collect_multiple_metrics:
     input:
          bam="results/orphan_rm_sorted/{sample}.bam",
          ref="resources/ref/genome.fasta"
-    output:
+    output: #ToDo: add descriptions to report captions
         # Through the output file extensions the different tools for the metrics can be selected
         # so that it is not necessary to specify them under params with the "PROGRAM" option.
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -115,7 +115,7 @@ rule compute_matrix:
 rule plot_profile:
     input:
          "results/deeptools/matrix_files/matrix.gz"
-    output:
+    output: #ToDo: add description to report caption
         # Usable output variables, their extensions and which option they implicitly call are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotprofile.html.
         plot_img=report("results/deeptools/plot_profile.pdf", caption="../report/plot_profile_deeptools.rst", category="GenomicRegions"),
@@ -130,7 +130,7 @@ rule plot_profile:
 rule plot_heatmap:
     input:
          "results/deeptools/matrix_files/matrix.gz"
-    output:
+    output:  #ToDo: add description to report caption
         # Usable output variables, their extensions and which option they implicitly call are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotheatmap.html.
         heatmap_img=report("results/deeptools/heatmap.pdf", caption="../report/plot_heatmap_deeptools.rst", category="Heatmaps"),
@@ -145,7 +145,7 @@ rule plot_heatmap:
 rule phantompeakqualtools:
     input:
          "results/orphan_rm_sorted/{sample}.bam"
-    output:
+    output:  #ToDo: add description to report caption
         res_phantom="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
         r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
         plot=report("results/phantompeakqualtools/{sample}.phantompeak.pdf", caption="../report/plot_phantompeak_phantompeakqualtools.rst", category="Phantompeak")

@@ -3,7 +3,7 @@ rule plot_fingerprint:
         bam_files=["results/orphan_rm_sorted/{sample}.bam", "results/orphan_rm_sorted/{control}.bam"],
         bam_idx=["results/orphan_rm_sorted/{sample}.bam.bai", "results/orphan_rm_sorted/{control}.bam.bai"],
         jsd_sample="results/orphan_rm_sorted/{control}.bam"
-    output:
+    output:  #ToDo: add description to report caption
         # https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotfingerprint.html.
         fingerprint=report("results/deeptools/{sample}-{control}.plot_fingerprint.pdf", caption="../report/plot_fingerprint_deeptools.rst", category="QC"),
         counts="results/deeptools/{sample}-{control}.fingerprint_counts.txt",
@@ -82,14 +82,13 @@ rule mqc_peaks_count:  # not displayed in multiqc.html -> added to snakemake-rep
     shell:
         "cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", $1}}' | cat {input.header} - > {output} 2> {log}"
 
-rule sm_report_peaks_count:
+rule sm_report_peaks_count_plot:
     input:
-        expand("results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv",
-               sam_contr_peak=list(get_sample_control_peak_combinations().split()))
-    output:
-        report("results/macs2_callpeak/plots/plot_peaks_count.pdf", caption="../report/plot_peaks_count_macs2.rst", category="CallPeaks")
+        get_peaks_count_plot_input()
+    output:  #ToDo: add description to report caption
+        report("results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf", caption="../report/plot_peaks_count_macs2.rst", category="CallPeaks")
     log:
-        "logs/macs2_callpeak/plot_peaks_count.log"
+        "logs/macs2_callpeak/plot_{peak}_peaks_count.log"
     conda:
         "../envs/r_plots.yaml"
     script:
@@ -108,7 +107,7 @@ rule bedtools_intersect:
     wrapper:
         "0.66.0/bio/bedtools/intersect"
 
-rule create_mqc_frip_score:  # not displayed in multiqc.html -> added to snakemake-report plot_frip_score_macs2_bedtools.rst, see next rule
+rule create_mqc_frip_score_plot:  # not displayed in multiqc.html -> added to snakemake-report plot_frip_score_macs2_bedtools.rst, see next rule
     input:
         intersect="results/intersect/{sample}-{control}.{peak}.intersected.bed",
         flagstats="results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
@@ -125,12 +124,11 @@ rule create_mqc_frip_score:  # not displayed in multiqc.html -> added to snakema
 
 # rule sm_rep_frip_score:
 #     input:
-#         expand("results/intersect/{sam_contr_peak}.peaks_frip.tsv",
-#                sam_contr_peak=list(get_sample_control_peak_combinations().split()))
-#     output:
-#         report("results/intersect/plot_peaks_frip_score.pdf", caption="../report/plot_frip_score_macs2_bedtools.rst", category="CallPeaks")
+#         get_frip_score_input()
+#     output:  #ToDo: add description to report caption
+#         report("results/intersect/plot_{peak}_peaks_frip_score.pdf", caption="../report/plot_frip_score_macs2_bedtools.rst", category="CallPeaks")
 #     log:
-#         "logs/intersect/plot_peaks_frip_score.log"
+#         "logs/intersect/plot_{peak}_peaks_frip_score.log"
 #     conda:
 #         "../envs/r_plots.yaml"
 #     script:
@@ -170,54 +168,54 @@ rule homer_annotatepeaks:
 
 rule plot_macs_qc:
     input:
-        expand("results/macs2_callpeak/{sam_contr}.{peak}_peaks.{peak}Peak",
-               sam_contr=get_sample_control_combinations(), peak =config["params"]["peak_analysis"])
-    output:
-        summmary="results/macs2_callpeak/plots/macs2_plot_summary.txt",
-        plot=report("results/macs2_callpeak/plots/macs2_plot.pdf", caption="../report/plot_macs2_qc.rst", category="CallPeaks")
+        get_plot_macs_qc_input()
+    output:  #ToDo: add description to report caption
+        summmary="results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
+        plot=report("results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf", caption="../report/plot_macs2_qc.rst", category="CallPeaks")
     params:
-        get_sample_control_peak_combinations()
+        input = lambda wc, input: ','.join(input),
+        sample_control_combinations = ','.join(get_sample_control_peak_combinations_list())
     log:
-        "logs/macs2_callpeak/macs2_plot.log"
+        "logs/macs2_callpeak/plot_{peak}_peaks_macs2.log"
     conda:
         "../envs/plot_macs_annot.yaml"
     shell:
-        "Rscript ../workflow/scripts/plot_macs_qc.R -i $(echo {input} | sed 's/ /,/g') -s $(echo {params}| sed 's/ /,/g')  -o {output.plot} -p {output.summmary} 2> {log}"
+        "Rscript ../workflow/scripts/plot_macs_qc.R -i {params.input} -s {params.sample_control_combinations}  -o {output.plot} -p {output.summmary} 2> {log}"
 
 rule plot_homer_annotatepeaks:
     input:
-        expand("results/homer/annotate_peaks/{sam_contr}.{peak}_peaks.annotatePeaks.txt",
-               sam_contr=get_sample_control_combinations(), peak =config["params"]["peak_analysis"])
-    output:
-        summmary="results/homer/plots/annotatepeaks_plot_summary.txt",
-        plot=report("results/homer/plots/annotatepeaks_plot.pdf", caption="../report/plot_annotatepeaks_homer.rst", category="CallPeaks")
+        get_plot_homer_annotatepeaks_input()
+    output:  #ToDo: add description to report caption
+        summmary="results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
+        plot=report("results/homer/plots/plot_{peak}_annotatepeaks.pdf", caption="../report/plot_annotatepeaks_homer.rst", category="CallPeaks")
     params:
-        get_sample_control_peak_combinations()
+        input = lambda wc, input: ','.join(input),
+        sample_control_combinations = ','.join(get_sample_control_peak_combinations_list())
     log:
-        "logs/homer/annotatepeaks_plot.log"
+        "logs/homer/plot_{peak}_annotatepeaks.log"
     conda:
         "../envs/plot_macs_annot.yaml"
     shell:
-        "Rscript ../workflow/scripts/plot_homer_annotatepeaks.R -i $(echo {input} | sed 's/ /,/g') -s $(echo {params}| sed 's/ /,/g')  -o {output.plot} -p {output.summmary} 2> {log}"
+        "Rscript ../workflow/scripts/plot_homer_annotatepeaks.R -i {params.input} -s {params.sample_control_combinations}  -o {output.plot} -p {output.summmary} 2> {log}"
 
 rule create_mqc_plot_annotatepeaks: # not displayed in multiqc.html -> added to snakemake-report plot_annotatepeaks_summary_homer.rst, see next rule
     input:
-        summary="results/homer/plots/annotatepeaks_plot_summary.txt",
+        summary="results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
         header="../workflow/header/peak_annotation_header.txt"
     output:
-        "results/homer/plots/mqc_annotatepeaks_plot_summary.tsv"
+        "results/homer/plots/mqc_{peak}_annotatepeaks.tsv"
     log:
-        "logs/homer/mqc_annotatepeaks.log"
+        "logs/homer/mqc_{peak}_annotatepeaks.log"
     shell:
         " cat {input.header} {input.summary} > {output} 2> {log}"
 
 # rule sm_report_plot_sum_annotatepeaks:
 #     input:
-#         "results/homer/plots/mqc_annotatepeaks_plot_summary.tsv"
-#     output:
-#         report("results/homer/plots/plot_annotatepeaks_summary.pdf", caption="../report/plot_annotatepeaks_summary_homer.rst", category="CallPeaks")
+#         "results/homer/plots/mqc_{peak}_annotatepeaks_plot_summary.tsv"
+#     output:  #ToDo: add description to report caption
+#         report("results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf", caption="../report/plot_annotatepeaks_summary_homer.rst", category="CallPeaks")
 #     log:
-#         "logs/homer/plot_annotatepeaks_summary.log"
+#         "logs/homer/plot_{peak}_annotatepeaks_summary.log"
 #     conda:
 #         "../envs/r_plots.yaml"
 #     script:
