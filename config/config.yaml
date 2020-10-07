@@ -18,6 +18,8 @@ resources:
 
 params:
   lc_extrap: True
+  # choose "narrow" or "broad" for macs2 callpeak analysis
+  peak-analysis: "broad"
   # these cutadapt parameters need to contain the required flag(s) for
   # the type of adapter(s) to trim, i.e.:
   # * https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types

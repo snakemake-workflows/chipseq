@@ -84,9 +84,9 @@ rule mqc_peaks_count:  # not displayed in multiqc.html -> added to snakemake-rep
 
 rule sm_report_peaks_count_plot:
     input:
-        # get_peaks_count_plot_input()
-        expand("results/macs2_callpeak/peaks_count/{sam_contr}.{{peak}}.peaks_count.tsv",
-               sam_contr=get_sample_control_combinations())
+        get_peaks_count_plot_input()
+        # expand("results/macs2_callpeak/peaks_count/{sam_contr}.{{peak}}.peaks_count.tsv",
+        #        sam_contr=get_sample_control_combinations())
     output:  #ToDo: add description to report caption
         report("results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf", caption="../report/plot_peaks_count_macs2.rst", category="CallPeaks")
     log:
@@ -126,9 +126,9 @@ rule create_mqc_frip_score_plot:  # not displayed in multiqc.html -> added to sn
 
 # rule sm_rep_frip_score:
 #     input:
-#         #  get_frip_score_input()
-#         expand("results/intersect/{sam_contr}.{{peak}}.peaks_frip.tsv",
-#                sam_contr=get_sample_control_combinations())
+#         get_frip_score_input()
+#         # expand("results/intersect/{sam_contr}.{{peak}}.peaks_frip.tsv",
+#         #        sam_contr=get_sample_control_combinations())
 #     output:  #ToDo: add description to report caption
 #         report("results/intersect/plot_{peak}_peaks_frip_score.pdf", caption="../report/plot_frip_score_macs2_bedtools.rst", category="CallPeaks")
 #     log:
@@ -172,9 +172,9 @@ rule homer_annotatepeaks:
 
 rule plot_macs_qc:
     input:
-        # get_plot_macs_qc_input()
-        expand("results/macs2_callpeak/{sam_contr}.{{peak}}_peaks.{{peak}}Peak",
-               sam_contr=get_sample_control_combinations())
+        get_plot_macs_qc_input()
+        # expand("results/macs2_callpeak/{sam_contr}.{{peak}}_peaks.{{peak}}Peak",
+        #        sam_contr=get_sample_control_combinations())
     output:  #ToDo: add description to report caption
         summmary="results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
         plot=report("results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf", caption="../report/plot_macs2_qc.rst", category="CallPeaks")
@@ -190,9 +190,9 @@ rule plot_macs_qc:
 
 rule plot_homer_annotatepeaks:
     input:
-        # get_plot_homer_annotatepeaks_input()
-        expand("results/homer/annotate_peaks/{sam_contr}.{{peak}}_peaks.annotatePeaks.txt",
-               sam_contr=get_sample_control_combinations())
+        get_plot_homer_annotatepeaks_input()
+        # expand("results/homer/annotate_peaks/{sam_contr}.{{peak}}_peaks.annotatePeaks.txt",
+        #        sam_contr=get_sample_control_combinations())
     output:  #ToDo: add description to report caption
         summmary="results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
         plot=report("results/homer/plots/plot_{peak}_annotatepeaks.pdf", caption="../report/plot_annotatepeaks_homer.rst", category="CallPeaks")

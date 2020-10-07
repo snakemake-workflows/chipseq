@@ -21,8 +21,6 @@ units.index = units.index.set_levels(
     [i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
 
-peaks = config["params"]["peak_analysis"]
-
 report: "../report/workflow.rst"
 
 ##### wildcard constraints #####
@@ -76,32 +74,32 @@ def get_sample_control_peak_combinations_list():
     sam_contr = []
     for sample in samples.index:
         if not is_control(sample):
-            sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = peaks))
+            sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak-analysis"]))
     return sam_contr
 
-# def get_peaks_count_plot_input():
-#     plot_in = []
-#     plot_in.extend(expand(["results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv"],
-#                           sam_contr_peak = get_sample_control_peak_combinations_list()))
-#     return plot_in
-#
-# def get_frip_score_input():
-#     plot_in = []
-#     plot_in.extend(expand(["results/intersect/{sam_contr_peak}.peaks_frip.tsv"],
-#                           sam_contr_peak = get_sample_control_peak_combinations_list()))
-#     return plot_in
-#
-# def get_plot_macs_qc_input():
-#     plot_in = []
-#     plot_in.extend(expand(["results/macs2_callpeak/{sam_contr_peak}_peaks.{peak}Peak"],
-#                           sam_contr_peak = get_sample_control_peak_combinations_list(), peak =config["params"]["peak_analysis"]))
-#     return plot_in
-#
-# def get_plot_homer_annotatepeaks_input():
-#     plot_in = []
-#     plot_in.extend(expand(["results/homer/annotate_peaks/{sam_contr_peak}_peaks.annotatePeaks.txt"],
-#                           sam_contr_peak = get_sample_control_peak_combinations_list()))
-#     return plot_in
+def get_peaks_count_plot_input():
+    plot_in = []
+    plot_in.extend(expand(["results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list()))
+    return plot_in
+
+def get_frip_score_input():
+    plot_in = []
+    plot_in.extend(expand(["results/intersect/{sam_contr_peak}.peaks_frip.tsv"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list()))
+    return plot_in
+
+def get_plot_macs_qc_input():
+    plot_in = []
+    plot_in.extend(expand(["results/macs2_callpeak/{sam_contr_peak}_peaks.{peak}Peak"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list(), peak =config["params"]["peak-analysis"]))
+    return plot_in
+
+def get_plot_homer_annotatepeaks_input():
+    plot_in = []
+    plot_in.extend(expand(["results/homer/annotate_peaks/{sam_contr_peak}_peaks.annotatePeaks.txt"],
+                          sam_contr_peak = get_sample_control_peak_combinations_list()))
+    return plot_in
 
 def get_fastqs(wildcards):
     """Get raw FASTQ files from unit sheet."""
@@ -194,7 +192,7 @@ def get_multiqc_input(wildcards):
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"],
-                peak = config["params"]["peak_analysis"]
+                peak = config["params"]["peak-analysis"]
             )
         )
         if config["params"]["lc_extrap"]:
@@ -268,10 +266,10 @@ def all_input(wildcards):
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"],
-                peak = config["params"]["peak_analysis"]
+                peak = config["params"]["peak-analysis"]
             )
         )
-            if config["params"]["peak_analysis"] == "broad":
+            if config["params"]["peak-analysis"] == "broad":
                 wanted_input.extend(
                     expand(
                         [
@@ -279,10 +277,10 @@ def all_input(wildcards):
                         ],
                         sample = sample,
                         control = samples.loc[sample]["control"],
-                        peak = config["params"]["peak_analysis"]
+                        peak = config["params"]["peak-analysis"]
                     )
                 )
-            if config["params"]["peak_analysis"] == "narrow":
+            if config["params"]["peak-analysis"] == "narrow":
                 wanted_input.extend(
                     expand(
                         [
@@ -291,7 +289,7 @@ def all_input(wildcards):
                         ],
                         sample = sample,
                         control = samples.loc[sample]["control"],
-                        peak = config["params"]["peak_analysis"]
+                        peak = config["params"]["peak-analysis"]
                     )
                 )
     return wanted_input
