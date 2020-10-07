@@ -21,6 +21,8 @@ units.index = units.index.set_levels(
     [i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
 
+peaks = config["params"]["peak_analysis"]
+
 report: "../report/workflow.rst"
 
 ##### wildcard constraints #####
@@ -74,7 +76,7 @@ def get_sample_control_peak_combinations_list():
     sam_contr = []
     for sample in samples.index:
         if not is_control(sample):
-            sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak_analysis"]))
+            sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = peaks))
     return sam_contr
 
 # def get_peaks_count_plot_input():
