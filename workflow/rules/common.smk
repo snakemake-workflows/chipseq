@@ -77,29 +77,29 @@ def get_sample_control_peak_combinations_list():
             sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak_analysis"]))
     return sam_contr
 
-def get_peaks_count_plot_input():
-    plot_in = []
-    plot_in.extend(expand(["results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv"],
-                          sam_contr_peak = get_sample_control_peak_combinations_list()))
-    return plot_in
-
-def get_frip_score_input():
-    plot_in = []
-    plot_in.extend(expand(["results/intersect/{sam_contr_peak}.peaks_frip.tsv"],
-                          sam_contr_peak = get_sample_control_peak_combinations_list()))
-    return plot_in
-
-def get_plot_macs_qc_input():
-    plot_in = []
-    plot_in.extend(expand(["results/macs2_callpeak/{sam_contr_peak}_peaks.{peak}Peak"],
-                          sam_contr_peak = get_sample_control_peak_combinations_list(), peak =config["params"]["peak_analysis"]))
-    return plot_in
-
-def get_plot_homer_annotatepeaks_input():
-    plot_in = []
-    plot_in.extend(expand(["results/homer/annotate_peaks/{sam_contr_peak}_peaks.annotatePeaks.txt"],
-                          sam_contr_peak = get_sample_control_peak_combinations_list()))
-    return plot_in
+# def get_peaks_count_plot_input():
+#     plot_in = []
+#     plot_in.extend(expand(["results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv"],
+#                           sam_contr_peak = get_sample_control_peak_combinations_list()))
+#     return plot_in
+#
+# def get_frip_score_input():
+#     plot_in = []
+#     plot_in.extend(expand(["results/intersect/{sam_contr_peak}.peaks_frip.tsv"],
+#                           sam_contr_peak = get_sample_control_peak_combinations_list()))
+#     return plot_in
+#
+# def get_plot_macs_qc_input():
+#     plot_in = []
+#     plot_in.extend(expand(["results/macs2_callpeak/{sam_contr_peak}_peaks.{peak}Peak"],
+#                           sam_contr_peak = get_sample_control_peak_combinations_list(), peak =config["params"]["peak_analysis"]))
+#     return plot_in
+#
+# def get_plot_homer_annotatepeaks_input():
+#     plot_in = []
+#     plot_in.extend(expand(["results/homer/annotate_peaks/{sam_contr_peak}_peaks.annotatePeaks.txt"],
+#                           sam_contr_peak = get_sample_control_peak_combinations_list()))
+#     return plot_in
 
 def get_fastqs(wildcards):
     """Get raw FASTQ files from unit sheet."""
