@@ -258,7 +258,7 @@ def all_input(wildcards):
                         "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
                         "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
-                        # "results/intersect/plot_{peak}_peaks_frip_score.pdf",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
                         "results/homer/plots/plot_{peak}_annotatepeaks.pdf"#,
