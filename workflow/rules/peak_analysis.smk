@@ -80,7 +80,7 @@ rule mqc_peaks_count:  # not displayed in multiqc.html -> added to snakemake-rep
     conda:
         "../envs/gawk.yaml"
     shell:
-        "cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", $1}}' | cat {input.header} - > {output} 2> {log}"
+        "cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", $1}}' > {output} 2> {log}"
 
 rule sm_report_peaks_count_plot:
     input:
@@ -120,7 +120,7 @@ rule create_mqc_frip_score_plot:  # not displayed in multiqc.html -> added to sn
         "../envs/gawk.yaml"
     shell:
         "grep 'mapped (' {input.flagstats} | gawk -v a=$(gawk -F '\t' '{{sum += $NF}} END {{print sum}}' < {input.intersect}) -v OFS='\t' "
-        "'{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", a/$1}}' | cat {input.header} - > {output} 2> {log}"
+        "'{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", a/$1}}' > {output} 2> {log}"
 
 rule sm_rep_frip_score:
     input:
@@ -198,20 +198,9 @@ rule plot_homer_annotatepeaks:
     shell:
         "Rscript ../workflow/scripts/plot_homer_annotatepeaks.R -i {params.input} -s {params.sample_control_combinations}  -o {output.plot} -p {output.summmary} 2> {log}"
 
-rule create_mqc_plot_annotatepeaks: # not displayed in multiqc.html -> added to snakemake-report plot_annotatepeaks_summary_homer.rst, see next rule
+rule plot_sum_annotatepeaks:
     input:
-        summary="results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
-        header="../workflow/header/peak_annotation_header.txt"
-    output:
-        "results/homer/plots/mqc_{peak}_annotatepeaks.tsv"
-    log:
-        "logs/homer/mqc_{peak}_annotatepeaks.log"
-    shell:
-        " cat {input.header} {input.summary} > {output} 2> {log}"
-
-rule sm_report_plot_sum_annotatepeaks:
-    input:
-        "results/homer/plots/mqc_{peak}_annotatepeaks.tsv"
+        "results/homer/plots/plot_{peak}_annotatepeaks_summary.txt"
     output:  #ToDo: add description to report caption
         report("results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf", caption="../report/plot_annotatepeaks_summary_homer.rst", category="CallPeaks")
     log:

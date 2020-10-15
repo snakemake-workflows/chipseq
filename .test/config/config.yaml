@@ -18,7 +18,7 @@ resources:
 
 params:
   lc_extrap: True
-  # choose "narrow" or "broad" for macs2 callpeak analysis
+  # choose "narrow" or "broad" for macs2 callpeak analysis, for documentation and source code please see https://github.com/macs3-project/MACS
   peak-analysis: "broad"
   # TODO: move adapter parameters into a `adapter` column in units.tsv and check for its presence via the units.schema.yaml -- this enables unit-specific adapters, e.g. when integrating multiple datasets
   # these cutadapt parameters need to contain the required flag(s) for

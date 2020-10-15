@@ -5,14 +5,13 @@ sink(log, type="message")
 library("tidyverse")
 
 data <- lapply(snakemake@input, read.table, header=F, stringsAsFactors = F)
-data2 <- tibble()
-names(data2) <- c("sample_control", "count")
+counts <- tibble()
 for (i in 1:length(data)) {
-  data2 <- rbind(data2, data[[i]])
+  counts <- rbind(counts, data[[i]])
 }
-names(data2) <- c("sample_control", "count")
+names(counts) <- c("sample_control", "count")
 
-peaks_counts <- ggplot(data2, aes(x = count, y = sample_control, fill=sample_control)) +
+peaks_counts <- ggplot(counts, aes(x = count, y = sample_control, fill=sample_control)) +
   geom_bar(stat="Identity", color="black") +
   theme_minimal() +
   labs(x="Peak count", y="") +
