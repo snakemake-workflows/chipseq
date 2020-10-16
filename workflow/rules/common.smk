@@ -176,9 +176,7 @@ def get_multiqc_input(wildcards):
                     [
                         "results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt",
                         "results/deeptools/{sample}-{control}.fingerprint_counts.txt",
-                        "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.xls",
-                        "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv",
-                        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.xls"
                     ],
                 sample = sample,
                 control = samples.loc[sample]["control"],
@@ -246,11 +244,9 @@ def all_input(wildcards):
                         "results/macs2_callpeak/{sample}-{control}.{peak}_control_lambda.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
                         "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
-                        "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
-                        "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
                         "results/homer/plots/plot_{peak}_annotatepeaks.pdf",
                         "results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf"
                     ],

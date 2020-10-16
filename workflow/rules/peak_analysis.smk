@@ -69,10 +69,9 @@ rule macs2_callpeak_narrow:
     wrapper:
         "0.66.0/bio/macs2/callpeak"
 
-rule mqc_peaks_count:  # not displayed in multiqc.html -> added to snakemake-report plot_peaks_count_macs2.rst, see next rule
+rule peaks_count:
     input:
-        peaks="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
-        header="../workflow/header/peaks_count_header.txt"
+        peaks="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
         "results/macs2_callpeak/peaks_count/{sample}-{control}.{peak}.peaks_count.tsv"
     log:
@@ -107,11 +106,10 @@ rule bedtools_intersect:
     wrapper:
         "0.66.0/bio/bedtools/intersect"
 
-rule create_mqc_frip_score_plot:  # not displayed in multiqc.html -> added to snakemake-report plot_frip_score_macs2_bedtools.rst, see next rule
+rule frip_score:
     input:
         intersect="results/intersect/{sample}-{control}.{peak}.intersected.bed",
-        flagstats="results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
-        header="../workflow/header/frip_score_header.txt"
+        flagstats="results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat"
     output:
         "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
     log:
@@ -201,7 +199,7 @@ rule plot_homer_annotatepeaks:
 rule plot_sum_annotatepeaks:
     input:
         "results/homer/plots/plot_{peak}_annotatepeaks_summary.txt"
-    output:  #ToDo: add description to report caption
+    output:
         report("results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf", caption="../report/plot_annotatepeaks_summary_homer.rst", category="CallPeaks")
     log:
         "logs/homer/plot_{peak}_annotatepeaks_summary.log"
