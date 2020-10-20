@@ -63,13 +63,6 @@ def is_control(sample):
     control = samples.loc[sample]["control"]
     return pd.isna(control) or pd.isnull(control)
 
-# def get_sample_control_combinations():
-#     sam_contr = []
-#     for sample in samples.index:
-#         if not is_control(sample):
-#             sam_contr.extend(expand(["{sample}-{control}"], sample = sample, control = samples.loc[sample]["control"]))
-#     return sam_contr
-
 def get_sample_control_peak_combinations_list():
     sam_contr = []
     for sample in samples.index:
