@@ -79,7 +79,10 @@ rule peaks_count:
     conda:
         "../envs/gawk.yaml"
     shell:
-        "cat {input.peaks} | wc -l | gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", $1}}' > {output} 2> {log}"
+        "cat {input.peaks} | "
+        " wc -l | "
+        " gawk -v OFS='\t' '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", $1}}' "
+        " > {output} 2> {log}"
 
 rule sm_report_peaks_count_plot:
     input:
@@ -117,8 +120,11 @@ rule frip_score:
     conda:
         "../envs/gawk.yaml"
     shell:
-        "grep 'mapped (' {input.flagstats} | gawk -v a=$(gawk -F '\t' '{{sum += $NF}} END {{print sum}}' < {input.intersect}) -v OFS='\t' "
-        "'{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", a/$1}}' > {output} 2> {log}"
+        "grep 'mapped (' {input.flagstats} | "
+        " gawk -v a=$(gawk -F '\t' '{{sum += $NF}} END {{print sum}}' < {input.intersect}) "
+        " -v OFS='\t' "
+        " '{{print \"{wildcards.sample}-{wildcards.control}_{wildcards.peak}_peaks\", a/$1}}' "
+        " > {output} 2> {log}"
 
 rule sm_rep_frip_score:
     input:

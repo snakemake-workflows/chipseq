@@ -11,7 +11,8 @@ peaks_sum <- ggplot(homer_data, aes(x = counts, y = sample, fill = sequence_elem
   geom_bar(position="fill", stat="Identity") +
   theme_minimal() +
   labs(x="", y="Peak count") +
-  theme(legend.position = "none") +
+  theme(legend.position = "right") +
+  guides(fill=guide_legend("sequence element")) +
   ggtitle("Peak to feature proportion")
 
 ggsave(snakemake@output[[1]], peaks_sum)

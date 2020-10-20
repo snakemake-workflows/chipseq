@@ -15,7 +15,8 @@ frip <- ggplot(frip_scores, aes(x = sample_control, y = frip, fill = sample_cont
   geom_bar(stat="Identity", color="black") +
   theme_minimal() +
   labs(x="", y="FRiP score") +
-  theme(legend.position = "none") +
+  theme(legend.position = "right") +
+  guides(fill=guide_legend("samples with controls")) +
   ggtitle("FRiP score")
 
 ggsave(snakemake@output[[1]], frip)
