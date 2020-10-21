@@ -266,7 +266,6 @@ def all_input(wildcards):
                     expand(
                         [
                             "results/macs2_callpeak/{sample}-{control}.{peak}_summits.bed"
-
                         ],
                         sample = sample,
                         control = samples.loc[sample]["control"],
