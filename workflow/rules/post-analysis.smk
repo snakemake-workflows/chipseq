@@ -14,7 +14,7 @@ rule collect_multiple_metrics:
     input:
          bam="results/orphan_rm_sorted/{sample}.bam",
          ref="resources/ref/genome.fasta"
-    output:
+    output: #ToDo: add descriptions to report captions
         # Through the output file extensions the different tools for the metrics can be selected
         # so that it is not necessary to specify them under params with the "PROGRAM" option.
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -22,14 +22,14 @@ rule collect_multiple_metrics:
         multiext("{path}{sample}",
                  ".alignment_summary_metrics",
                  ".base_distribution_by_cycle_metrics",
-                 ".base_distribution_by_cycle.pdf",
                  ".insert_size_metrics",
-                 ".insert_size_histogram.pdf",
                  ".quality_by_cycle_metrics",
-                 ".quality_by_cycle.pdf",
                  ".quality_distribution_metrics",
-                 ".quality_distribution.pdf"
-                 )
+                 ),
+        report("{path}{sample}.base_distribution_by_cycle.pdf", caption="../report/plot_base_distribution_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
+        report("{path}{sample}.insert_size_histogram.pdf", caption="../report/plot_insert_size_histogram_picard_mm.rst", category="MulitpleMetrics"),
+        report("{path}{sample}.quality_by_cycle.pdf", caption="../report/plot_quality_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
+        report("{path}{sample}.quality_distribution.pdf", caption="../report/plot_quality_distribution_picard_mm.rst", category="MulitpleMetrics")
     resources:
         # This parameter (default 3 GB) can be used to limit the total resources a pipeline is allowed to use, see:
         #     https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources
@@ -78,16 +78,16 @@ rule bedGraphToBigWig:
     wrapper:
         "0.64.0/bio/ucsc/bedGraphToBigWig"
 
-rule create_igv:
+rule create_igv_bigwig:
     input:
         "resources/ref/genome.bed",
         expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
-        "results/IGV/merged_library.bigWig.igv.txt"
+        "results/IGV/big_wig/merged_library.bigWig.igv.txt"
     log:
-        "logs/igv/create_igv.log"
+        "logs/igv/create_igv_bigwig.log"
     shell:
-        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/big_wig/\"{{}}\"\t0,0,178' \;  > {output} 2> {log}"
+        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/IGV/big_wig/\"{{}}\"\t0,0,178' \;  > {output} 2> {log}"
 
 rule compute_matrix:
     input:
@@ -115,10 +115,10 @@ rule compute_matrix:
 rule plot_profile:
     input:
          "results/deeptools/matrix_files/matrix.gz"
-    output:
+    output: #ToDo: add description to report caption
         # Usable output variables, their extensions and which option they implicitly call are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotprofile.html.
-        plot_img="results/deeptools/plot_profile.pdf",
+        plot_img=report("results/deeptools/plot_profile.pdf", caption="../report/plot_profile_deeptools.rst", category="GenomicRegions"),
         data="results/deeptools/plot_profile_data.tab"
     log:
         "logs/deeptools/plot_profile.log"
@@ -130,10 +130,10 @@ rule plot_profile:
 rule plot_heatmap:
     input:
          "results/deeptools/matrix_files/matrix.gz"
-    output:
+    output:  #ToDo: add description to report caption
         # Usable output variables, their extensions and which option they implicitly call are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotheatmap.html.
-        heatmap_img="results/deeptools/heatmap.pdf",
+        heatmap_img=report("results/deeptools/heatmap.pdf", caption="../report/plot_heatmap_deeptools.rst", category="Heatmaps"),
         heatmap_matrix="results/deeptools/heatmap_matrix.tab"
     log:
         "logs/deeptools/heatmap.log"
@@ -145,10 +145,10 @@ rule plot_heatmap:
 rule phantompeakqualtools:
     input:
          "results/orphan_rm_sorted/{sample}.bam"
-    output:
+    output:  #ToDo: add description to report caption
         res_phantom="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
         r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
-        plot="results/phantompeakqualtools/{sample}.phantompeak.pdf"
+        plot=report("results/phantompeakqualtools/{sample}.phantompeak.pdf", caption="../report/plot_phantompeak_phantompeakqualtools.rst", category="Phantompeak")
     threads:
         8
     log:

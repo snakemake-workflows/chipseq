@@ -51,6 +51,60 @@ def get_individual_fastq(wildcards):
     elif wildcards.read == "2":
         return units.loc[ (wildcards.sample, wildcards.unit), "fq2" ]
 
+def get_fastqs(wildcards):
+    """Get raw FASTQ files from unit sheet."""
+    if is_single_end(wildcards.sample, wildcards.unit):
+        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
+    else:
+        u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
+        return [ f"{u.fq1}", f"{u.fq2}" ]
+
+def is_control(sample):
+    control = samples.loc[sample]["control"]
+    return pd.isna(control) or pd.isnull(control)
+
+def get_sample_control_peak_combinations_list():
+    sam_contr = []
+    for sample in samples.index:
+        if not is_control(sample):
+            sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak-analysis"]))
+    return sam_contr
+
+def get_peaks_count_plot_input():
+    return expand(
+        "results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv",
+        sam_contr_peak = get_sample_control_peak_combinations_list()
+    )
+
+def get_frip_score_input():
+    return expand(
+        "results/intersect/{sam_contr_peak}.peaks_frip.tsv",
+        sam_contr_peak = get_sample_control_peak_combinations_list()
+    )
+
+def get_plot_macs_qc_input():
+    return expand(
+        "results/macs2_callpeak/{sam_contr_peak}_peaks.{peak}Peak",
+        sam_contr_peak = get_sample_control_peak_combinations_list(), peak =config["params"]["peak-analysis"]
+    )
+
+def get_plot_homer_annotatepeaks_input():
+    return expand("results/homer/annotate_peaks/{sam_contr_peak}_peaks.annotatePeaks.txt",
+        sam_contr_peak = get_sample_control_peak_combinations_list()
+    )
+
+def get_map_reads_input(wildcards):
+    if is_single_end(wildcards.sample, wildcards.unit):
+        return "results/trimmed/{sample}-{unit}.fastq.gz"
+    return ["results/trimmed/{sample}-{unit}.1.fastq.gz", "results/trimmed/{sample}-{unit}.2.fastq.gz"]
+
+def get_read_group(wildcards):
+    """Denote sample name and platform in read group."""
+    return r"-R '@RG\tID:{sample}-{unit}\tSM:{sample}-{unit}\tPL:{platform}'".format(
+        sample=wildcards.sample,
+        unit=wildcards.unit,
+        platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
+
 def get_multiqc_input(wildcards):
     multiqc_input = []
     for (sample, unit) in units.index:
@@ -109,36 +163,31 @@ def get_multiqc_input(wildcards):
                 sample = sample
             )
         )
+        if not is_control(sample):
+            multiqc_input.extend(
+                expand (
+                    [
+                        "results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt",
+                        "results/deeptools/{sample}-{control}.fingerprint_counts.txt",
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.xls"
+                    ],
+                sample = sample,
+                control = samples.loc[sample]["control"],
+                peak = config["params"]["peak-analysis"]
+            )
+        )
         if config["params"]["lc_extrap"]:
                 multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
     return multiqc_input
-
-def get_fastqs(wildcards):
-    """Get raw FASTQ files from unit sheet."""
-    if is_single_end(wildcards.sample, wildcards.unit):
-        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
-    else:
-        u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
-        return [ f"{u.fq1}", f"{u.fq2}" ]
-
-def get_map_reads_input(wildcards):
-    if is_single_end(wildcards.sample, wildcards.unit):
-        return "results/trimmed/{sample}-{unit}.fastq.gz"
-    return ["results/trimmed/{sample}-{unit}.1.fastq.gz", "results/trimmed/{sample}-{unit}.2.fastq.gz"]
-
-def get_read_group(wildcards):
-    """Denote sample name and platform in read group."""
-    return r"-R '@RG\tID:{sample}-{unit}\tSM:{sample}-{unit}\tPL:{platform}'".format(
-        sample=wildcards.sample,
-        unit=wildcards.unit,
-        platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
 
 def all_input(wildcards):
 
     wanted_input = []
 
     # QC with fastQC and multiQC
-    wanted_input.extend(["results/qc/multiqc/multiqc.html"])
+    wanted_input.extend([
+        "results/qc/multiqc/multiqc.html"
+    ])
 
     # trimming reads
     for (sample, unit) in units.index:
@@ -170,7 +219,7 @@ def all_input(wildcards):
         wanted_input.extend(
             expand (
                 [
-                    "results/IGV/merged_library.bigWig.igv.txt",
+                    "results/IGV/big_wig/merged_library.bigWig.igv.txt",
                     "results/deeptools/plot_profile.pdf",
                     "results/deeptools/heatmap.pdf",
                     "results/deeptools/heatmap_matrix.tab",
@@ -179,5 +228,47 @@ def all_input(wildcards):
                 sample = sample
             )
         )
+        if not is_control(sample):
+            wanted_input.extend(
+                expand(
+                    [
+                        "results/deeptools/{sample}-{control}.plot_fingerprint.pdf",
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_treat_pileup.bdg",
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_control_lambda.bdg",
+                        "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
+                        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
+                        "results/homer/plots/plot_{peak}_annotatepeaks.pdf",
+                        "results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf"
+                    ],
+                    sample = sample,
+                    control = samples.loc[sample]["control"],
+                    peak = config["params"]["peak-analysis"]
+                )
+            )
+            if config["params"]["peak-analysis"] == "broad":
+                wanted_input.extend(
+                    expand(
+                        [
+                            "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.gappedPeak"
+                        ],
+                        sample = sample,
+                        control = samples.loc[sample]["control"],
+                        peak = config["params"]["peak-analysis"]
+                    )
+                )
+            if config["params"]["peak-analysis"] == "narrow":
+                wanted_input.extend(
+                    expand(
+                        [
+                            "results/macs2_callpeak/{sample}-{control}.{peak}_summits.bed"
 
+                        ],
+                        sample = sample,
+                        control = samples.loc[sample]["control"],
+                        peak = config["params"]["peak-analysis"]
+                    )
+                )
     return wanted_input

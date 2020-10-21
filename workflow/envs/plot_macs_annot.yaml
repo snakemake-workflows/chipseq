@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base =3.5
+  - r-optparse =1.6
+  - r-ggplot2 =3.1
+  - r-reshape2 =1.4
