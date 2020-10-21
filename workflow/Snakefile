@@ -11,6 +11,7 @@ include: "rules/stats.smk"
 include: "rules/utils.smk"
 include: "rules/post-analysis.smk"
 include: "rules/peak_analysis.smk"
+include: "rules/consensus_peak_analysis.smk"
 
 rule all:
     input: all_input

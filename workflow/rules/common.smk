@@ -63,13 +63,6 @@ def is_control(sample):
     control = samples.loc[sample]["control"]
     return pd.isna(control) or pd.isnull(control)
 
-# def get_sample_control_combinations():
-#     sam_contr = []
-#     for sample in samples.index:
-#         if not is_control(sample):
-#             sam_contr.extend(expand(["{sample}-{control}"], sample = sample, control = samples.loc[sample]["control"]))
-#     return sam_contr
-
 def get_sample_control_peak_combinations_list():
     sam_contr = []
     for sample in samples.index:
@@ -248,11 +241,13 @@ def all_input(wildcards):
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
                         "results/homer/plots/plot_{peak}_annotatepeaks.pdf",
-                        "results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf"
+                        "results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf",
+                        "results/bedtools/merged/{antibody}.consensus_{peak}-peaks.txt"
                     ],
                     sample = sample,
                     control = samples.loc[sample]["control"],
-                    peak = config["params"]["peak-analysis"]
+                    peak = config["params"]["peak-analysis"],
+                    antibody = samples.loc[sample]["antibody"]
                 )
             )
             if config["params"]["peak-analysis"] == "broad":
