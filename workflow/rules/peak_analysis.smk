@@ -101,22 +101,22 @@ rule bedtools_intersect:
         left="results/orphan_rm_sorted/{sample}.bam",
         right="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
-        pipe("results/intersect/{sample}-{control}.{peak}.intersected.bed")
+        pipe("results/bedtools/intersect/{sample}-{control}.{peak}.intersected.bed")
     params:
         extra="-bed -c -f 0.20"
     log:
-        "logs/intersect/{sample}-{control}.{peak}.intersected.log"
+        "logs/bedtools/intersect/{sample}-{control}.{peak}.intersected.log"
     wrapper:
         "0.66.0/bio/bedtools/intersect"
 
 rule frip_score:
     input:
-        intersect="results/intersect/{sample}-{control}.{peak}.intersected.bed",
+        intersect="results/bedtools/intersect/{sample}-{control}.{peak}.intersected.bed",
         flagstats="results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat"
     output:
-        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
+        "results/bedtools/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
     log:
-        "logs/intersect/{sample}-{control}.{peak}.peaks_frip.log"
+        "logs/bedtools/intersect/{sample}-{control}.{peak}.peaks_frip.log"
     conda:
         "../envs/gawk.yaml"
     shell:
@@ -132,7 +132,7 @@ rule sm_rep_frip_score:
     output:
         report("results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf", caption="../report/plot_frip_score_macs2_bedtools.rst", category="CallPeaks")
     log:
-        "logs/intersect/plot_{peak}_peaks_frip_score.log"
+        "logs/bedtools/intersect/plot_{peak}_peaks_frip_score.log"
     conda:
         "../envs/r_plots.yaml"
     script:
@@ -152,7 +152,7 @@ rule homer_annotatepeaks:
     input:
         peaks="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
         genome="resources/ref/genome.fasta",
-        gtf="resources/ref/annotation.gtf",
+        gtf="resources/ref/annotation.gtf"
     output:
         annotations="results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt"
     threads:

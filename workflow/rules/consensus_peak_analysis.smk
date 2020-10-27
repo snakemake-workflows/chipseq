@@ -23,3 +23,18 @@ rule bedtools_merge_narrow:
         "logs/bedtools/merged/{antibody}.consensus_peaks.log"
     wrapper:
         "0.66.0/bio/bedtools/merge"
+
+rule macs2_merged_expand:
+    input:
+        "results/bedtools/merged/{antibody}.consensus_{peak}-peaks.txt"
+    output:
+        bool_txt="results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.txt",
+        bool_intersect="results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.intersect.txt"
+    params:
+        sample_control_peak=get_sample_control_peak_combinations_list(),
+        narrow_param=get_narrow_flag(),
+        min_reps_consensus=config["params"]["min-reps-consensus"]
+    log:
+        "logs/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.log"
+    script:
+        "../scripts/macs2_merged_expand.py"

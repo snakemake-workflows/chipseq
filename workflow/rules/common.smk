@@ -20,7 +20,7 @@ units.index.names = ["sample_id", "unit_id"]
 units.index = units.index.set_levels(
     [i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
-
+print(samples.index)
 report: "../report/workflow.rst"
 
 ##### wildcard constraints #####
@@ -70,6 +70,12 @@ def get_sample_control_peak_combinations_list():
             sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak-analysis"]))
     return sam_contr
 
+# def get_samples_of_antibody(antibody):
+#     samples_list = []
+#     for sample in samples.index:
+#         if samples.loc[sample]["antibody"] == antibody:
+#             samples_list.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak-analysis"]))
+
 def get_peaks_count_plot_input():
     return expand(
         "results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv",
@@ -78,7 +84,7 @@ def get_peaks_count_plot_input():
 
 def get_frip_score_input():
     return expand(
-        "results/intersect/{sam_contr_peak}.peaks_frip.tsv",
+        "results/bedtools/intersect/{sam_contr_peak}.peaks_frip.tsv",
         sam_contr_peak = get_sample_control_peak_combinations_list()
     )
 
@@ -92,6 +98,25 @@ def get_plot_homer_annotatepeaks_input():
     return expand("results/homer/annotate_peaks/{sam_contr_peak}_peaks.annotatePeaks.txt",
         sam_contr_peak = get_sample_control_peak_combinations_list()
     )
+
+def get_narrow_flag():
+    if config["params"]["peak-analysis"] == "narrow":
+        return "--is_narrow_peak"
+    return ""
+
+def exists_multiple_groups():
+    groups = set()
+    for sample in samples.index:
+            groups.add(samples.loc[sample]["group"])
+    return len(groups) > 1
+
+def exists_replicates():
+    for sample_i in samples.index:
+        for sample_j in samples.index:
+            if not sample_i == sample_j:
+                if samples.loc[sample_i]["group"] == samples.loc[sample_j]["group"]:
+                    return True
+    return False
 
 def get_map_reads_input(wildcards):
     if is_single_end(wildcards.sample, wildcards.unit):
@@ -181,6 +206,12 @@ def get_multiqc_input(wildcards):
     return multiqc_input
 
 def all_input(wildcards):
+    do_annot = config["params"]["activate-peak-annotation-analysis"]
+    do_peak_qc = config["params"]["activate-peak-qc"]
+    do_consensus_peak = config["params"]["activate-consensus-peak-analysis"]
+    macs_gsize = config["resources"]["ref"]["macs-gsize"]
+    multiple_groups = exists_multiple_groups()
+    replicates_exists = exists_replicates()
 
     wanted_input = []
 
@@ -229,6 +260,40 @@ def all_input(wildcards):
             )
         )
         if not is_control(sample):
+            if macs_gsize and do_annot:
+                wanted_input.extend(
+                    expand(
+                        [
+                            "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt"
+                        ],
+                        sample = sample,
+                        control = samples.loc[sample]["control"],
+                        peak = config["params"]["peak-analysis"]
+                    )
+                )
+                if do_peak_qc:
+                    wanted_input.extend(
+                        expand(
+                            [
+                                "results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
+                                "results/homer/plots/plot_{peak}_annotatepeaks.pdf"
+                            ],
+                            peak = config["params"]["peak-analysis"]
+                        )
+                    )
+            if macs_gsize and do_consensus_peak:
+                if multiple_groups or replicates_exists:
+                    wanted_input.extend(
+                        expand(
+                            [
+                                "results/bedtools/merged/{antibody}.consensus_{peak}-peaks.txt",
+                                "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.txt",
+                                "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.intersect.txt"
+                            ],
+                            peak = config["params"]["peak-analysis"],
+                            antibody = samples.loc[sample]["antibody"]
+                        )
+                    )
             wanted_input.extend(
                 expand(
                     [
@@ -239,10 +304,7 @@ def all_input(wildcards):
                         "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
-                        "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
-                        "results/homer/plots/plot_{peak}_annotatepeaks.pdf",
-                        "results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf",
-                        "results/bedtools/merged/{antibody}.consensus_{peak}-peaks.txt"
+                        "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf"
                     ],
                     sample = sample,
                     control = samples.loc[sample]["control"],

@@ -1,35 +1,17 @@
-# TODO: reinstate the wrapper once it can handle downloading only a specific chromosome
-# rule get_genome:
-#     output:
-#         "resources/ref/genome.fasta"
-#     log:
-#         "logs/ref/get-genome.log"
-#     params:
-#         species=config["resources"]["ref"]["species"],
-#         datatype="dna",
-#         build=config["resources"]["ref"]["build"],
-#         release=config["resources"]["ref"]["release"]
-#     cache: True
-#     wrapper:
-#         "0.64.0/bio/reference/ensembl-sequence"
-
-rule get_genome_test_data:
+rule get_genome:
     output:
         "resources/ref/genome.fasta"
     log:
         "logs/ref/get-genome.log"
     params:
         species=config["resources"]["ref"]["species"],
-        spec_up=config["resources"]["ref"]["species"].capitalize(),
         datatype="dna",
         build=config["resources"]["ref"]["build"],
-        suffix="chromosome.21",
-        release=config["resources"]["ref"]["release"]
+        release=config["resources"]["ref"]["release"],
+        chromosome=config["resources"]["ref"]["chromosome"]
     cache: True
-    conda:
-        "../envs/curl.yaml"
-    shell:
-        "curl -L ftp://ftp.ensembl.org/pub/release-{params.release}/fasta/{params.species}/{params.datatype}/{params.spec_up}.{params.build}.{params.datatype}.{params.suffix}.fa.gz |gzip -d > {output} 2> {log}"
+    wrapper:
+        "0.67.0/bio/reference/ensembl-sequence"
 
 rule get_annotation:
     output:
