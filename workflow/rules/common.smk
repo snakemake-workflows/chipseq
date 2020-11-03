@@ -1,5 +1,6 @@
 from snakemake.utils import validate
 import pandas as pd
+import yaml
 
 # this container defines the underlying OS for each job when using the workflow
 # with --use-conda --use-singularity
@@ -20,8 +21,11 @@ units.index.names = ["sample_id", "unit_id"]
 units.index = units.index.set_levels(
     [i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
-print(samples.index)
+
 report: "../report/workflow.rst"
+
+with open('config/igenomes.yaml') as f:
+    igenomes = yaml.load(f, Loader=yaml.FullLoader)
 
 ##### wildcard constraints #####
 
@@ -70,12 +74,6 @@ def get_sample_control_peak_combinations_list():
             sam_contr.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak-analysis"]))
     return sam_contr
 
-# def get_samples_of_antibody(antibody):
-#     samples_list = []
-#     for sample in samples.index:
-#         if samples.loc[sample]["antibody"] == antibody:
-#             samples_list.extend(expand(["{sample}-{control}.{peak}"], sample = sample, control = samples.loc[sample]["control"], peak = config["params"]["peak-analysis"]))
-
 def get_peaks_count_plot_input():
     return expand(
         "results/macs2_callpeak/peaks_count/{sam_contr_peak}.peaks_count.tsv",
@@ -104,19 +102,21 @@ def get_narrow_flag():
         return "--is_narrow_peak"
     return ""
 
-def exists_multiple_groups():
-    groups = set()
+def samples_without_controls():
+    sam = []
     for sample in samples.index:
-            groups.add(samples.loc[sample]["group"])
-    return len(groups) > 1
+        if not is_control(sample):
+            sam.append(sample)
+    return sam
 
-def exists_replicates():
-    for sample_i in samples.index:
-        for sample_j in samples.index:
-            if not sample_i == sample_j:
-                if samples.loc[sample_i]["group"] == samples.loc[sample_j]["group"]:
-                    return True
-    return False
+def get_gsize():
+    return igenomes["genomes"][config["resources"]["ref"]["build"]]["macs-gsize"]
+
+def exists_multiple_groups(wildcards):
+    return len(samples[samples["antibody"] == wildcards]["group"].unique()) > 1
+
+def exists_replicates(wildcards):
+    return len(samples[samples["antibody"] == wildcards]["sample"].unique()) > 1
 
 def get_map_reads_input(wildcards):
     if is_single_end(wildcards.sample, wildcards.unit):
@@ -201,17 +201,15 @@ def get_multiqc_input(wildcards):
                 peak = config["params"]["peak-analysis"]
             )
         )
-        if config["params"]["lc_extrap"]:
+        if config["params"]["lc_extrap"]["activate"]:
                 multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
     return multiqc_input
 
 def all_input(wildcards):
-    do_annot = config["params"]["activate-peak-annotation-analysis"]
-    do_peak_qc = config["params"]["activate-peak-qc"]
-    do_consensus_peak = config["params"]["activate-consensus-peak-analysis"]
-    macs_gsize = config["resources"]["ref"]["macs-gsize"]
-    multiple_groups = exists_multiple_groups()
-    replicates_exists = exists_replicates()
+    do_annot = config["params"]["peak-annotation-analysis"]["activate"]
+    do_peak_qc = config["params"]["peak-qc"]["activate"]
+    do_consensus_peak = config["params"]["consensus-peak-analysis"]["activate"]
+    macs_gsize = get_gsize()
 
     wanted_input = []
 
@@ -282,18 +280,19 @@ def all_input(wildcards):
                         )
                     )
             if macs_gsize and do_consensus_peak:
-                if multiple_groups or replicates_exists:
-                    wanted_input.extend(
-                        expand(
-                            [
-                                "results/bedtools/merged/{antibody}.consensus_{peak}-peaks.txt",
-                                "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.txt",
-                                "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.intersect.txt"
-                            ],
-                            peak = config["params"]["peak-analysis"],
-                            antibody = samples.loc[sample]["antibody"]
+                for antibody in samples["antibody"]:
+                    if exists_multiple_groups(antibody) and exists_replicates(antibody):
+                        wanted_input.extend(
+                            expand(
+                                [
+                                    "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.saf",
+                                    "results/macs2_merged_expand/plots/{antibody}.consensus_{peak}-peaks.boolean.intersect.plot.pdf",
+                                    "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.igv.txt"
+                                ],
+                                peak = config["params"]["peak-analysis"],
+                                antibody = antibody
+                            )
                         )
-                    )
             wanted_input.extend(
                 expand(
                     [
@@ -301,7 +300,7 @@ def all_input(wildcards):
                         "results/macs2_callpeak/{sample}-{control}.{peak}_treat_pileup.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_control_lambda.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
-                        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
+                        "results/IGV/macs2_callpeak-{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf"

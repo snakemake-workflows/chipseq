@@ -39,7 +39,7 @@ rule macs2_callpeak_broad:
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params: # ToDo: move to config?
-        "--broad --broad-cutoff 0.1 -f BAMPE -g hs --SPMR --qvalue 0.05 --keep-dup all"
+        "--broad --broad-cutoff 0.1 -f BAMPE -g {gsize} --SPMR --qvalue 0.05 --keep-dup all".format(gsize=get_gsize())
         # ToDo: Update wrapper to check for " --broad$" or " --broad " instead of only "--broad" (line 47),
         #  then "--broad" in params can be removed here in params
     wrapper:
@@ -65,7 +65,7 @@ rule macs2_callpeak_narrow:
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params: # ToDo: move to config?
-        "-f BAMPE -g hs --SPMR --qvalue 0.05 --keep-dup all"
+        "-f BAMPE -g {gsize} --SPMR --qvalue 0.05 --keep-dup all".format(gsize=get_gsize())
     wrapper:
         "0.66.0/bio/macs2/callpeak"
 
@@ -142,7 +142,7 @@ rule create_igv_peaks:
     input:
         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
-        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
+        "results/IGV/macs2_callpeak-{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
     log:
         "logs/igv/create_igv_peaks/merged_library.{sample}-{control}.{peak}_peaks.log"
     shell:
