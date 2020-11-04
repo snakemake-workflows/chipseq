@@ -112,11 +112,11 @@ def samples_without_controls():
 def get_gsize():
     return igenomes["genomes"][config["resources"]["ref"]["build"]]["macs-gsize"]
 
-def exists_multiple_groups(wildcards):
-    return len(samples[samples["antibody"] == wildcards]["group"].unique()) > 1
+def exists_multiple_groups(antibody):
+    return len(samples[samples["antibody"] == antibody]["group"].unique()) > 1
 
-def exists_replicates(wildcards):
-    return len(samples[samples["antibody"] == wildcards]["sample"].unique()) > 1
+def exists_replicates(antibody):
+    return len(samples[samples["antibody"] == antibody]["sample"].unique()) > 1
 
 def get_map_reads_input(wildcards):
     if is_single_end(wildcards.sample, wildcards.unit):
@@ -281,7 +281,7 @@ def all_input(wildcards):
                     )
             if macs_gsize and do_consensus_peak:
                 for antibody in samples["antibody"]:
-                    if exists_multiple_groups(antibody) and exists_replicates(antibody):
+                    if exists_multiple_groups(antibody) or exists_replicates(antibody):
                         wanted_input.extend(
                             expand(
                                 [
