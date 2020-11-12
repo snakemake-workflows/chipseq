@@ -110,7 +110,33 @@ def samples_without_controls():
     return sam
 
 def get_gsize():
-    return igenomes["genomes"][config["resources"]["ref"]["build"]]["macs-gsize"]
+    build = config["resources"]["ref"]["build"]
+    if build:
+        if igenomes["genomes"][build]:
+            if "macs-gsize" in igenomes["genomes"][build]:
+                return igenomes["genomes"][build]["macs-gsize"]
+    if config["resources"]["ref"]["macs-gsize"]:
+        return config["resources"]["ref"]["macs-gsize"]
+    return ""
+
+def get_chromosome():
+    if config["resources"]["ref"]["chromosome"]:
+        return "chr{}_".format(config["resources"]["ref"]["chromosome"])
+    return ""
+
+def has_blacklist():
+    return "blacklist" in igenomes["genomes"][config["resources"]["ref"]["build"]]
+
+def get_blacklist_filter():
+    if has_blacklist():
+        return "resources/ref/sorted_complement_{chrom}{blacklist}".format(chrom=get_chromosome(),
+                      blacklist=igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])
+    return ""
+
+def get_blacklist_option():
+    if has_blacklist():
+        return "-L "
+    return ""
 
 def exists_multiple_groups(antibody):
     return len(samples[samples["antibody"] == antibody]["group"].unique()) > 1
@@ -257,42 +283,44 @@ def all_input(wildcards):
                 sample = sample
             )
         )
+
         if not is_control(sample):
-            if macs_gsize and do_annot:
-                wanted_input.extend(
-                    expand(
-                        [
-                            "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt"
-                        ],
-                        sample = sample,
-                        control = samples.loc[sample]["control"],
-                        peak = config["params"]["peak-analysis"]
-                    )
-                )
-                if do_peak_qc:
+            if macs_gsize:
+                if do_annot:
                     wanted_input.extend(
                         expand(
                             [
-                                "results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
-                                "results/homer/plots/plot_{peak}_annotatepeaks.pdf"
+                                "results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt"
                             ],
+                            sample = sample,
+                            control = samples.loc[sample]["control"],
                             peak = config["params"]["peak-analysis"]
                         )
                     )
-            if macs_gsize and do_consensus_peak:
-                for antibody in samples["antibody"]:
-                    if exists_multiple_groups(antibody) or exists_replicates(antibody):
+                    if do_peak_qc:
                         wanted_input.extend(
                             expand(
                                 [
-                                    "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.saf",
-                                    "results/macs2_merged_expand/plots/{antibody}.consensus_{peak}-peaks.boolean.intersect.plot.pdf",
-                                    "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.igv.txt"
+                                    "results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
+                                    "results/homer/plots/plot_{peak}_annotatepeaks.pdf"
                                 ],
-                                peak = config["params"]["peak-analysis"],
-                                antibody = antibody
+                                peak = config["params"]["peak-analysis"]
                             )
                         )
+                if do_consensus_peak:
+                    for antibody in samples["antibody"]:
+                        if exists_multiple_groups(antibody) or exists_replicates(antibody):
+                            wanted_input.extend(
+                                expand(
+                                    [
+                                        "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.saf",
+                                        "results/macs2_merged_expand/plots/{antibody}.consensus_{peak}-peaks.boolean.intersect.plot.pdf",
+                                        "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.igv.txt"
+                                    ],
+                                    peak = config["params"]["peak-analysis"],
+                                    antibody = antibody
+                                )
+                            )
             wanted_input.extend(
                 expand(
                     [

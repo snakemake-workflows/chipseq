@@ -73,3 +73,51 @@ rule chromosome_size:
         "logs/ref/chromosome_size.log"
     shell:
         "cut -f 1,2 {input} > {output} 2> {log}"
+
+rule bedtools_sort_blacklist:
+    input:
+        in_file="../workflow/blacklists/{chrom}{blacklist}",
+        sort_file="resources/ref/genome.chrom.sizes"
+    output:
+        "resources/ref/sorted_{chrom}{blacklist}"
+    params:
+        extra="-g"
+    log:
+        "logs/ref/sorted_{chrom}{blacklist}.log"
+    # ToDo change to wrapper when released
+    conda:
+        "../envs/temp_bedtools_sort.yaml"
+    script:
+        "../scripts/temp_bedtools_sort.py"
+    # wrapper:
+    #     "xxx/bio/bedtools/sort"
+
+rule bedtools_complement_blacklist:
+    input:
+        in_file="resources/ref/sorted_{chrom}{blacklist}",
+        genome="resources/ref/genome.chrom.sizes"
+    output:
+        "resources/ref/sorted_complement_{chrom}{blacklist}"
+    params:
+        extra=""
+    log:
+        "logs/ref/sorted_complement_{chrom}{blacklist}.log"
+        # ToDo change to wrapper when released
+    conda:
+        "../envs/temp_bedtools_sort.yaml"
+    script:
+        "../scripts/temp_bedtools_complement.py"
+    # wrapper:
+    #     "master/bio/bedtools/complement"
+
+rule without_blacklists:
+    input:
+        "resources/ref/genome.chrom.sizes"
+    output:
+        "resources/ref/genome.chrom.sizes.filter"
+    log:
+        "logs/ref/genome.chrom.sizes.log"
+    conda:
+        "../envs/gawk.yaml"
+    shell:
+        "gawk '{{print \$1, \"0\" , \$2}}' OFS='\t' {input} > {output} 2> {log}"

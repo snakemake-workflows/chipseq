@@ -17,7 +17,7 @@ resources:
     build: GRCh38
     # for testing data only chromosome 21 is selected
     chromosome: 21
-    # Not mandatory but permits the pipeline to run through peak-calling steps
+    # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
     macs-gsize: 2.7e9
 
 params:
