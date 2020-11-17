@@ -144,6 +144,12 @@ def exists_multiple_groups(antibody):
 def exists_replicates(antibody):
     return len(samples[samples["antibody"] == antibody]["sample"].unique()) > 1
 
+def get_samples_of_antibody(wildcards):
+    print(wildcards.antibody)
+    print(samples[samples["antibody"] == wildcards.antibody]["sample"])
+    return expand("results/orphan_rm_sorted/{sample}.bam",
+                  sample=samples[samples["antibody"] == wildcards.antibody]["sample"])
+
 def get_map_reads_input(wildcards):
     if is_single_end(wildcards.sample, wildcards.unit):
         return "results/trimmed/{sample}-{unit}.fastq.gz"
@@ -321,6 +327,21 @@ def all_input(wildcards):
                                     antibody = antibody
                                 )
                             )
+                            if do_annot:
+                                wanted_input.extend(
+                                    expand(
+                                        [
+                                            "results/homer/annotate_consensus_peaks/{antibody}.consensus_{peak}-peaks.annotatePeaks.txt",
+                                            "results/homer/annotate_consensus_peaks/{antibody}.consensus_{peak}-peaks.boolean.annotatePeaks.txt",
+                                            "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts",
+                                            "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.summary",
+                                            "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.jcounts"
+                                        ],
+                                        peak = config["params"]["peak-analysis"],
+                                        antibody = antibody,
+                                        sample = sample
+                                    )
+                                )
             wanted_input.extend(
                 expand(
                     [
