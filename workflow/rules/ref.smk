@@ -77,11 +77,11 @@ rule chromosome_size:
 rule bedtools_sort_blacklist:
     input:
         in_file="../workflow/blacklists/{chrom}{blacklist}",
-        sort_file="resources/ref/genome.chrom.sizes"
+        genome="resources/ref/genome.chrom.sizes"
     output:
         "resources/ref/sorted_{chrom}{blacklist}"
     params:
-        extra="-g"
+        extra=""
     log:
         "logs/ref/sorted_{chrom}{blacklist}.log"
     # ToDo change to wrapper when released

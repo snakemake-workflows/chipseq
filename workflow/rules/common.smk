@@ -145,8 +145,6 @@ def exists_replicates(antibody):
     return len(samples[samples["antibody"] == antibody]["sample"].unique()) > 1
 
 def get_samples_of_antibody(wildcards):
-    print(wildcards.antibody)
-    print(samples[samples["antibody"] == wildcards.antibody]["sample"])
     return expand("results/orphan_rm_sorted/{sample}.bam",
                   sample=samples[samples["antibody"] == wildcards.antibody]["sample"])
 
