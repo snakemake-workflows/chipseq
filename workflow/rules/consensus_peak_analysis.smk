@@ -161,3 +161,36 @@ rule feature_counts:
     # ToDo change to wrapper when released
     # wrapper:
     #     "0.67.0/bio/homer/annotatePeaks"
+
+rule featurecounts_deseq2:
+    input:
+        "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts"
+    output:
+        dss="results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
+        plots="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
+        pca_data="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
+        dist_data="results/deseq2/dists/{antibody}.consensus_{peak}-peaks.sample.dists.txt",
+        size_factors_rdata="results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.RData",
+        size_factors_res="results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.sizeFactor.txt",
+        deseq2_results="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.txt",
+        deseq2_FDR_1_perc_res="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.txt",
+        deseq2_FDR_5_perc_res="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
+        deseq2_FDR_1_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
+        deseq2_FDR_5_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
+        deseq2_plots="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf"
+
+    threads:
+        2
+    params:
+        single_end = False,  # ToDo: function for checking ending of sample and unit for used antibody
+        vst = True # optional to run vst transform instead of rlog
+    log:
+        "logs/deseq2/{antibody}.consensus_{peak}-peaks.featureCounts.log"
+    conda:
+        "../envs/featurecounts_deseq2.yaml"
+    script:
+        "../scripts/featurecounts_deseq2.R"
+    # shell:
+    #     "Rscript ../workflow/scripts/test_featurecounts_org.R --featurecount_file {input} "
+    #     "--bam_suffix '.mLb.clN.bam'  --outdir 'results/deseq2/' --outprefix '{wildcards.antibody}.consensus_{wildcards.peak}-peaks' "
+    #     "--outsuffix '' --cores 2 --vst True 2> {log}"

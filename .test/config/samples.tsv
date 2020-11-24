@@ -1,5 +1,7 @@
 sample	group	batch_effect	control	antibody
-A	treated	batch1	D	BCATENIN
-B	untreated	batch2	D	BCATENIN
-C	treated	batch1	D	TCF4
-D	untreated	batch2		
+A	treated	batch1	F	BCATENIN
+B	untreated	batch2	E	BCATENIN
+C	treated	batch1	E	TCF4
+D	untreated	batch2	F	TCF4
+E	untreated	batch2
+F	untreated	batch1

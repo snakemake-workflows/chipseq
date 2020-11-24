@@ -333,7 +333,8 @@ def all_input(wildcards):
                                             "results/homer/annotate_consensus_peaks/{antibody}.consensus_{peak}-peaks.boolean.annotatePeaks.txt",
                                             "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts",
                                             "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.summary",
-                                            "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.jcounts"
+                                            "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.jcounts",
+                                            "results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData"
                                         ],
                                         peak = config["params"]["peak-analysis"],
                                         antibody = antibody,

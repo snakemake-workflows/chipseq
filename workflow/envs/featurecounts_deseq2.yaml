@@ -1,0 +1,13 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base =4.0
+  - bioconductor-deseq2 =1.30
+  - bioconductor-vsn =3.58
+  - r-ggplot2 =3.3
+  - r-rcolorbrewer =1.1_2
+  - r-pheatmap =1.0
+  - r-lattice =0.20_41
+  - bioconductor-biocparallel =1.24
+
