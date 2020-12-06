@@ -145,6 +145,9 @@ def exists_replicates(antibody):
     return len(samples[samples["antibody"] == antibody]["sample"].unique()) > 1
 
 def get_samples_of_antibody(wildcards):
+    return samples[samples["antibody"] == wildcards.antibody]["sample"]
+
+def get_bam_of_antibody(wildcards):
     return expand("results/orphan_rm_sorted/{sample}.bam",
                   sample=samples[samples["antibody"] == wildcards.antibody]["sample"])
 
@@ -334,11 +337,21 @@ def all_input(wildcards):
                                             "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts",
                                             "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.summary",
                                             "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.jcounts",
-                                            "results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData"
+                                            "results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
+                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
+                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
+                                            "results/deseq2/dists/{antibody}.consensus_{peak}-peaks.sample.dists.txt",
+                                            "results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.RData",
+                                            "results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.sizeFactor.txt",
+                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.txt",
+                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.txt",
+                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
+                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
+                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
+                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf"
                                         ],
                                         peak = config["params"]["peak-analysis"],
-                                        antibody = antibody,
-                                        sample = sample
+                                        antibody = antibody
                                     )
                                 )
             wanted_input.extend(

@@ -39,11 +39,10 @@ rule macs2_callpeak_broad:
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params: # ToDo: move to config?
-        "--broad --broad-cutoff 0.1 -f BAMPE -g {gsize} --SPMR --qvalue 0.05 --keep-dup all".format(gsize=get_gsize())
-        # ToDo: Update wrapper to check for " --broad$" or " --broad " instead of only "--broad" (line 47),
-        #  then "--broad" in params can be removed here in params
+        "--nomodel --extsize 147"
+        # "--broad-cutoff 0.1 -f BAMPE -g {gsize} -B --SPMR --keep-dup all".format(gsize=get_gsize())
     wrapper:
-        "0.66.0/bio/macs2/callpeak"
+        "0.68.0/bio/macs2/callpeak"
 
 rule macs2_callpeak_narrow:
     input:
@@ -65,9 +64,9 @@ rule macs2_callpeak_narrow:
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params: # ToDo: move to config?
-        "-f BAMPE -g {gsize} --SPMR --qvalue 0.05 --keep-dup all".format(gsize=get_gsize())
+        "-f BAMPE -g {gsize} -B --SPMR --keep-dup all".format(gsize=get_gsize())
     wrapper:
-        "0.66.0/bio/macs2/callpeak"
+        "0.68.0/bio/macs2/callpeak"
 
 rule peaks_count:
     input:
@@ -162,13 +161,8 @@ rule homer_annotatepeaks:
         extra="-gid"
     log:
         "logs/homer/annotate_peaks/{sample}-{control}.{peak}.log"
-    conda:
-        "../envs/temp_annotatepeaks.yaml"
-    script:
-        "../scripts/temp_annotatepeaks_wrapper.py"
-    #  #TODO: add wrapper and remove script, env and conda statement in this rule
-    # wrapper:
-    #     "xxx/bio/homer/annotatePeaks"
+    wrapper:
+        "0.68.0/bio/homer/annotatePeaks"
 
 rule plot_macs_qc:
     input:

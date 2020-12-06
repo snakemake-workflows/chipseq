@@ -84,13 +84,8 @@ rule bedtools_sort_blacklist:
         extra=""
     log:
         "logs/ref/sorted_{chrom}{blacklist}.log"
-    # ToDo change to wrapper when released
-    conda:
-        "../envs/temp_bedtools_sort.yaml"
-    script:
-        "../scripts/temp_bedtools_sort.py"
-    # wrapper:
-    #     "xxx/bio/bedtools/sort"
+    wrapper:
+        "0.68.0/bio/bedtools/sort"
 
 rule bedtools_complement_blacklist:
     input:
@@ -102,13 +97,8 @@ rule bedtools_complement_blacklist:
         extra=""
     log:
         "logs/ref/sorted_complement_{chrom}{blacklist}.log"
-        # ToDo change to wrapper when released
-    conda:
-        "../envs/temp_bedtools_sort.yaml"
-    script:
-        "../scripts/temp_bedtools_complement.py"
-    # wrapper:
-    #     "master/bio/bedtools/complement"
+    wrapper:
+        "0.68.0/bio/bedtools/complement"
 
 rule without_blacklists:
     input:

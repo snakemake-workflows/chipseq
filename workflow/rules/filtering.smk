@@ -1,7 +1,6 @@
 rule samtools_view:
     input:
-        "results/picard_dedup/{sample}.bam",
-        blacklist=get_blacklist_filter()
+        "results/picard_dedup/{sample}.bam"
     output:
         temp("results/sam-view/{sample}.bam")
     params:

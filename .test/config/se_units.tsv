@@ -1,0 +1,17 @@
+sample	unit	fragment_len_mean	fragment_len_sd	fq1	fq2	platform
+A	1			s3://nf-core-awsmegatests/chipseq/input_data/SRX747791_T1.fastq.gz      ILLUMINA
+A	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX747792_T1.fastq.gz 		ILLUMINA
+B	1	300	14	s3://nf-core-awsmegatests/chipseq/input_data/SRX747793_T1.fastq.gz		ILLUMINA
+B	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX747794_T1.fastq.gz		ILLUMINA
+C	1			s3://nf-core-awsmegatests/chipseq/input_data/SRX747767_T1.fastq.gz		ILLUMINA
+C	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX747768_T1.fastq.gz		ILLUMINA
+D	1			s3://nf-core-awsmegatests/chipseq/input_data/SRX747769_T1.fastq.gz		ILLUMINA
+D	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX747770_T1.fastq.gz		ILLUMINA
+E	1			s3://nf-core-awsmegatests/chipseq/input_data/SRX541384_T1.fastq.gz		ILLUMINA
+E	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX541385_T1.fastq.gz		ILLUMINA
+F	1			s3://nf-core-awsmegatests/chipseq/input_data/SRX541386_T1.fastq.gz 		ILLUMINA
+F	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX541387_T1.fastq.gz		ILLUMINA
+G	1			s3://nf-core-awsmegatests/chipseq/input_data/SRX541388_T1.fastq.gz		ILLUMINA
+G	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX541389_T1.fastq.gz 		ILLUMINA
+H	1			s3://nf-core-awsmegatests/chipseq/input_data/SRX541390_T1.fastq.gz		ILLUMINA
+H	2			s3://nf-core-awsmegatests/chipseq/input_data/SRX541391_T1.fastq.gz		ILLUMINA

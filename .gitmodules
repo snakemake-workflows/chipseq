@@ -1,1 +1,9 @@
 
+[submodule ".test/data/atacseq/test-datasets"]
+	path = .test/data/atacseq/test-datasets
+	url = https://github.com/nf-core/test-datasets.git
+	branch = atacseq
+[submodule ".test/data/chipseq/test-datasets"]
+	path = .test/data/chipseq/test-datasets
+	url = https://github.com/nf-core/test-datasets.git
+	branch = chipseq

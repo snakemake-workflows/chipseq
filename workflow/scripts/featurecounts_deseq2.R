@@ -86,15 +86,16 @@ library(BiocParallel)
 ################################################
 ################################################
 
-featurecount_file <- snakemake@input[[1]]  # AVI: adapted to snakemake
-bam_suffix <- ".mLb.clN.bam"               # AVI
-if (snakemake@params[["single_end"]]) {    # AVI
-    bam_suffix <- ".mLb.clN.sorted.bam"    # AVI
-}
+featurecount_file <- snakemake@input[[1]]   # AVI: adapted to snakemake
+# AVI: suffix and prefix are already removed in rule featurecounts_modified_colnames
+#bam_suffix <- ".bam"                       # AVI
+#if (snakemake@params[["single_end"]]) {    # AVI
+#    bam_suffix <- ".mLb.clN.sorted.bam"    # AVI
+#}
 
-count.table <- read.delim(file=featurecount_file,header=TRUE,skip=1)
-colnames(count.table) <- gsub(bam_suffix,"",colnames(count.table))
-colnames(count.table) <- as.character(lapply(colnames(count.table), function (x) tail(strsplit(x,'.',fixed=TRUE)[[1]],1)))
+count.table <- read.delim(file=featurecount_file,header=TRUE)  # AVI: removed 'skip=1', this was already done in rule featurecounts_modified_colnames
+#colnames(count.table) <- gsub(bam_suffix,"",colnames(count.table))  # AVI
+#colnames(count.table) <- as.character(lapply(colnames(count.table), function (x) tail(strsplit(x,'.',fixed=TRUE)[[1]],1)))  # AVI
 rownames(count.table) <- count.table$Geneid
 interval.table <- count.table[,1:6]
 count.table <- count.table[,7:ncol(count.table),drop=FALSE]
@@ -105,6 +106,7 @@ count.table <- count.table[,7:ncol(count.table),drop=FALSE]
 ################################################
 ################################################
 
+# AVI: this is handled by snakemake
 #if (file.exists(opt$outdir) == FALSE) {
 #    dir.create(opt$outdir,recursive=TRUE)
 #}
@@ -117,12 +119,12 @@ if (length(unique(groups)) == 1) {
     quit(save = "no", status = 0, runLast = FALSE)
 }
 
-DDSFile <- snakemake@output[["dss"]]  # AVI: adapted to snakemake
+DDSFile <- snakemake@output[["dds"]]  # AVI: adapted to snakemake
 if (file.exists(DDSFile) == FALSE) {
     counts <- count.table[,samples.vec,drop=FALSE]
     coldata <- data.frame(row.names=colnames(counts),condition=groups)
     dds <- DESeqDataSetFromMatrix(countData = round(counts), colData = coldata, design = ~ condition)
-    dds <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(snakemake@threads[[1]]))
+    dds <- DESeq(dds, BPPARAM=MulticoreParam(snakemake@threads[[1]]))  # AVI: removed option 'parallel=TRUE'
     if (!snakemake@params[["vst"]]) {
         rld <- rlog(dds)
     } else {
@@ -131,11 +133,11 @@ if (file.exists(DDSFile) == FALSE) {
     save(dds,rld,file=DDSFile)
 }
 
-################################################
-################################################
-## PLOT QC                                    ##
-################################################
-################################################
+#################################################
+#################################################
+### PLOT QC                                    ##
+#################################################
+#################################################
 
 PlotFile <- snakemake@output[["plots"]]  # AVI: adapted to snakemake
 if (file.exists(PlotFile) == FALSE) {
@@ -172,11 +174,11 @@ if (file.exists(PlotFile) == FALSE) {
     dev.off()
 }
 
-################################################
-################################################
-## SAVE SIZE FACTORS                          ##
-################################################
-################################################
+#################################################
+#################################################
+### SAVE SIZE FACTORS                          ##
+#################################################
+#################################################
 
 #SizeFactorsDir <- "sizeFactors/"
 #if (file.exists(SizeFactorsDir) == FALSE) {
@@ -196,11 +198,11 @@ if (file.exists(NormFactorsFile) == FALSE) {
     }
 }
 
-################################################
-################################################
-## WRITE LOG FILE                             ##
-################################################
-################################################
+#################################################
+#################################################
+### WRITE LOG FILE                             ##
+#################################################
+#################################################
 
 LogFile <- snakemake@log[[1]]  # AVI: adapted to snakemake
 if (file.exists(LogFile) == FALSE) {
@@ -210,11 +212,11 @@ if (file.exists(LogFile) == FALSE) {
     cat("\n",file=LogFile,append=TRUE,sep='')
 }
 
-################################################
-################################################
-## LOOP THROUGH COMPARISONS                   ##
-################################################
-################################################
+#################################################
+#################################################
+### LOOP THROUGH COMPARISONS                   ##
+#################################################
+#################################################
 
 ResultsFile <- snakemake@output[["deseq2_results"]] # AVI: adapted to snakemake
 if (file.exists(ResultsFile) == FALSE) {
@@ -233,10 +235,11 @@ if (file.exists(ResultsFile) == FALSE) {
         CompPrefix <- paste(control.group,treat.group,sep="vs")
         cat("Saving results for ",CompPrefix," ...\n",sep="")
 
-        CompOutDir <- paste(CompPrefix,'/',sep="")
-        if (file.exists(CompOutDir) == FALSE) {
-            dir.create(CompOutDir,recursive=TRUE)
-        }
+        # AVI: this is handled by snakemake
+        #CompOutDir <- paste(CompPrefix,'/',sep="")
+        #if (file.exists(CompOutDir) == FALSE) {
+        #    dir.create(CompOutDir,recursive=TRUE)
+        #}
 
         control.samples <- samples.vec[which(groups == control.group)]
         treat.samples <- samples.vec[which(groups == treat.group)]
@@ -274,7 +277,6 @@ if (file.exists(ResultsFile) == FALSE) {
                     CompResultsFile <- snakemake@output[["deseq2_FDR_5_perc_res"]]
                     CompBEDFile <- snakemake@output[["deseq2_FDR_5_perc_bed"]]
                 }
-
                 write.table(pass.fdr.table, file=CompResultsFile, col.names=TRUE, row.names=FALSE, sep='\t', quote=FALSE)
                 write.table(pass.fdr.table[,c("Chr","Start","End","Geneid","log2FoldChange","Strand")], file=CompBEDFile, col.names=FALSE, row.names=FALSE, sep='\t', quote=FALSE)
 
@@ -288,6 +290,17 @@ if (file.exists(ResultsFile) == FALSE) {
 
             }
             cat("\n",file=LogFile,append=TRUE,sep="")
+        # AVI: creates required output files with message
+        } else {
+            write("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC.", stdout())
+            outfiles <- c(snakemake@output[["deseq2_FDR_1_perc_res"]],
+                          snakemake@output[["deseq2_FDR_1_perc_bed"]],
+                          snakemake@output[["deseq2_FDR_5_perc_res"]],
+                          snakemake@output[["deseq2_FDR_5_perc_bed"]]
+                          )
+            for (f in outfiles) {
+                writeLines(paste0("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC."), f)
+            }
         }
 
         ## SAMPLE CORRELATION HEATMAP
@@ -321,11 +334,11 @@ if (file.exists(ResultsFile) == FALSE) {
 
 }
 
-################################################
-################################################
-## R SESSION INFO                             ##
-################################################
-################################################
+#################################################
+#################################################
+### R SESSION INFO                             ##
+#################################################
+#################################################
 
 RLogFile <- snakemake@log[[1]]  # AVI: adapted to snakemake
 if (file.exists(RLogFile) == FALSE) {
@@ -335,7 +348,7 @@ if (file.exists(RLogFile) == FALSE) {
     sink()
 }
 
-################################################
-################################################
-################################################
-################################################
+#################################################
+#################################################
+#################################################
+#################################################

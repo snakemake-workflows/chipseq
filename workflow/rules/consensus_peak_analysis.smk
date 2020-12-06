@@ -101,13 +101,8 @@ rule homer_consensus_annotatepeaks:
         extra="-gid"
     log:
         "logs/homer/annotate_consensus_peaks/{antibody}.consensus_{peak}-peaks.annotatePeaks.log"
-    # ToDo change to wrapper when released
-    conda:
-        "../envs/temp_annotatepeaks.yaml"
-    script:
-        "../scripts/temp_annotatepeaks_wrapper.py"
-    # wrapper:
-    #     "xxx/bio/homer/annotatePeaks"
+    wrapper:
+        "0.68.0/bio/homer/annotatePeaks"
 
 rule trim_homer_consensus_annotatepeaks:
     input:
@@ -136,11 +131,9 @@ rule merge_bool_and_annotatepeaks:
 
 rule feature_counts:
     input:
-        sam=get_samples_of_antibody,
+        # sam=expand("results/orphan_rm_sorted/{sample}.bam", sample=get_samples_of_antibody(wildcards.antibody)),
+        sam=get_bam_of_antibody,
         annotation="results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.saf"
-        # optional input:
-        # fasta="",     # implicitly sets the -G flag
-        # chr_names=""  # implicitly sets the -A flag
     output:
         multiext("results/feature_counts/{antibody}.consensus_{peak}-peaks",
                  ".featureCounts",
@@ -160,13 +153,26 @@ rule feature_counts:
         "../scripts/temp_featurecounts.py"
     # ToDo change to wrapper when released
     # wrapper:
-    #     "0.67.0/bio/homer/annotatePeaks"
+    #     "xxxxx/bio/subread/featurecounts"
+
+rule featurecounts_modified_colnames:
+    input:
+        featurecounts="results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts",
+        bam=expand("results/orphan_rm_sorted/{sample}.bam", sample=samples.index)
+    output:
+        "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"
+    params:
+        ""
+    log:
+        "logs/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts.log"
+    script:
+        "../scripts/col_mod_featurecounts.py"
 
 rule featurecounts_deseq2:
     input:
-        "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts"
+        "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"
     output:
-        dss="results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
+        dds="results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
         plots="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
         pca_data="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
         dist_data="results/deseq2/dists/{antibody}.consensus_{peak}-peaks.sample.dists.txt",
@@ -182,15 +188,11 @@ rule featurecounts_deseq2:
     threads:
         2
     params:
-        single_end = False,  # ToDo: function for checking ending of sample and unit for used antibody
-        vst = True # optional to run vst transform instead of rlog
+        single_end = config["resources"]["ref"]["single-end"],
+        vst = config["params"]["deseq2"]["vst"]["activate"]
     log:
         "logs/deseq2/{antibody}.consensus_{peak}-peaks.featureCounts.log"
     conda:
         "../envs/featurecounts_deseq2.yaml"
     script:
         "../scripts/featurecounts_deseq2.R"
-    # shell:
-    #     "Rscript ../workflow/scripts/test_featurecounts_org.R --featurecount_file {input} "
-    #     "--bam_suffix '.mLb.clN.bam'  --outdir 'results/deseq2/' --outprefix '{wildcards.antibody}.consensus_{wildcards.peak}-peaks' "
-    #     "--outsuffix '' --cores 2 --vst True 2> {log}"
