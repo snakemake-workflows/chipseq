@@ -188,7 +188,6 @@ rule featurecounts_deseq2:
     threads:
         2
     params:
-        singleend = config["resources"]["ref"]["singleend"],
         vst = config["params"]["deseq2"]["vst"]["activate"]
     log:
         "logs/deseq2/{antibody}.consensus_{peak}-peaks.featureCounts.log"

@@ -6,19 +6,20 @@ units: "config/units.tsv"
 
 resources:
   ref:
+    singleend: False
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
-    n_chromosomes: 25
+    n_chromosomes: 16
     # Ensembl species name
-    species: homo_sapiens
+    species: saccharomyces_cerevisiae
     # Ensembl release
     release: 101
     # Genome build
-    build: GRCh38
+    build: R64-1-1
     # for testing data only chromosome 21 is selected
-    chromosome: 21
+    chromosome:
     # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
-    macs-gsize: 2.7e9
+    macs-gsize:
 
 params:
   lc_extrap:
@@ -27,6 +28,10 @@ params:
   peak-analysis: "broad"
   # Number of biological replicates required from a given condition for a peak to contribute to a consensus peak
   min-reps-consensus: 1
+  deseq2:
+    # optional to run vst transform instead of rlog
+    vst:
+      activate: False
   peak-annotation-analysis:
     activate: True
   peak-qc:
