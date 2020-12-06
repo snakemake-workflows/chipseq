@@ -89,7 +89,7 @@ library(BiocParallel)
 featurecount_file <- snakemake@input[[1]]   # AVI: adapted to snakemake
 # AVI: suffix and prefix are already removed in rule featurecounts_modified_colnames
 #bam_suffix <- ".bam"                       # AVI
-#if (snakemake@params[["single_end"]]) {    # AVI
+#if (snakemake@params[["singleend"]]) {    # AVI
 #    bam_suffix <- ".mLb.clN.sorted.bam"    # AVI
 #}
 

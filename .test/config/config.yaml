@@ -6,7 +6,7 @@ units: "config/pe_units.tsv"
 
 resources:
   ref:
-    single-end: False
+    singleend: False
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
     n_chromosomes: 16

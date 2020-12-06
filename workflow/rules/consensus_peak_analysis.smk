@@ -171,7 +171,7 @@ rule featurecounts_modified_colnames:
 rule featurecounts_deseq2:
     input:
         "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"
-    output:
+    output:  # ToDo: add plots to report section
         dds="results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
         plots="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
         pca_data="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
@@ -188,7 +188,7 @@ rule featurecounts_deseq2:
     threads:
         2
     params:
-        single_end = config["resources"]["ref"]["single-end"],
+        singleend = config["resources"]["ref"]["singleend"],
         vst = config["params"]["deseq2"]["vst"]["activate"]
     log:
         "logs/deseq2/{antibody}.consensus_{peak}-peaks.featureCounts.log"
