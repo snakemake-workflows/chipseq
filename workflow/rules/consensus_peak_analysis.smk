@@ -131,8 +131,7 @@ rule merge_bool_and_annotatepeaks:
 
 rule feature_counts:
     input:
-        # sam=expand("results/orphan_rm_sorted/{sample}.bam", sample=get_samples_of_antibody(wildcards.antibody)),
-        sam=get_bam_of_antibody,
+        sam=lambda wc: expand("results/orphan_rm_sorted/{sample}.bam", sample=get_samples_of_antibody(wc.antibody)),
         annotation="results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.saf"
     output:
         multiext("results/feature_counts/{antibody}.consensus_{peak}-peaks",
@@ -184,7 +183,6 @@ rule featurecounts_deseq2:
         deseq2_FDR_1_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
         deseq2_FDR_5_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
         deseq2_plots="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf"
-
     threads:
         2
     params:

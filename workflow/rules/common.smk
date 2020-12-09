@@ -144,8 +144,8 @@ def exists_multiple_groups(antibody):
 def exists_replicates(antibody):
     return len(samples[samples["antibody"] == antibody]["sample"].unique()) > 1
 
-def get_samples_of_antibody(wildcards):
-    return samples[samples["antibody"] == wildcards.antibody]["sample"]
+def get_samples_of_antibody(antibody):
+    return samples[samples["antibody"] == antibody]["sample"]
 
 def get_bam_of_antibody(wildcards):
     return expand("results/orphan_rm_sorted/{sample}.bam",
