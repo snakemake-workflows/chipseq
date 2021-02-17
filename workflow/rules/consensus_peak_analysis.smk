@@ -167,6 +167,7 @@ rule featurecounts_modified_colnames:
     script:
         "../scripts/col_mod_featurecounts.py"
 
+# ToDo: integrate in workflow
 rule featurecounts_deseq2:
     input:
         "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"

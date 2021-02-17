@@ -6,10 +6,10 @@ units: "config/pe_units.tsv"
 
 resources:
   ref:
-    singleend: False
+    single-end: False
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
-    n_chromosomes: 16
+    n_chromosomes: 17
     # Ensembl species name
     species: saccharomyces_cerevisiae
     # Ensembl release

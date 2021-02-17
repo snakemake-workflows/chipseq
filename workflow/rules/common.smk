@@ -147,10 +147,6 @@ def exists_replicates(antibody):
 def get_samples_of_antibody(antibody):
     return samples[samples["antibody"] == antibody]["sample"]
 
-def get_bam_of_antibody(wildcards):
-    return expand("results/orphan_rm_sorted/{sample}.bam",
-                  sample=samples[samples["antibody"] == wildcards.antibody]["sample"])
-
 def get_map_reads_input(wildcards):
     if is_single_end(wildcards.sample, wildcards.unit):
         return "results/trimmed/{sample}-{unit}.fastq.gz"

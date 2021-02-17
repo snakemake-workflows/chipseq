@@ -124,7 +124,7 @@ if (file.exists(DDSFile) == FALSE) {
     counts <- count.table[,samples.vec,drop=FALSE]
     coldata <- data.frame(row.names=colnames(counts),condition=groups)
     dds <- DESeqDataSetFromMatrix(countData = round(counts), colData = coldata, design = ~ condition)
-    dds <- DESeq(dds, BPPARAM=MulticoreParam(snakemake@threads[[1]]))  # AVI: removed option 'parallel=TRUE'
+    dds <- DESeq(dds, parallel=FALSE, BPPARAM=MulticoreParam(snakemake@threads[[1]]))  # ToDo: change to 'parallel=TRUE' when fixed the script
     if (!snakemake@params[["vst"]]) {
         rld <- rlog(dds)
     } else {

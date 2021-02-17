@@ -39,8 +39,7 @@ rule macs2_callpeak_broad:
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params: # ToDo: move to config?
-        "--nomodel --extsize 147"
-        # "--broad-cutoff 0.1 -f BAMPE -g {gsize} -B --SPMR --keep-dup all".format(gsize=get_gsize())
+        "--broad-cutoff 0.1 -f BAMPE -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(gsize=get_gsize())
     wrapper:
         "0.68.0/bio/macs2/callpeak"
 
@@ -64,7 +63,7 @@ rule macs2_callpeak_narrow:
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params: # ToDo: move to config?
-        "-f BAMPE -g {gsize} -B --SPMR --keep-dup all".format(gsize=get_gsize())
+        "-f BAMPE -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(gsize=get_gsize())
     wrapper:
         "0.68.0/bio/macs2/callpeak"
 
