@@ -51,17 +51,38 @@ def is_single_end(sample, unit):
 def get_individual_fastq(wildcards):
     """Get individual raw FASTQ files from unit sheet, based on a read (end) wildcard"""
     if ( wildcards.read == "0" or wildcards.read == "1" ):
-        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
+        if config["sra-download"]:
+            if is_single_end(wildcards.sample, wildcards.unit):
+                return expand("resources/ref/sra-se-reads/{accession}.fastq",
+                              accession=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ])
+            else:
+                return expand("resources/ref/sra-pe-reads/{accession}.1.fastq",
+                              accession=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ])
+        else:
+            return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
     elif wildcards.read == "2":
-        return units.loc[ (wildcards.sample, wildcards.unit), "fq2" ]
+        if config["sra-download"]:
+            return expand("resources/ref/sra-pe-reads/{accession}.2.fastq",
+                          accession=units.loc[ (wildcards.sample, wildcards.unit), "fq2" ])
+        else:
+            return units.loc[ (wildcards.sample, wildcards.unit), "fq2" ]
 
 def get_fastqs(wildcards):
     """Get raw FASTQ files from unit sheet."""
     if is_single_end(wildcards.sample, wildcards.unit):
-        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
+        if config["sra-download"]:
+            return expand("resources/ref/sra-se-reads/{accession}.fastq",
+                          accession=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ])
+        else:
+            return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
     else:
-        u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
-        return [ f"{u.fq1}", f"{u.fq2}" ]
+        if config["sra-download"]:
+            return expand(["resources/ref/sra-pe-reads/{accession1}.1.fastq", "ref/sra-pe-reads/{accession2}.2.fastq"],
+                          accession1=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ],
+                          accession2=units.loc[ (wildcards.sample, wildcards.unit), "fq2" ])
+        else:
+            u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
+            return [ f"{u.fq1}", f"{u.fq2}" ]
 
 def is_control(sample):
     control = samples.loc[sample]["control"]
@@ -127,6 +148,10 @@ def get_chromosome():
 def has_blacklist():
     return "blacklist" in igenomes["genomes"][config["resources"]["ref"]["build"]]
 
+def get_blacklist():
+    print(igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])
+    return igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"]
+
 def get_blacklist_filter():
     if has_blacklist():
         return "resources/ref/sorted_complement_{chrom}{blacklist}".format(chrom=get_chromosome(),
@@ -135,8 +160,20 @@ def get_blacklist_filter():
 
 def get_blacklist_option():
     if has_blacklist():
-        return "-L "
+        return "-L"
     return ""
+
+def get_samtools_view_input(wildcards):
+    if has_blacklist():
+        if get_chromosome():
+            return ["results/picard_dedup/{sample}.bam", "resources/ref/sorted_complement_{chrom}{blacklist}".format(chrom=get_chromosome(),
+                          blacklist=igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])]
+        else:
+            return ["results/picard_dedup/{sample}.bam", "resources/ref/sorted_complement_{blacklist}".format(
+                          blacklist=igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])]
+    else:
+        return "results/picard_dedup/{sample}.bam"
+
 
 def exists_multiple_groups(antibody):
     return len(samples[samples["antibody"] == antibody]["group"].unique()) > 1

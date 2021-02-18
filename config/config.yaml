@@ -3,10 +3,10 @@
 # one row per sample. It can be parsed easily via pandas.
 samples: "config/samples.tsv"
 units: "config/units.tsv"
+sra-download: True  # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in units.tsv
 
 resources:
   ref:
-    singleend: False
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
     n_chromosomes: 16

@@ -1,9 +1,5 @@
 sample	group	batch_effect	control	antibody
-A	FOXA1_IP_VEH	batch1	C	FOXA1
-B	FOXA1_IP_E2	batch2	D	FOXA1
-C	INPUT_VEH	batch1
-D	INPUT_E2	batch2
-E	EZH2_IP_NTKO	batch1  G   EZH2
-F	EZH2_IP_TKO	batch2  H   EZH2
-G   INPUT_NTKO  batch1
-H   INPUT_TKO   batch2
+A	ERa_TNFa	batch1	C	ERa
+B	ERa_TNFa	batch1	C	p65
+C	INPUT_TNFa	batch1
+

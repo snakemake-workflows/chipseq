@@ -1,25 +1,44 @@
 # This file should contain everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
-samples: "config/pe_samples.tsv"
-units: "config/pe_units.tsv"
+samples: "config/se_samples.tsv"
+units: "config/se_units.tsv"
+sra-download: True  # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in units.tsv
+# dataset for testing this workflow with single end reads: https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA255509&o=acc_s%3Aa
 
+# config for SE dataset of se_samples.tsv and se_units.tsv
 resources:
   ref:
-    single-end: False
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
-    n_chromosomes: 17
+    n_chromosomes: 25
     # Ensembl species name
-    species: saccharomyces_cerevisiae
+    species: homo_sapiens
     # Ensembl release
     release: 101
     # Genome build
-    build: R64-1-1
+    build: GRCh38
     # for testing data only chromosome 21 is selected
     chromosome:
     # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
     macs-gsize:
+
+# config for PE dataset of pe_samples.tsv and pe_units.tsv
+#resources:
+#  ref:
+#    # Number of chromosomes to consider for calling.
+#    # The first n entries of the FASTA will be considered.
+#    n_chromosomes: 17
+#    # Ensembl species name
+#    species: saccharomyces_cerevisiae
+#    # Ensembl release
+#    release: 101
+#    # Genome build
+#    build: R64-1-1
+#    # for testing data only chromosome 21 is selected
+#    chromosome:
+#    # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
+#    macs-gsize:
 
 params:
   lc_extrap:

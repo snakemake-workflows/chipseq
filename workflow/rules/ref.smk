@@ -28,6 +28,31 @@ rule get_annotation:
     wrapper:
         "0.64.0/bio/reference/ensembl-annotation"
 
+# SRA-download
+rule sra_get_fastq_pe:
+    output:
+        # the wildcard name must be accession, pointing to an SRA number
+        "resources/ref/sra-pe-reads/{accession}.1.fastq",
+        "resources/ref/sra-pe-reads/{accession}.2.fastq"
+    params:
+        extra=""
+    threads: 6
+    log:
+        "logs/ref/sra-pe-reads/{accession}.log"
+    wrapper:
+        "0.72.0/bio/sra-tools/fasterq-dump"
+
+rule sra_get_fastq_se:
+    output:
+        "resources/ref/sra-se-reads/{accession}.fastq"
+    params:
+        extra=""
+    threads: 6
+    log:
+        "logs/ref/sra-pe-reads/{accession}.log"
+    wrapper:
+        "0.72.0/bio/sra-tools/fasterq-dump"
+
 rule gtf2bed:
     input:
         "resources/ref/annotation.gtf"
@@ -76,27 +101,27 @@ rule chromosome_size:
 
 rule bedtools_sort_blacklist:
     input:
-        in_file="../workflow/blacklists/{chrom}{blacklist}",
+        in_file="../workflow/blacklists/{blacklist}",
         genome="resources/ref/genome.chrom.sizes"
     output:
-        "resources/ref/sorted_{chrom}{blacklist}"
+        "resources/ref/sorted_{blacklist}"
     params:
         extra=""
     log:
-        "logs/ref/sorted_{chrom}{blacklist}.log"
+        "logs/ref/sorted_{blacklist}.log"
     wrapper:
         "0.68.0/bio/bedtools/sort"
 
 rule bedtools_complement_blacklist:
     input:
-        in_file="resources/ref/sorted_{chrom}{blacklist}",
+        in_file="resources/ref/sorted_{blacklist}",
         genome="resources/ref/genome.chrom.sizes"
     output:
-        "resources/ref/sorted_complement_{chrom}{blacklist}"
+        "resources/ref/sorted_complement_{blacklist}"
     params:
         extra=""
     log:
-        "logs/ref/sorted_complement_{chrom}{blacklist}.log"
+        "logs/ref/sorted_complement_{blacklist}.log"
     wrapper:
         "0.68.0/bio/bedtools/complement"
 

@@ -1,11 +1,11 @@
 rule samtools_view:
     input:
-        "results/picard_dedup/{sample}.bam"
+         get_samtools_view_input
     output:
         temp("results/sam-view/{sample}.bam")
     params:
         # TODO: move to config.yaml, including the explanatory comments below
-        "-b -F 0x004 -G 0x009 -f 0x001 {}{}".format(get_blacklist_option(), get_blacklist_filter())
+        "-b -F 0x004 -G 0x009 -f 0x001 {} {}".format(get_blacklist_option(), get_blacklist_filter())
         # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
         # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
         # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
