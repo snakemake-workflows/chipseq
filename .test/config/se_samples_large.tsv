@@ -1,0 +1,21 @@
+sample	group	batch_effect	control	antibody
+A	ERa_Veh	batch1	Q	ERa
+B	ERa_E2	batch2	R	ERa
+C	ERa_TNFa	batch1	S	ERa
+D	ERa_E2_TNFa	batch2	T	ERa
+E	p65_Veh	batch1	Q	p65
+F	p65_E2	batch2	R	p65
+G	p65_TNFa	batch1	S	p65
+H	p65_E2_TNFa	batch2	T	p65
+I	FoxA1_Veh	batch1	Q	FoxA1
+J	FoxA1_E2	batch2	R	FoxA1
+K	FoxA1_TNFa	batch1	S	FoxA1
+L	FoxA1_E2_TNFa	batch2	T	FoxA1
+M	ERa_E2_TNFa	batch1	T	ERa
+N	ERa_E2_TNFa	batch2	T	ERa
+O	ERa_E2_TNFa	batch1	T	ERa
+P	ERa_E2_TNFa	batch2	T	ERa
+Q	INPUT_VEHICLE	batch1
+R	INPUT_E2	batch2
+S	INPUT_TNFa	batch1
+T	INPUT_E2_TNFa	batch2

@@ -48,6 +48,15 @@ def is_single_end(sample, unit):
         )
     return fq2_present
 
+def get_se_pe_prefix():
+    return "se" if config["single-end"] else "pe"
+
+def get_pe_prefix():
+    return "" if config["single-end"] else "-pe"
+
+def get_samtools_view_params():
+    return config["params"]["samtools-view-{}".format(get_se_pe_prefix())]
+
 def get_individual_fastq(wildcards):
     """Get individual raw FASTQ files from unit sheet, based on a read (end) wildcard"""
     if ( wildcards.read == "0" or wildcards.read == "1" ):

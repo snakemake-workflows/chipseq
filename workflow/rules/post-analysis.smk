@@ -4,7 +4,7 @@ rule preseq_lc_extrap:
     output:
         "results/preseq/{sample}.lc_extrap"
     params:
-        "-v -seed 1"
+        "-v -bam {} -seed 1".format(get_pe_prefix())
     log:
         "logs/preseq/{sample}.log"
     wrapper:
