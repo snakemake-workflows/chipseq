@@ -2,8 +2,8 @@
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
 samples: "config/samples.tsv"
-units: "config/units.tsv"
-sra-download: True  # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in units.tsv
+units: "config/units.tsv"  # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in units.tsv
+single_end: True
 
 resources:
   ref:

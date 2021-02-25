@@ -48,50 +48,47 @@ def is_single_end(sample, unit):
         )
     return fq2_present
 
-def get_se_pe_prefix():
-    return "se" if config["single-end"] else "pe"
+def has_sra_accession(sample, unit):
+    return pd.isnull(units.loc[(sample, unit), "fq1"]) and pd.isnull(units.loc[(sample, unit), "fq2"]) \
+           and not pd.isnull(units.loc[(sample, unit), "sra_accession"])
 
-def get_pe_prefix():
-    return "" if config["single-end"] else "-pe"
+def is_sra_se(sample, unit):
+    return has_sra_accession(sample, unit) and config["single_end"]
 
-def get_samtools_view_params():
-    return config["params"]["samtools-view-{}".format(get_se_pe_prefix())]
+def is_sra_pe(sample, unit):
+    return has_sra_accession(sample, unit) and not config["single_end"]
 
 def get_individual_fastq(wildcards):
     """Get individual raw FASTQ files from unit sheet, based on a read (end) wildcard"""
     if ( wildcards.read == "0" or wildcards.read == "1" ):
-        if config["sra-download"]:
-            if is_single_end(wildcards.sample, wildcards.unit):
-                return expand("resources/ref/sra-se-reads/{accession}.fastq",
-                              accession=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ])
-            else:
-                return expand("resources/ref/sra-pe-reads/{accession}.1.fastq",
-                              accession=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ])
+        if is_sra_se(wildcards.sample, wildcards.unit):
+            return expand("resources/ref/sra-se-reads/{accession}.fastq",
+                              accession=units.loc[ (wildcards.sample, wildcards.unit), "sra_accession" ])
+        elif is_sra_pe(wildcards.sample, wildcards.unit):
+            return expand("resources/ref/sra-pe-reads/{accession}.1.fastq",
+                              accession=units.loc[ (wildcards.sample, wildcards.unit), "sra_accession" ])
         else:
             return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
     elif wildcards.read == "2":
-        if config["sra-download"]:
+        if is_sra_pe(wildcards.sample, wildcards.unit):
             return expand("resources/ref/sra-pe-reads/{accession}.2.fastq",
-                          accession=units.loc[ (wildcards.sample, wildcards.unit), "fq2" ])
+                          accession=units.loc[ (wildcards.sample, wildcards.unit), "sra_accession" ])
         else:
             return units.loc[ (wildcards.sample, wildcards.unit), "fq2" ]
 
 def get_fastqs(wildcards):
     """Get raw FASTQ files from unit sheet."""
-    if is_single_end(wildcards.sample, wildcards.unit):
-        if config["sra-download"]:
-            return expand("resources/ref/sra-se-reads/{accession}.fastq",
-                          accession=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ])
-        else:
-            return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
+    if is_sra_se(wildcards.sample, wildcards.unit):
+        return expand("resources/ref/sra-se-reads/{accession}.fastq",
+                          accession=units.loc[ (wildcards.sample, wildcards.unit), "sra_accession" ])
+    elif is_sra_pe(wildcards.sample, wildcards.unit):
+        return expand(["resources/ref/sra-pe-reads/{accession}.1.fastq", "ref/sra-pe-reads/{accession}.2.fastq"],
+                          accession=units.loc[ (wildcards.sample, wildcards.unit), "sra_accession" ])
+    elif is_single_end(wildcards.sample, wildcards.unit):
+        return units.loc[ (wildcards.sample, wildcards.unit), "fq1" ]
     else:
-        if config["sra-download"]:
-            return expand(["resources/ref/sra-pe-reads/{accession1}.1.fastq", "ref/sra-pe-reads/{accession2}.2.fastq"],
-                          accession1=units.loc[ (wildcards.sample, wildcards.unit), "fq1" ],
-                          accession2=units.loc[ (wildcards.sample, wildcards.unit), "fq2" ])
-        else:
-            u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
-            return [ f"{u.fq1}", f"{u.fq2}" ]
+        u = units.loc[ (wildcards.sample, wildcards.unit), ["fq1", "fq2"] ].dropna()
+        return [ f"{u.fq1}", f"{u.fq2}" ]
 
 def is_control(sample):
     control = samples.loc[sample]["control"]

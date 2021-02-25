@@ -26,7 +26,7 @@ rule merge_bams:
     log:
         "logs/picard/mergebamfiles/{sample}.log"
     params:
-        "VALIDATION_STRINGENCY=LENIENT"
+        "VALIDATION_STRINGENCY=LENIENT SORT_ORDER=coordinate TMP_DIR=tmp"
     wrapper:
         "0.64.0/bio/picard/mergesamfiles"
 
@@ -39,6 +39,6 @@ rule mark_merged_duplicates:
     log:
         "logs/picard/picard_dedup/{sample}.log"
     params:
-        "REMOVE_DUPLICATES=false ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT"
+        "REMOVE_DUPLICATES=false ASSUME_SORTED=true VALIDATION_STRINGENCY=LENIENT TMP_DIR=tmp"
     wrapper:
         "0.64.0/bio/picard/markduplicates"

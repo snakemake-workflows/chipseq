@@ -4,7 +4,7 @@ rule preseq_lc_extrap:
     output:
         "results/preseq/{sample}.lc_extrap"
     params:
-        "-v -bam {} -seed 1".format(get_pe_prefix())
+         "-v {} -seed 1".format( "" if config["single_end"] else "-pe" )
     log:
         "logs/preseq/{sample}.log"
     wrapper:

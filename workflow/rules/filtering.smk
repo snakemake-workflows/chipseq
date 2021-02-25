@@ -4,7 +4,15 @@ rule samtools_view:
     output:
         temp("results/sam-view/{sample}.bam")
     params:
-        "{sv_params} {bl} {bl_filter}".format(sv_params=get_samtools_view_params(), bl=get_blacklist_option(), bl_filter=get_blacklist_filter())
+        # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
+        # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
+        # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
+        # the -L option is automatically activated if a path to a blacklist of the given genome exists in
+        # ".test/config/igenomes.yaml" or has been entered there
+        lambda wc, input: "-b -F 0x004 {pe_params} {bl}".format(
+            pe_params="" if config["single_end"] else "-G 0x009 -f 0x001",
+            bl="" if len(input) == 1 else "-L {}".format(list(input)[1])
+        )
     log:
         "logs/samtools-view/{sample}.log"
     wrapper:
@@ -14,10 +22,10 @@ rule bamtools_filter_json:
     input:
         "results/sam-view/{sample}.bam"
     output:
-        temp("results/filtered/{{sample}}{}.bam".format(get_pe_prefix()))
+        temp("results/filtered/{sample}.bam")
     params:
           # filters mismatches in all reads and filters pe-reads within a size range given in json-file
-        json="../config/{}_bamtools_filtering_rules.json".format(get_se_pe_prefix())
+        json="../config/{}_bamtools_filtering_rules.json".format("se" if config["single_end"] else "pe")
     log:
         "logs/filtered/{sample}.log"
     wrapper:
@@ -25,13 +33,13 @@ rule bamtools_filter_json:
 
 rule samtools_sort_pe:
     input:
-        "results/filtered/{sample}-pe.bam"
+        "results/filtered/{sample}.bam"
     output:
-        "results/filtered/{sample}-pe.bam"
+        "results/filtered/{sample}.sorted.bam"
     params:
         ""
     log:
-        "logs/samtools-sort/{sample}-pe.log"
+        "logs/samtools-sort/{sample}.sorted.log"
     threads:
         8
     wrapper:
@@ -40,7 +48,9 @@ rule samtools_sort_pe:
 #TODO for later: customize and substitute rm_orphan_pe_bam.py with some existing tool
 rule orphan_remove:
     input:
-        "results/filtered/{{sample}}{}.bam".format(get_pe_prefix())
+        expand("results/filtered/{{sample}}{infix}.bam",
+           infix="" if config["single_end"] else ".sorted"
+       )
     output:
         bam=temp("results/orphan_rm/{sample}.bam"),
         qc="results/orphan_rm/{sample}_bampe_rm_orphan.log"
