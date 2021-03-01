@@ -45,13 +45,20 @@ rule collect_multiple_metrics:
 rule genomecov:
     input:
         "results/orphan_rm_sorted/{sample}.bam",
-        "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat"
+        expand("results/{step}/{{sample}}.{step}.flagstat", step= "filtered" if config["single_end"]
+        else "orphan_rm_sorted")
     output:
         pipe("results/bed_graph/{sample}.bedgraph")
     log:
         "logs/bed_graph/{sample}.log"
-    params: #-fs option was not used because there are no single end reads any more
-        "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | awk '{print 1000000/$1}')"
+    params:
+        # "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | "
+        # "awk '{print 1000000/$1}') {pe_fragment} {extend}"
+        expand("-bg -scale $(grep 'mapped (' results/{step}/{{sample}}.{step}.flagstat |"
+               " awk '{{print 1000000/$1}}') {pe_fragment} {extend}",
+               pe_fragment="" if config["single_end"] else "-pc",
+               extend="-fs {}".format(config["se_fragment_size"]) if config["single_end"] else "",
+               step= "filtered" if config["single_end"] else "orphan_rm_sorted")
     wrapper:
         "0.64.0/bio/bedtools/genomecov"
 

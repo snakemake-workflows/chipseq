@@ -48,9 +48,10 @@ rule samtools_sort_pe:
 #TODO for later: customize and substitute rm_orphan_pe_bam.py with some existing tool
 rule orphan_remove:
     input:
-        expand("results/filtered/{{sample}}{infix}.bam",
-           infix="" if config["single_end"] else ".sorted"
-       )
+        "results/filtered/{sample}.sorted.bam"
+        # expand("results/filtered/{{sample}}{infix}.bam",
+        #    infix="" if config["single_end"] else ".sorted"
+       # )
     output:
         bam=temp("results/orphan_rm/{sample}.bam"),
         qc="results/orphan_rm/{sample}_bampe_rm_orphan.log"
@@ -65,7 +66,8 @@ rule orphan_remove:
 
 rule samtools_sort:
     input:
-        "results/orphan_rm/{sample}.bam"
+         expand("{path}/{{sample}}.bam",
+                path="results/filtered" if config["single_end"] else "results/orphan_rm")
     output:
         "results/orphan_rm_sorted/{sample}.bam"
     params:

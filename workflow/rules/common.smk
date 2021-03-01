@@ -239,9 +239,6 @@ def get_multiqc_input(wildcards):
                     "results/filtered/{sample}.filtered.flagstat",
                     "results/filtered/{sample}.filtered.idxstats",
                     "results/filtered/{sample}.filtered.stats.txt",
-                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.idxstats",
-                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
-                    "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt",
                     "results/qc/multiple_metrics/{sample}.alignment_summary_metrics",
                     "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle_metrics",
                     "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle.pdf",
@@ -260,6 +257,17 @@ def get_multiqc_input(wildcards):
                 sample = sample
             )
         )
+        if not config["single_end"]:
+            multiqc_input.extend(
+                expand (
+                    [
+                        "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.idxstats",
+                        "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat",
+                        "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.stats.txt"
+                    ],
+                    sample = sample
+                )
+            )
         if not is_control(sample):
             multiqc_input.extend(
                 expand (

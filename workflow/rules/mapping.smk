@@ -3,7 +3,7 @@ rule bwa_mem:
         reads = get_map_reads_input,
         idx = rules.bwa_index.output
     output:
-        temp("results/mapped/{sample}-{unit}.bam")
+        "results/mapped/{sample}-{unit}.bam" # ToDo: change to temp("results/mapped/{sample}-{unit}.bam")
     log:
         "logs/bwa/bwa_mem/{sample}-{unit}.log"
     params:
