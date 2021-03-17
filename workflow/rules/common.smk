@@ -61,11 +61,11 @@ def is_sra_pe(sample, unit):
 # def get_split_pe_se_input(wildcards):
 #     return expand("results/filtered/{sample}.bam", sample=wildcards.sample)
 
-def get_se_pe_branches_input(wildcard):
+def get_se_pe_branches_input(wildcards):
     if config["single_end"]:
-        "results/bamtools_filtered/{wildcard.sample}.sorted.bam"
+        return "results/bamtools_filtered/{sample}.sorted.bam".format(sample=wildcards.sample)
     else:
-        "results/orph_rm_pe/{wildcards.sample}.sorted.bam"
+        return "results/orph_rm_pe/{sample}.sorted.bam".format(sample=wildcards.sample)
 
 # def get_orph_rm_input(wildcards):
 #     if config["single_end"]:
@@ -285,17 +285,17 @@ def get_multiqc_input(wildcards):
                     sample = sample
                 )
             )
-        else:
-            multiqc_input.extend(
-                expand (
-                    [
-                        "results/filtered/{sample}.filtered.flagstat",
-                        "results/filtered/{sample}.filtered.idxstats",
-                        "results/filtered/{sample}.filtered.stats.txt"
-                    ],
-                    sample = sample
-                )
-            )
+        # else:
+        #     multiqc_input.extend(
+        #         expand (
+        #             [
+        #                 "results/filtered/{sample}.filtered.flagstat",
+        #                 "results/filtered/{sample}.filtered.idxstats",
+        #                 "results/filtered/{sample}.filtered.stats.txt"
+        #             ],
+        #             sample = sample
+        #         )
+        #     )
         if not is_control(sample):
             multiqc_input.extend(
                 expand (

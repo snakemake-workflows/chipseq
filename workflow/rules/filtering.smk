@@ -52,7 +52,7 @@ rule samtools_sort:
     params:
         ""
     log:
-        "logs/filtered/{sample}.sorted.pe.log"
+        "logs/bamtools_filtered/{sample}.sorted.log"
     threads:
         8
     wrapper:
@@ -61,17 +61,17 @@ rule samtools_sort:
 #TODO for later: customize and substitute rm_orphan_pe_bam.py with some existing tool
 rule orphan_remove:
     input:
-        "results/filtered/{sample}.sorted.pe.bam"
+        "results/bamtools_filtered/{sample}.sorted.bam"
         # expand("results/filtered/{{sample}}{infix}.bam",
         #    infix="" if config["single_end"] else ".sorted"
         #)
     output:
         bam="results/orph_rm_pe/{sample}.bam",   #ToDo: change to temp()
-        qc="results/filtered/{sample}_bampe_rm_orphan.log"
+        qc="results/orph_rm_pe/{sample}_bampe_rm_orphan.log"
     params:
         "--only_fr_pairs"
     log:
-        "logs/filtered/orph_rm_pe/{sample}.pe.log"
+        "logs/orph_rm_pe/{sample}.log"
     conda:
         "../envs/pysam.yaml"
     shell:
@@ -81,11 +81,11 @@ rule samtools_sort_pe:
     input:
          "results/orph_rm_pe/{sample}.bam"
     output:
-        "results/orph_rm_pe/{sample}.pe.bam"   #ToDo: change to temp()
+        "results/orph_rm_pe/{sample}.sorted.bam"   #ToDo: change to temp()
     params:
         ""
     log:
-        "logs/samtools-sort/{sample}.pe.log"
+        "logs/orph_rm_pe/{sample}.sorted.log"
     threads:  # Samtools takes additional threads through its option -@
         8
     wrapper:
