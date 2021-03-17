@@ -31,15 +31,28 @@ rule bamtools_filter_json:
     wrapper:
         "0.64.0/bio/bamtools/filter_json"
 
-rule samtools_sort_pe:
+rule split_pe_se:
     input:
-        "results/filtered/{sample}.bam"
+        get_split_pe_se_input
     output:
-        "results/filtered/{sample}.sorted.bam"
+        expand("results/filtered/{{sample}}.{p_status}.bam", p_status="se" if config["single_end"] else "pe")
     params:
         ""
     log:
-        "logs/samtools-sort/{sample}.sorted.log"
+        expand("logs/samtools-sort/{{sample}}.{p_status}.log", p_status="se" if config["single_end"] else "pe")
+    shell:
+        "mv {input} {output}"
+        # "for i in {input}; do for j in {output}; do ln -s $i $j; done; done"
+
+rule samtools_sort_pe:
+    input:
+        get_orph_rm_input
+    output:
+        temp("results/filtered/{sample}.sorted.pe.bam")
+    params:
+        ""
+    log:
+        "logs/filtered/{sample}.sorted.pe.log"
     threads:
         8
     wrapper:
@@ -48,17 +61,17 @@ rule samtools_sort_pe:
 #TODO for later: customize and substitute rm_orphan_pe_bam.py with some existing tool
 rule orphan_remove:
     input:
-        "results/filtered/{sample}.sorted.bam"
+        "results/filtered/{sample}.sorted.pe.bam"
         # expand("results/filtered/{{sample}}{infix}.bam",
         #    infix="" if config["single_end"] else ".sorted"
-       # )
+        #)
     output:
-        bam=temp("results/orphan_rm/{sample}.bam"),
-        qc="results/orphan_rm/{sample}_bampe_rm_orphan.log"
+        bam=temp("results/orph_rm_pe/{sample}.bam"),
+        qc="results/filtered/{sample}_bampe_rm_orphan.log"
     params:
         "--only_fr_pairs"
     log:
-        "logs/orphan_remove/{sample}.log"
+        "logs/filtered/orph_rm_pe/{sample}.pe.log"
     conda:
         "../envs/pysam.yaml"
     shell:
@@ -66,15 +79,31 @@ rule orphan_remove:
 
 rule samtools_sort:
     input:
-         expand("{path}/{{sample}}.bam",
-                path="results/filtered" if config["single_end"] else "results/orphan_rm")
+         "results/orph_rm_pe/{sample}.bam"
     output:
-        "results/orphan_rm_sorted/{sample}.bam"
+        temp("results/orph_rm_pe/{sample}.pe.bam")
     params:
         ""
     log:
-        "logs/samtools-sort/{sample}.log"
+        "logs/samtools-sort/{sample}.pe.log"
     threads:  # Samtools takes additional threads through its option -@
         8
     wrapper:
         "0.64.0/bio/samtools/sort"
+
+rule merge_se_pe:
+    input:
+         lambda w: expand("results/{step}/{sample}.{p_status}.bam",
+            sample=w.sample,
+            p_status="se" if config["single_end"] else "pe",
+            step="filtered" if config["single_end"] else "orph_rm_pe")
+    #         seq_mode="se" if all(pd.isnull(units.loc[units['sample'] == w.sample][["fq1"]])["fq1"]) else "pe",
+    #         step="filtered" if all(pd.isnull(units.loc[units['sample'] == w.sample][["fq1"]])["fq1"]) else "orph_rm")
+    output:
+        "results/filtered/{sample}.sorted.bam"
+    params:
+        ""
+    log:
+        "logs/filtered/{sample}.sorted.log"
+    shell:
+        "mv {input} {output}"

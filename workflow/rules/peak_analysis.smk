@@ -1,8 +1,8 @@
 rule plot_fingerprint:
     input:
-        bam_files=["results/orphan_rm_sorted/{sample}.bam", "results/orphan_rm_sorted/{control}.bam"],
-        bam_idx=["results/orphan_rm_sorted/{sample}.bam.bai", "results/orphan_rm_sorted/{control}.bam.bai"],
-        jsd_sample="results/orphan_rm_sorted/{control}.bam"
+        bam_files=["results/filtered/{sample}.sorted.bam", "results/filtered/{control}.sorted.bam"],
+        bam_idx=["results/filtered/{sample}.sorted.bam.bai", "results/filtered/{control}.sorted.bam.bai"],
+        jsd_sample="results/filtered/{control}.sorted.bam"
     output:  #ToDo: add description to report caption
         # https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotfingerprint.html.
         fingerprint=report("results/deeptools/{sample}-{control}.plot_fingerprint.pdf", caption="../report/plot_fingerprint_deeptools.rst", category="QC"),
@@ -21,8 +21,8 @@ rule plot_fingerprint:
 
 rule macs2_callpeak_broad:
     input:
-        treatment="results/orphan_rm_sorted/{sample}.bam",
-        control="results/orphan_rm_sorted/{control}.bam"
+        treatment="results/filtered/{sample}.sorted.bam",
+        control="results/filtered/{control}.sorted.bam"
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -45,8 +45,8 @@ rule macs2_callpeak_broad:
 
 rule macs2_callpeak_narrow:
     input:
-        treatment="results/orphan_rm_sorted/{sample}.bam",
-        control="results/orphan_rm_sorted/{control}.bam"
+        treatment="results/filtered/{sample}.sorted.bam",
+        control="results/filtered/{control}.sorted.bam"
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -96,7 +96,7 @@ rule sm_report_peaks_count_plot:
 
 rule bedtools_intersect:
     input:
-        left="results/orphan_rm_sorted/{sample}.bam",
+        left="results/filtered/{sample}.sorted.bam",
         right="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
         pipe("results/bedtools/intersect/{sample}-{control}.{peak}.intersected.bed")
@@ -110,7 +110,7 @@ rule bedtools_intersect:
 rule frip_score:
     input:
         intersect="results/bedtools/intersect/{sample}-{control}.{peak}.intersected.bed",
-        flagstats="results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat"
+        flagstats="results/orph_rm_pe/{sample}.orph_rm_pe.flagstat"
     output:
         "results/bedtools/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
     log:

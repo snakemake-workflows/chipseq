@@ -12,7 +12,7 @@ rule preseq_lc_extrap:
 
 rule collect_multiple_metrics:
     input:
-         bam="results/orphan_rm_sorted/{sample}.bam",
+         bam="results/filtered/{sample}.sorted.bam",
          ref="resources/ref/genome.fasta"
     output: #ToDo: add descriptions to report captions
         # Through the output file extensions the different tools for the metrics can be selected
@@ -44,7 +44,7 @@ rule collect_multiple_metrics:
 
 rule genomecov:
     input:
-        "results/orphan_rm_sorted/{sample}.bam",
+        "results/filtered/{sample}.sorted.bam",
         expand("results/{step}/{{sample}}.{step}.flagstat", step= "filtered" if config["single_end"]
         else "orphan_rm_sorted")
     output:
@@ -52,13 +52,13 @@ rule genomecov:
     log:
         "logs/bed_graph/{sample}.log"
     params:
-        # "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | "
+        # "-bg -pc -scale $(grep 'mapped (' results/orph_rm_pe/{sample}.orph_rm_pe.flagstat | "
         # "awk '{print 1000000/$1}') {pe_fragment} {extend}"
         expand("-bg -scale $(grep 'mapped (' results/{step}/{{sample}}.{step}.flagstat |"
                " awk '{{print 1000000/$1}}') {pe_fragment} {extend}",
                pe_fragment="" if config["single_end"] else "-pc",
                extend="-fs {}".format(config["se_fragment_size"]) if config["single_end"] else "",
-               step= "filtered" if config["single_end"] else "orphan_rm_sorted")
+               step= "filtered" if config["single_end"] else "orph_rm_pe")
     wrapper:
         "0.64.0/bio/bedtools/genomecov"
 
@@ -151,7 +151,7 @@ rule plot_heatmap:
 
 rule phantompeakqualtools:
     input:
-         "results/orphan_rm_sorted/{sample}.bam"
+         "results/filtered/{sample}.sorted.bam"
     output:  #ToDo: add description to report caption
         res_phantom="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
         r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
