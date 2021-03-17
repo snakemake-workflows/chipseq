@@ -58,13 +58,19 @@ def is_sra_se(sample, unit):
 def is_sra_pe(sample, unit):
     return has_sra_accession(sample, unit) and not config["single_end"]
 
-def get_split_pe_se_input(wildcards):
-    return expand("results/filtered/{sample}.bam", sample=wildcards.sample)
+# def get_split_pe_se_input(wildcards):
+#     return expand("results/filtered/{sample}.bam", sample=wildcards.sample)
 
-def get_orph_rm_input(wildcards):
+def get_se_pe_branches_input(wildcard):
     if config["single_end"]:
-        return expand("results/filtered/{sample}.se.bam", sample=wildcards.sample)
-    return expand("results/filtered/{sample}.pe.bam", sample=wildcards.sample)
+        "results/bamtools_filtered/{wildcard.sample}.sorted.bam"
+    else:
+        "results/orph_rm_pe/{wildcards.sample}.sorted.bam"
+
+# def get_orph_rm_input(wildcards):
+#     if config["single_end"]:
+#         return expand("results/filtered/{sample}.se.bam", sample=wildcards.sample)
+#     return expand("results/filtered/{sample}.pe.bam", sample=wildcards.sample)
 
 def get_individual_fastq(wildcards):
     """Get individual raw FASTQ files from unit sheet, based on a read (end) wildcard"""
@@ -244,9 +250,9 @@ def get_multiqc_input(wildcards):
                     "results/picard_dedup/{sample}.picard_dedup.flagstat",
                     "results/picard_dedup/{sample}.picard_dedup.idxstats",
                     "results/picard_dedup/{sample}.picard_dedup.stats.txt",
-                    # "results/filtered/{sample}.filtered.flagstat",
-                    # "results/filtered/{sample}.filtered.idxstats",
-                    # "results/filtered/{sample}.filtered.stats.txt",
+                    "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.flagstat",
+                    "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.idxstats",
+                    "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.stats.txt",
                     "results/qc/multiple_metrics/{sample}.alignment_summary_metrics",
                     "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle_metrics",
                     "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle.pdf",
@@ -269,9 +275,9 @@ def get_multiqc_input(wildcards):
             multiqc_input.extend(
                 expand (
                     [
-                        "results/filtered/{sample}.sorted.pe.filtered.flagstat",
-                        "results/filtered/{sample}.sorted.pe.filtered.idxstats",
-                        "results/filtered/{sample}.sorted.pe.filtered.stats.txt",
+                        # "results/filtered/{sample}.sorted.pe.filtered.flagstat",
+                        # "results/filtered/{sample}.sorted.pe.filtered.idxstats",
+                        # "results/filtered/{sample}.sorted.pe.filtered.stats.txt",
                         "results/orph_rm_pe/{sample}.pe.orph_rm_pe.idxstats",
                         "results/orph_rm_pe/{sample}.pe.orph_rm_pe.flagstat",
                         "results/orph_rm_pe/{sample}.pe.orph_rm_pe.stats.txt"
