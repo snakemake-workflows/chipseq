@@ -45,7 +45,7 @@ rule collect_multiple_metrics:
 rule genomecov:
     input:
         "results/filtered/{sample}.sorted.bam",
-        expand("results/{step}/{{sample}}.{step}.flagstat", step= "filtered" if config["single_end"]
+        expand("results/{step}/{{sample}}.sorted.{step}.flagstat", step= "bamtools_filtered" if config["single_end"]
         else "orphan_rm_sorted")
     output:
         pipe("results/bed_graph/{sample}.bedgraph")

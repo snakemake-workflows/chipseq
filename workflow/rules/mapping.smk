@@ -22,7 +22,7 @@ rule merge_bams:
             unit = units.loc[units['sample'] == w.sample].unit.to_list()
         )
     output:
-        temp("results/merged/{sample}.bam")
+        "results/merged/{sample}.bam" #ToDo: change to temp()
     log:
         "logs/picard/mergebamfiles/{sample}.log"
     params:
@@ -34,7 +34,7 @@ rule mark_merged_duplicates:
     input:
         "results/merged/{sample}.bam"
     output:
-        bam=temp("results/picard_dedup/{sample}.bam"),
+        bam="results/picard_dedup/{sample}.bam",  #ToDo: change to temp()
         metrics="results/picard_dedup/{sample}.metrics.txt"
     log:
         "logs/picard/picard_dedup/{sample}.log"

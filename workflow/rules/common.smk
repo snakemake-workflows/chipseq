@@ -58,19 +58,11 @@ def is_sra_se(sample, unit):
 def is_sra_pe(sample, unit):
     return has_sra_accession(sample, unit) and not config["single_end"]
 
-# def get_split_pe_se_input(wildcards):
-#     return expand("results/filtered/{sample}.bam", sample=wildcards.sample)
-
 def get_se_pe_branches_input(wildcards):
     if config["single_end"]:
         return "results/bamtools_filtered/{sample}.sorted.bam".format(sample=wildcards.sample)
     else:
         return "results/orph_rm_pe/{sample}.sorted.bam".format(sample=wildcards.sample)
-
-# def get_orph_rm_input(wildcards):
-#     if config["single_end"]:
-#         return expand("results/filtered/{sample}.se.bam", sample=wildcards.sample)
-#     return expand("results/filtered/{sample}.pe.bam", sample=wildcards.sample)
 
 def get_individual_fastq(wildcards):
     """Get individual raw FASTQ files from unit sheet, based on a read (end) wildcard"""
@@ -275,9 +267,6 @@ def get_multiqc_input(wildcards):
             multiqc_input.extend(
                 expand (
                     [
-                        # "results/filtered/{sample}.sorted.pe.filtered.flagstat",
-                        # "results/filtered/{sample}.sorted.pe.filtered.idxstats",
-                        # "results/filtered/{sample}.sorted.pe.filtered.stats.txt",
                         "results/orph_rm_pe/{sample}.pe.orph_rm_pe.idxstats",
                         "results/orph_rm_pe/{sample}.pe.orph_rm_pe.flagstat",
                         "results/orph_rm_pe/{sample}.pe.orph_rm_pe.stats.txt"
@@ -285,17 +274,7 @@ def get_multiqc_input(wildcards):
                     sample = sample
                 )
             )
-        # else:
-        #     multiqc_input.extend(
-        #         expand (
-        #             [
-        #                 "results/filtered/{sample}.filtered.flagstat",
-        #                 "results/filtered/{sample}.filtered.idxstats",
-        #                 "results/filtered/{sample}.filtered.stats.txt"
-        #             ],
-        #             sample = sample
-        #         )
-        #     )
+
         if not is_control(sample):
             multiqc_input.extend(
                 expand (
