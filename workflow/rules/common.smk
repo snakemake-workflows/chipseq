@@ -267,9 +267,9 @@ def get_multiqc_input(wildcards):
             multiqc_input.extend(
                 expand (
                     [
-                        "results/orph_rm_pe/{sample}.pe.orph_rm_pe.idxstats",
-                        "results/orph_rm_pe/{sample}.pe.orph_rm_pe.flagstat",
-                        "results/orph_rm_pe/{sample}.pe.orph_rm_pe.stats.txt"
+                        "results/orph_rm_pe/{sample}.sorted.orph_rm_pe.idxstats",
+                        "results/orph_rm_pe/{sample}.sorted.orph_rm_pe.flagstat",
+                        "results/orph_rm_pe/{sample}.sorted.orph_rm_pe.stats.txt"
                     ],
                     sample = sample
                 )

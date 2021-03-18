@@ -46,7 +46,7 @@ rule genomecov:
     input:
         "results/filtered/{sample}.sorted.bam",
         expand("results/{step}/{{sample}}.sorted.{step}.flagstat", step= "bamtools_filtered" if config["single_end"]
-        else "orphan_rm_sorted")
+        else "orph_rm_pe")
     output:
         pipe("results/bed_graph/{sample}.bedgraph")
     log:
@@ -54,11 +54,11 @@ rule genomecov:
     params:
         # "-bg -pc -scale $(grep 'mapped (' results/orph_rm_pe/{sample}.orph_rm_pe.flagstat | "
         # "awk '{print 1000000/$1}') {pe_fragment} {extend}"
-        expand("-bg -scale $(grep 'mapped (' results/{step}/{{sample}}.{step}.flagstat |"
+        expand("-bg -scale $(grep 'mapped (' results/{step}/{{sample}}.sorted.{step}.flagstat |"
                " awk '{{print 1000000/$1}}') {pe_fragment} {extend}",
                pe_fragment="" if config["single_end"] else "-pc",
                extend="-fs {}".format(config["se_fragment_size"]) if config["single_end"] else "",
-               step= "filtered" if config["single_end"] else "orph_rm_pe")
+               step= "bamtools_filtered" if config["single_end"] else "orph_rm_pe")
     wrapper:
         "0.64.0/bio/bedtools/genomecov"
 

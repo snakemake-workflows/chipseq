@@ -31,19 +31,6 @@ rule bamtools_filter_json:
     wrapper:
         "0.64.0/bio/bamtools/filter_json"
 
-# rule split_se_pe:
-#     input:
-#         get_split_pe_se_input
-#     output:
-#         expand("results/filtered/{{sample}}.{p_status}.bam", p_status="se" if config["single_end"] else "pe")
-#     params:
-#         ""
-#     log:
-#         expand("logs/samtools-sort/{{sample}}.{p_status}.log", p_status="se" if config["single_end"] else "pe")
-#     shell:
-#         "ln -s {input} {output}"
-#         # "for i in {input}; do for j in {output}; do ln -s $i $j; done; done"
-
 rule samtools_sort:
     input:
         "results/bamtools_filtered/{sample}.bam"
@@ -62,9 +49,6 @@ rule samtools_sort:
 rule orphan_remove:
     input:
         "results/bamtools_filtered/{sample}.sorted.bam"
-        # expand("results/filtered/{{sample}}{infix}.bam",
-        #    infix="" if config["single_end"] else ".sorted"
-        #)
     output:
         bam="results/orph_rm_pe/{sample}.bam",   #ToDo: change to temp()
         qc="results/orph_rm_pe/{sample}_bampe_rm_orphan.log"
@@ -94,17 +78,13 @@ rule samtools_sort_pe:
 rule merge_se_pe:
     input:
         get_se_pe_branches_input
-         # lambda w: expand("results/{step}/{sample}.{p_status}.bam",
-         #    sample=w.sample,
-         #    p_status="se" if config["single_end"] else "pe",
-         #    step="filtered" if config["single_end"] else "orph_rm_pe")
-    #         seq_mode="se" if all(pd.isnull(units.loc[units['sample'] == w.sample][["fq1"]])["fq1"]) else "pe",
-    #         step="filtered" if all(pd.isnull(units.loc[units['sample'] == w.sample][["fq1"]])["fq1"]) else "orph_rm")
     output:
         "results/filtered/{sample}.sorted.bam"
     params:
         ""
+        # path="results/filtered"
     log:
         "logs/filtered/{sample}.sorted.log"
     shell:
-        "ln -s {input} {output}"
+        "ln -sr {input} {output}"
+        # "cd {path}; ln -s ../filtered/{input.nodir} {output.nodir}"
