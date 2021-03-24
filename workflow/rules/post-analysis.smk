@@ -19,15 +19,16 @@ rule collect_multiple_metrics:
         # so that it is not necessary to specify them under params with the "PROGRAM" option.
         # Usable extensions (and which tools they implicitly call) are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/picard/collectmultiplemetrics.html.
+        [expand("{{path}}{{sample}}{ext}", ext=".insert_size_metrics"),
+        report(expand("{{path}}{{sample}}{ext}", ext=".insert_size_histogram.pdf"), caption = "../report/plot_insert_size_histogram_picard_mm.rst",
+            category = "MulitpleMetrics")] if not config["single_end"] else [],
         multiext("{path}{sample}",
                  ".alignment_summary_metrics",
                  ".base_distribution_by_cycle_metrics",
-                 ".insert_size_metrics",
                  ".quality_by_cycle_metrics",
                  ".quality_distribution_metrics",
                  ),
         report("{path}{sample}.base_distribution_by_cycle.pdf", caption="../report/plot_base_distribution_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
-        report("{path}{sample}.insert_size_histogram.pdf", caption="../report/plot_insert_size_histogram_picard_mm.rst", category="MulitpleMetrics"),
         report("{path}{sample}.quality_by_cycle.pdf", caption="../report/plot_quality_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
         report("{path}{sample}.quality_distribution.pdf", caption="../report/plot_quality_distribution_picard_mm.rst", category="MulitpleMetrics")
     resources:
@@ -45,20 +46,28 @@ rule collect_multiple_metrics:
 rule genomecov:
     input:
         "results/filtered/{sample}.sorted.bam",
-        expand("results/{step}/{{sample}}.sorted.{step}.flagstat", step= "bamtools_filtered" if config["single_end"]
-        else "orph_rm_pe")
+        flag_stats=expand("results/{step}/{{sample}}.sorted.{step}.flagstat",
+            step= "bamtools_filtered" if config["single_end"]
+            else "orph_rm_pe"),
+        stats=expand("results/{step}/{{sample}}.sorted.{step}.stats.txt",
+            step= "bamtools_filtered" if config["single_end"]
+            else "orph_rm_pe"),
     output:
         pipe("results/bed_graph/{sample}.bedgraph")
     log:
         "logs/bed_graph/{sample}.log"
     params:
-        # "-bg -pc -scale $(grep 'mapped (' results/orph_rm_pe/{sample}.orph_rm_pe.flagstat | "
-        # "awk '{print 1000000/$1}') {pe_fragment} {extend}"
-        expand("-bg -scale $(grep 'mapped (' results/{step}/{{sample}}.sorted.{step}.flagstat |"
-               " awk '{{print 1000000/$1}}') {pe_fragment} {extend}",
-               pe_fragment="" if config["single_end"] else "-pc",
-               extend="-fs {}".format(config["se_fragment_size"]) if config["single_end"] else "",
-               step= "bamtools_filtered" if config["single_end"] else "orph_rm_pe")
+        lambda w, input: ''.join(expand("-bg -scale $(grep 'mapped (' {flagstats_file} | awk '{{print 1000000/$1}}') {pe_fragment} {extend}",
+            flagstats_file=input.flag_stats,
+            pe_fragment="" if config["single_end"] else "-pc",
+            # Estimated fragment size used to extend single-end reads
+            extend=''.join(expand(
+                "-fs $(grep ^SN {stats} | "
+                "cut -f 2- | "
+                "grep -m1 'average length:' | "
+                "awk '{{print $NF}}')",
+                stats=input.stats)
+                if config["single_end"] else "")))
     wrapper:
         "0.64.0/bio/bedtools/genomecov"
 

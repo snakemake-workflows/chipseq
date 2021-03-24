@@ -5,8 +5,6 @@ samples: "config/se_samples.tsv"
 units: "config/se_units.tsv"  # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in units.tsv
                               # dataset for testing this workflow with single end reads: https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA255509&o=acc_s%3Aa
 single_end: True
-# Estimated fragment size used to extend single-end reads
-se_fragment_size: 200
 
 # config for SE dataset of se_samples.tsv and se_units.tsv
 resources:
@@ -43,12 +41,14 @@ resources:
 #    macs-gsize:
 
 params:
-  lc_extrap:
-    activate: True
   # choose "narrow" or "broad" for macs2 callpeak analysis, for documentation and source code please see https://github.com/macs3-project/MACS
   peak-analysis: "broad"
   # Number of biological replicates required from a given condition for a peak to contribute to a consensus peak
   min-reps-consensus: 1
+  lc_extrap:
+    activate: True
+  picard_metrics:
+    activate: True
   deseq2:
     # optional to run vst transform instead of rlog
     vst:

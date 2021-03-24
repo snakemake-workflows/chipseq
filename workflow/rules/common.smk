@@ -245,15 +245,6 @@ def get_multiqc_input(wildcards):
                     "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.flagstat",
                     "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.idxstats",
                     "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.stats.txt",
-                    "results/qc/multiple_metrics/{sample}.alignment_summary_metrics",
-                    "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle_metrics",
-                    "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle.pdf",
-                    "results/qc/multiple_metrics/{sample}.insert_size_metrics",
-                    "results/qc/multiple_metrics/{sample}.insert_size_histogram.pdf",
-                    "results/qc/multiple_metrics/{sample}.quality_by_cycle_metrics",
-                    "results/qc/multiple_metrics/{sample}.quality_by_cycle.pdf",
-                    "results/qc/multiple_metrics/{sample}.quality_distribution_metrics",
-                    "results/qc/multiple_metrics/{sample}.quality_distribution.pdf",
                     "results/deeptools/plot_profile_data.tab",
                     "results/phantompeakqualtools/{sample}.phantompeak.spp.out",
                     "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
@@ -290,6 +281,31 @@ def get_multiqc_input(wildcards):
         )
         if config["params"]["lc_extrap"]["activate"]:
                 multiqc_input.extend( expand(["results/preseq/{sample}.lc_extrap"], sample = sample))
+        if config["params"]["picard_metrics"]["activate"]:
+            if not config["single_end"]:
+                multiqc_input.extend(
+                    expand(
+                        [
+                            "results/qc/multiple_metrics/{sample}.insert_size_metrics",
+                            "results/qc/multiple_metrics/{sample}.insert_size_histogram.pdf",
+                        ],
+                    sample = sample
+                )
+            )
+            multiqc_input.extend(
+                expand (
+                    [                        
+                        "results/qc/multiple_metrics/{sample}.alignment_summary_metrics",
+                        "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle_metrics",
+                        "results/qc/multiple_metrics/{sample}.base_distribution_by_cycle.pdf",
+                        "results/qc/multiple_metrics/{sample}.quality_by_cycle_metrics",
+                        "results/qc/multiple_metrics/{sample}.quality_by_cycle.pdf",
+                        "results/qc/multiple_metrics/{sample}.quality_distribution_metrics",
+                        "results/qc/multiple_metrics/{sample}.quality_distribution.pdf"
+                    ], 
+                sample = sample
+            )
+        )
     return multiqc_input
 
 def all_input(wildcards):
