@@ -141,18 +141,11 @@ rule feature_counts:
     threads:
         2
     params:
-        tmp_dir="",   # implicitly sets the --tmpDir flag
-        r_path="",    # implicitly sets the --Rpath flag
-        extra="-F SAF -O --fracOverlap 0.2"
+        extra="-F SAF -O --fracOverlap 0.2{pe_param}".format(pe_param="" if config["single_end"] else " -p --donotsort")
     log:
         "logs/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.log"
-    conda:
-        "../envs/temp_featurecounts.yaml"
-    script:
-        "../scripts/temp_featurecounts.py"
-    # ToDo change to wrapper when released
-    # wrapper:
-    #     "xxxxx/bio/subread/featurecounts"
+    wrapper:
+        "0.73.0/bio/subread/featurecounts"
 
 rule featurecounts_modified_colnames:
     input:

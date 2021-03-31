@@ -2,7 +2,10 @@ rule plot_fingerprint:
     input:
         bam_files=["results/filtered/{sample}.sorted.bam", "results/filtered/{control}.sorted.bam"],
         bam_idx=["results/filtered/{sample}.sorted.bam.bai", "results/filtered/{control}.sorted.bam.bai"],
-        jsd_sample="results/filtered/{control}.sorted.bam"
+        jsd_sample="results/filtered/{control}.sorted.bam",
+        stats=expand("results/{step}/{{sample}}.sorted.{step}.stats.txt",
+            step="bamtools_filtered" if config["single_end"]
+            else "orph_rm_pe")
     output:  #ToDo: add description to report caption
         # https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotfingerprint.html.
         fingerprint=report("results/deeptools/{sample}-{control}.plot_fingerprint.pdf", caption="../report/plot_fingerprint_deeptools.rst", category="QC"),
@@ -14,6 +17,18 @@ rule plot_fingerprint:
         "--labels {sample} {control}",
         "--skipZeros ",
         "--numberOfSamples 500000 ", # ToDo: to config?
+        lambda w, input:
+            "{se_option}{fragment_size}".format(
+                se_option="--extendReads " if config["single_end"] else "",
+                # Estimated fragment size used to extend single-end reads
+                fragment_size=
+                "$(grep ^SN {stats} | "
+                "cut -f 2- | "
+                "grep -m1 'average length:' | "
+                "awk '{{print $NF}}') ".format(
+                    stats=input.stats)
+                if config["single_end"] else ""
+            )
     threads:
         8
     wrapper:
@@ -39,7 +54,9 @@ rule macs2_callpeak_broad:
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params: # ToDo: move to config?
-        "--broad-cutoff 0.1 -f BAMPE -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(gsize=get_gsize())
+        "--broad-cutoff 0.1 -f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(
+            gsize=get_gsize(),
+            bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
         "0.68.0/bio/macs2/callpeak"
 
@@ -63,7 +80,9 @@ rule macs2_callpeak_narrow:
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params: # ToDo: move to config?
-        "-f BAMPE -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(gsize=get_gsize())
+        "-f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(
+            gsize=get_gsize(),
+            bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
         "0.68.0/bio/macs2/callpeak"
 

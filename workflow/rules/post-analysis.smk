@@ -57,17 +57,19 @@ rule genomecov:
     log:
         "logs/bed_graph/{sample}.log"
     params:
-        lambda w, input: ''.join(expand("-bg -scale $(grep 'mapped (' {flagstats_file} | awk '{{print 1000000/$1}}') {pe_fragment} {extend}",
+        lambda w, input:
+            "-bg -scale $(grep 'mapped (' {flagstats_file} | awk '{{print 1000000/$1}}') {pe_fragment} {extend}".format(
             flagstats_file=input.flag_stats,
             pe_fragment="" if config["single_end"] else "-pc",
             # Estimated fragment size used to extend single-end reads
-            extend=''.join(expand(
+            extend=
                 "-fs $(grep ^SN {stats} | "
                 "cut -f 2- | "
                 "grep -m1 'average length:' | "
-                "awk '{{print $NF}}')",
+                "awk '{{print $NF}}')".format(
                 stats=input.stats)
-                if config["single_end"] else "")))
+            if config["single_end"] else ""
+        )
     wrapper:
         "0.64.0/bio/bedtools/genomecov"
 
