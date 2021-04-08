@@ -1,7 +1,0 @@
-sample	group	batch_effect	control	antibody
-A	ERa_TNFa	batch1	E	ERa
-B	ERa_E2_TNFa	batch2	F	ERa
-C	p65_TNFa	batch1	E	p65
-D	p65_E2_TNFa	batch2	F	p65
-E	INPUT_TNFa	batch1
-F	INPUT_E2_TNFa	batch2
