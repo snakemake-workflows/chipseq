@@ -96,6 +96,8 @@ rule homer_consensus_annotatepeaks:
         annotations="results/homer/annotate_consensus_peaks/{antibody}.consensus_{peak}-peaks.annotatePeaks.txt"
     threads:
         2
+    resources:
+        mem_mb=4000
     params:
         mode="",
         extra="-gid"

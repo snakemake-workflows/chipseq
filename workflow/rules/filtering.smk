@@ -2,7 +2,7 @@ rule samtools_view:
     input:
          get_samtools_view_input
     output:
-        "results/sam-view/{sample}.bam" #ToDo: change to temp()
+        temp("results/sam-view/{sample}.bam")
     params:
         # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
         # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
@@ -22,7 +22,7 @@ rule bamtools_filter_json:
     input:
         "results/sam-view/{sample}.bam"
     output:
-        "results/bamtools_filtered/{sample}.bam" #ToDo: change to temp()
+        temp("results/bamtools_filtered/{sample}.bam")
     params:
           # filters mismatches in all reads and filters pe-reads within a size range given in json-file
         json="../config/{}_bamtools_filtering_rules.json".format("se" if config["single_end"] else "pe")
@@ -35,7 +35,7 @@ rule samtools_sort:
     input:
         "results/bamtools_filtered/{sample}.bam"
     output:
-        "results/bamtools_filtered/{sample}.sorted.bam"  #ToDo: change to temp()
+        "results/bamtools_filtered/{sample}.sorted.bam"
     params:
         ""
     log:
@@ -50,7 +50,7 @@ rule orphan_remove:
     input:
         "results/bamtools_filtered/{sample}.sorted.bam"
     output:
-        bam="results/orph_rm_pe/{sample}.bam",   #ToDo: change to temp()
+        bam=temp("results/orph_rm_pe/{sample}.bam"),
         qc="results/orph_rm_pe/{sample}_bampe_rm_orphan.log"
     params:
         "--only_fr_pairs"
@@ -65,7 +65,7 @@ rule samtools_sort_pe:
     input:
          "results/orph_rm_pe/{sample}.bam"
     output:
-        "results/orph_rm_pe/{sample}.sorted.bam"   #ToDo: change to temp()
+        "results/orph_rm_pe/{sample}.sorted.bam"
     params:
         ""
     log:

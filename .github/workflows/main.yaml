@@ -22,14 +22,63 @@ jobs:
         stagein: |
           export TMPDIR=/tmp
 
-  Testing:
+  Testing_pe:
     runs-on: ubuntu-latest
     needs: Linting
     steps:
+    - name: Test dry run for a large single end workflow
+      uses: snakemake/snakemake-github-action@v1.16.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config/config_single_end_full_data_set/config.yaml --use-conda -n --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          export TMPDIR=/tmp
+          rm -rf .test/resources .test/results
+          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+
+    - name: Test single end workflow (test data sra-download)
+      uses: snakemake/snakemake-github-action@v1.16.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config/config_single_end/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          export TMPDIR=/tmp
+          rm -rf .test/resources .test/results
+          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+
     - uses: actions/checkout@v1
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.0.0
 
+    - name: Test paired end workflow (submodule test data)
+      uses: snakemake/snakemake-github-action@v1.16.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config/config_paired_end/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          export TMPDIR=/tmp
+          rm -rf .test/resources .test/results
+          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+
+    - name: Test report
+      uses: snakemake/snakemake-github-action@v1.14.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--report report.zip"
+        stagein: |
+          export TMPDIR=/tmp
+
+  Testing_se:
+    runs-on: ubuntu-latest
+    needs: Linting
+    steps:
     - name: Test workflow (local test data)
       uses: snakemake/snakemake-github-action@v1.14.0
       with:

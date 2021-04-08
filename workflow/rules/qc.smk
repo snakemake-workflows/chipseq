@@ -12,7 +12,6 @@ rule fastqc:
     wrapper:
         "0.72.0/bio/fastqc"
 
-# ToDo: add wrapper again and remove temporary script and env after wrapper release with matplotlib dependency
 rule multiqc:
     input:
         get_multiqc_input

@@ -3,7 +3,7 @@ rule bwa_mem:
         reads = get_map_reads_input,
         idx = rules.bwa_index.output
     output:
-        "results/mapped/{sample}-{unit}.bam" # ToDo: change to temp("results/mapped/{sample}-{unit}.bam")
+        temp("results/mapped/{sample}-{unit}.bam")
     log:
         "logs/bwa/bwa_mem/{sample}-{unit}.log"
     params:
@@ -22,7 +22,7 @@ rule merge_bams:
             unit = units.loc[units['sample'] == w.sample].unit.to_list()
         )
     output:
-        "results/merged/{sample}.bam" #ToDo: change to temp()
+        temp("results/merged/{sample}.bam")
     log:
         "logs/picard/mergebamfiles/{sample}.log"
     params:
@@ -34,7 +34,7 @@ rule mark_merged_duplicates:
     input:
         "results/merged/{sample}.bam"
     output:
-        bam="results/picard_dedup/{sample}.bam",  #ToDo: change to temp()
+        bam=temp("results/picard_dedup/{sample}.bam"),
         metrics="results/picard_dedup/{sample}.metrics.txt"
     log:
         "logs/picard/picard_dedup/{sample}.log"
