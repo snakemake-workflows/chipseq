@@ -122,9 +122,9 @@ if (length(unique(groups)) == 1) {
 DDSFile <- snakemake@output[["dds"]]  # AVI: adapted to snakemake
 if (file.exists(DDSFile) == FALSE) {
     counts <- count.table[,samples.vec,drop=FALSE]
-    # print(counts)
+    print(head(counts))
     coldata <- data.frame(row.names=colnames(counts),condition=groups)
-    # print(coldata)
+    print(head(coldata))
     dds <- DESeqDataSetFromMatrix(countData = round(counts), colData = coldata, design = ~ condition)
     dds <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(snakemake@threads[[1]]))  # ToDo: change to 'parallel=TRUE' when fixed the script
     if (!snakemake@params[["vst"]]) {
