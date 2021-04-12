@@ -30,9 +30,10 @@ jobs:
       uses: snakemake/snakemake-github-action@v1.17.0
       with:
         directory: .test
-        snakefile: ../workflow/Snakefile
-        args: "--configfile .test/config/config_single_end_full_data_set/config.yaml --use-conda -n --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-#        stagein: |
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config/config_single_end_full_data_set/config.yaml --use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+           pwd; ls -l
 #          export TMPDIR=/tmp
 #          rm -rf .test/resources .test/results
 #          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
@@ -42,7 +43,7 @@ jobs:
       uses: snakemake/snakemake-github-action@v1.17.0
       with:
         directory: .test
-        snakefile: ../workflow/Snakefile
+        snakefile: workflow/Snakefile
         args: "--configfile .test/config/config_single_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 #        stagein: |
 #          export TMPDIR=/tmp
@@ -58,7 +59,7 @@ jobs:
       uses: snakemake/snakemake-github-action@v1.17.0
       with:
         directory: .test
-        snakefile: ../workflow/Snakefile
+        snakefile: workflow/Snakefile
         args: "--configfile .test/config/config_paired_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 #        stagein: |
 #          export TMPDIR=/tmp
@@ -70,7 +71,7 @@ jobs:
       uses: snakemake/snakemake-github-action@v1.17.0
       with:
         directory: .test
-        snakefile: ../workflow/Snakefile
+        snakefile: workflow/Snakefile
         args: "--report report.zip"
 #        stagein: |
 #          export TMPDIR=/tmp
