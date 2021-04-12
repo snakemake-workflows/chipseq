@@ -1,6 +1,12 @@
 # The main entry point of workflow.
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
 
+configfile: "config/config.yaml"
+
+report: "report/workflow.rst"
+
+container: "docker://continuumio/miniconda3"
+
 include: "rules/common.smk"
 include: "rules/ref.smk"
 include: "rules/qc.smk"
