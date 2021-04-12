@@ -18,7 +18,7 @@ jobs:
       with:
         directory: .
         snakefile: workflow/Snakefile
-        args: "--lint --configfile .test/config/config_single_end/config.yaml"
+        args: "--lint"
         stagein: |
           export TMPDIR=/tmp
 
