@@ -152,7 +152,8 @@ rule feature_counts:
 rule featurecounts_modified_colnames:
     input:
         featurecounts="results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts",
-        bam=expand("results/filtered/{sample}.sorted.bam", sample=samples.index)
+        bam=expand("results/filtered/{sample}.sorted.bam", sample=samples.index),
+        samples_file=config["samples"]
     output:
         "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"
     params:
@@ -166,9 +167,10 @@ rule featurecounts_modified_colnames:
 rule featurecounts_deseq2:
     input:
         "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"
-    output:  # ToDo: add plots to report section
+    output:
         dds="results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
-        plots="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
+        plots=report("results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
+            caption = "../report/plot_pca_corr_heatmap_deseq2.rst", category = "DESeq2"),
         pca_data="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
         dist_data="results/deseq2/dists/{antibody}.consensus_{peak}-peaks.sample.dists.txt",
         size_factors_rdata="results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.RData",
@@ -178,7 +180,8 @@ rule featurecounts_deseq2:
         deseq2_FDR_5_perc_res="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
         deseq2_FDR_1_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
         deseq2_FDR_5_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
-        deseq2_plots="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf"
+        deseq2_plots=report("results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf",
+            caption = "../report/plot_scatter_heatmap_deseq2.rst", category = "DESeq2")
     threads:
         2
     params:

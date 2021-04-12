@@ -125,8 +125,14 @@ if (file.exists(DDSFile) == FALSE) {
     print(head(counts))
     coldata <- data.frame(row.names=colnames(counts),condition=groups)
     print(head(coldata))
+
+    # AVI: set threads limit to prevent the "'bplapply' receive data failed" error
+    # see also https://github.com/kdkorthauer/dmrseq/issues/7
+    threads <- floor(snakemake@threads[[1]] * 0.75)
+
     dds <- DESeqDataSetFromMatrix(countData = round(counts), colData = coldata, design = ~ condition)
-    dds <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(snakemake@threads[[1]]))  # ToDo: change to 'parallel=TRUE' when fixed the script
+    dds <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(ifelse(threads>0, threads, 1)))  # AVI: set threads limit
+
     if (!snakemake@params[["vst"]]) {
         rld <- rlog(dds)
     } else {
