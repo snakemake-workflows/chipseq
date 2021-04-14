@@ -250,12 +250,16 @@ if (file.exists(ResultsFile) == FALSE) {
         #}
 
         control.samples <- samples.vec[which(groups == control.group)]
+        print(paste("control.samples: ", head(control.samples)))
         treat.samples <- samples.vec[which(groups == treat.group)]
+        print(paste("treat.samples: ", head(treat.samples)))
         comp.samples <- c(control.samples,treat.samples)
+        print(paste("comp.samples: ", head(comp.samples)))
 
         comp.results <- results(dds,contrast=c("condition",c(control.group,treat.group)))
         comp.df <- as.data.frame(comp.results)
         comp.table <- cbind(interval.table, as.data.frame(comp.df), raw.counts[,paste(comp.samples,'raw',sep='.')], pseudo.counts[,paste(comp.samples,'pseudo',sep='.')])
+        print(paste("comp.table: ", head(comp.table)))
 
         ## WRITE RESULTS FILE
         CompResultsFile <- snakemake@output[["deseq2_results"]]

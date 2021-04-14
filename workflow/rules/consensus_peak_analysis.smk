@@ -192,3 +192,13 @@ rule featurecounts_deseq2:
         "../envs/featurecounts_deseq2.yaml"
     script:
         "../scripts/featurecounts_deseq2.R"
+#
+# rule create_deseq2_igv:
+#     input:
+#         "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed"
+#     output:
+#         "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.txt"
+#     log:
+#         "logs/igv/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.log"
+#     shell:
+#         "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.deseq2.FDR_0.05.results.bed' -exec echo -e 'results/IGV/consensus/{wildcards.antibody}/deseq2/\"{{}}\"\t255,0,0' \; > {output} 2> {log}"
