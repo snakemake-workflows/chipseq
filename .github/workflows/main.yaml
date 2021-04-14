@@ -36,7 +36,7 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--configfile .test/config/config_single_end_full_data_set/config.yaml --use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
-           pwd; ls -al workflow
+           pwd; ls -al
 #          export TMPDIR=/tmp
 #          rm -rf .test/resources .test/results
 #          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
