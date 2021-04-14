@@ -34,7 +34,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile --use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
            pwd; ls -al
 #          export TMPDIR=/tmp
