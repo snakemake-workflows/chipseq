@@ -34,7 +34,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config/config_single_end_full_data_set/config.yaml --use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--configfile --use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
            pwd; ls -al
 #          export TMPDIR=/tmp
@@ -47,7 +47,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config/config_single_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--configfile .test/config_single_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 #        stagein: |
 #          export TMPDIR=/tmp
 #          rm -rf .test/resources .test/results
@@ -63,7 +63,7 @@ jobs:
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--configfile .test/config/config_paired_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--configfile .test/config_paired_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 #        stagein: |
 #          export TMPDIR=/tmp
 #          rm -rf .test/resources .test/results

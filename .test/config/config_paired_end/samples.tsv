@@ -1,4 +1,0 @@
-sample	group	batch_effect	control	antibody
-A	SPT5_T0	batch1	C	SPT5
-B	SPT5_T15	batch2	C	SPT5
-C	SPT5_INPUT	batch1
