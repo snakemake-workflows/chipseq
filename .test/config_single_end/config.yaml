@@ -1,11 +1,11 @@
 # This file should contain everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
-samples: "config/config_single_end/samples.tsv"
+samples: "config_single_end/samples.tsv"
 # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in
 # units.tsv dataset for testing this workflow with single end reads:
 # https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA255509&o=acc_s%3Aa
-units: "config/config_single_end/units.tsv"
+units: "config_single_end/units.tsv"
 single_end: True
 
 # config for a small single end data set for testing
