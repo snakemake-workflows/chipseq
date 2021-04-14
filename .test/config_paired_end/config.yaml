@@ -1,25 +1,22 @@
 # This file should contain everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
-samples: "config/samples.tsv"
-# to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in
-# units.tsv dataset for testing this workflow with single end reads:
-# https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA255509&o=acc_s%3Aa
-units: "config/units.tsv"
-single_end: True
+samples: "config/config_paired_end/samples.tsv"
+units: "config/config_paired_end/units.tsv"
+single_end: False
 
-# config for a large single end data set
+# config for paired end data set for testing
 resources:
   ref:
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
-    n_chromosomes: 25
+    n_chromosomes: 17
     # Ensembl species name
-    species: homo_sapiens
+    species: saccharomyces_cerevisiae
     # Ensembl release
     release: 101
     # Genome build
-    build: GRCh38
+    build: R64-1-1
     # for testing data only chromosome 21 is selected
     chromosome:
     # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9

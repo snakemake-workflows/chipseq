@@ -1,0 +1,14 @@
+sample	group	batch_effect	control	antibody
+A	TNFa	batch1	L	ERa
+B	TNFa	batch2	L	ERa
+C	E2_TNFa	batch1	M	ERa
+D	E2_TNFa	batch2	M	ERa
+E	E2_TNFa	batch1	L	ERa
+F	E2_TNFa	batch1	L	ERa
+G	E2_TNFa	batch1	M	ERa
+H	E2_TNFa	batch1	M	ERa
+I	TNFa	batch1	L	p65
+J	TNFa	batch2	L	p65
+K	E2_TNFa	batch1	M	p65
+L	TNFa	batch1
+M	E2_TNFa	batch1
