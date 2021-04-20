@@ -35,12 +35,19 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-        stagein: |
-           pwd; ls -al
+#        stagein: |
+#           pwd; ls -al
 #          export TMPDIR=/tmp
 #          rm -rf .test/resources .test/results
 #          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
 #          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+    -
+    - name: Test minimized single end workflow (on local reduced SRA files)
+      uses: snakemake/snakemake-github-action@v1.17.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config_single_end_reduced/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
     - name: Test single end workflow (test data sra-download)
       uses: snakemake/snakemake-github-action@v1.17.0

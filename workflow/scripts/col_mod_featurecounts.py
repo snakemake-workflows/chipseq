@@ -12,8 +12,12 @@ bam = snakemake.input.get("bam", "")
 def get_group_control_combination(bam_path):
     sample = os.path.basename(bam_path.split(".sorted.bam")[0])
     group = "".join(samples[samples["sample"] == sample]["group"])
-    control = "".join(samples[samples["sample"] == sample]["control"])
-    return "{}_{}.{}".format(group, control, sample)
+    control = samples[samples["sample"] == sample]["control"].iloc[0]
+    if pd.isnull(control):
+        control = sample
+    else:
+        control = "".join(control)
+    return "{}_{}_{}".format(group, control, sample)
 
 
 def modify_header(old_header):

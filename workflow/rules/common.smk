@@ -8,7 +8,6 @@ import yaml
 
 ##### load config and sample sheets #####
 
-# configfile: "config/config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
 samples = pd.read_csv(config["samples"], sep="\t", dtype = str).set_index("sample", drop=False)
@@ -21,8 +20,6 @@ units.index.names = ["sample_id", "unit_id"]
 units.index = units.index.set_levels(
     [i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
-
-# report: "../report/workflow.rst"
 
 with open('config/igenomes.yaml') as f:
     igenomes = yaml.load(f, Loader=yaml.FullLoader)
@@ -193,6 +190,11 @@ def exists_multiple_groups(antibody):
 def exists_replicates(antibody):
     return len(samples[samples["antibody"] == antibody]["sample"].unique()) > 1
 
+def get_controls_of_antibody(antibody):
+    groups = samples[samples["antibody"] == antibody]["group"]
+    controls = samples[samples["control"] != samples["control"]]
+    return controls[controls["group"].isin(list(groups))]["sample"]
+
 def get_samples_of_antibody(antibody):
     return samples[samples["antibody"] == antibody]["sample"]
 
@@ -245,7 +247,6 @@ def get_multiqc_input(wildcards):
                     "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.flagstat",
                     "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.idxstats",
                     "results/bamtools_filtered/{sample}.sorted.bamtools_filtered.stats.txt",
-                    "results/deeptools/plot_profile_data.tab",
                     "results/phantompeakqualtools/{sample}.phantompeak.spp.out",
                     "results/phantompeakqualtools/{sample}.spp_correlation_mqc.tsv",
                     "results/phantompeakqualtools/{sample}.spp_nsc_mqc.tsv",
@@ -254,6 +255,16 @@ def get_multiqc_input(wildcards):
                 sample = sample
             )
         )
+        if config["params"]["deeptools-plots"]["activate"]:
+            multiqc_input.extend(
+                expand(
+                    [
+                        "results/deeptools/plot_profile_data.tab"
+                    ],
+                    sample=sample
+                )
+            )
+
         if not config["single_end"]:
             multiqc_input.extend(
                 expand (
@@ -352,14 +363,23 @@ def all_input(wildcards):
             expand (
                 [
                     "results/IGV/big_wig/merged_library.bigWig.igv.txt",
-                    "results/deeptools/plot_profile.pdf",
-                    "results/deeptools/heatmap.pdf",
-                    "results/deeptools/heatmap_matrix.tab",
                     "results/phantompeakqualtools/{sample}.phantompeak.pdf"
                 ],
                 sample = sample
             )
         )
+
+        if config["params"]["deeptools-plots"]["activate"]:
+            wanted_input.extend(
+                expand(
+                    [
+                        "results/deeptools/plot_profile.pdf",
+                        "results/deeptools/heatmap.pdf",
+                        "results/deeptools/heatmap_matrix.tab"
+                    ],
+                    sample=sample
+                )
+            )
 
         if not is_control(sample):
             if macs_gsize:
@@ -408,17 +428,23 @@ def all_input(wildcards):
                                             "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.summary",
                                             "results/feature_counts/{antibody}.consensus_{peak}-peaks.featureCounts.jcounts",
                                             "results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
-                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
-                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
+                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca_plot.pdf",
+                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks.heatmap_plot.pdf",
+                                            "results/deseq2/pca_vals/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
                                             "results/deseq2/dists/{antibody}.consensus_{peak}-peaks.sample.dists.txt",
                                             "results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.RData",
                                             "results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.sizeFactor.txt",
                                             "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.txt",
-                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.txt",
-                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
-                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
-                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
-                                            "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf"
+                                            "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.txt",
+                                            "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
+                                            "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
+                                            "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
+                                            "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.01_MA_plot.pdf",
+                                            "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.05_MA_plot.pdf",
+                                            "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.01_volcano_plot.pdf",
+                                            "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.05_volcano_plot.pdf",
+                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks_sample_corr_heatmap.pdf",
+                                            "results/deseq2/plots/{antibody}.consensus_{peak}-peaks_scatter_plots.pdf"
                                         ],
                                         peak = config["params"]["peak-analysis"],
                                         antibody = antibody

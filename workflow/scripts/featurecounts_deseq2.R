@@ -147,11 +147,13 @@ if (file.exists(DDSFile) == FALSE) {
 #################################################
 #################################################
 
-PlotFile <- snakemake@output[["plots"]]  # AVI: adapted to snakemake
-if (file.exists(PlotFile) == FALSE) {
-    pdf(file=PlotFile,onefile=TRUE,width=7,height=7)
+PlotPCAFile <- snakemake@output[["plot_pca"]]  # AVI: adapted to snakemake
+PlotHeatmapFile <- snakemake@output[["plot_heatmap"]]  # AVI: adapted to snakemake
+if (file.exists(PlotPCAFile) == FALSE) {
+    # pdf(file=PlotFile,onefile=TRUE,width=7,height=7)  # AVI: splitted in separate pdf files
 
     ## PCA
+    pdf(file=PlotPCAFile,onefile=TRUE,width=7,height=7)  # AVI: added to create separate pdf files
     pca.data <- DESeq2::plotPCA(rld,intgroup=c("condition"),returnData=TRUE)
     percentVar <- round(100 * attr(pca.data, "percentVar"))
     plot <- ggplot(pca.data, aes(PC1, PC2, color=condition)) +
@@ -163,23 +165,28 @@ if (file.exists(PlotFile) == FALSE) {
                   panel.background = element_blank(),
                   panel.border = element_rect(colour = "black", fill=NA, size=1))
     print(plot)
+    dev.off()  # AVI: added to create separate pdf files
+}
 
     ## WRITE PC1 vs PC2 VALUES TO FILE
+if (file.exists(PlotHeatmapFile) == FALSE) {   # AVI: added for splitted pdf files
     pca.vals <- pca.data[,1:2]
     colnames(pca.vals) <- paste(colnames(pca.vals),paste(percentVar,'% variance',sep=""), sep=": ")
     pca.vals <- cbind(sample = rownames(pca.vals), pca.vals)
     write.table(pca.vals,file=snakemake@output[["pca_data"]],row.names=FALSE,col.names=TRUE,sep="\t",quote=TRUE) # AVI: adapted to snakemake
 
     ## SAMPLE CORRELATION HEATMAP
+    pdf(file=PlotHeatmapFile,onefile=TRUE,width=7,height=7)  # AVI: added to create separate pdf files
     sampleDists <- dist(t(assay(rld)))
     sampleDistMatrix <- as.matrix(sampleDists)
     colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
     pheatmap(sampleDistMatrix,clustering_distance_rows=sampleDists,clustering_distance_cols=sampleDists,col=colors)
+    dev.off()  # AVI: added to create separate pdf files
 
     ## WRITE SAMPLE DISTANCES TO FILE  # AVI: adapted to snakemake
     write.table(cbind(sample = rownames(sampleDistMatrix), sampleDistMatrix),file=snakemake@output[["dist_data"]],row.names=FALSE,col.names=TRUE,sep="\t",quote=FALSE)
 
-    dev.off()
+
 }
 
 #################################################
@@ -226,7 +233,7 @@ if (file.exists(LogFile) == FALSE) {
 #################################################
 #################################################
 
-ResultsFile <- snakemake@output[["deseq2_results"]] # AVI: adapted to snakemake
+ResultsFile <- snakemake@output[["results"]] # AVI: adapted to snakemake
 if (file.exists(ResultsFile) == FALSE) {
 
     raw.counts <- counts(dds,normalized=FALSE)
@@ -250,23 +257,19 @@ if (file.exists(ResultsFile) == FALSE) {
         #}
 
         control.samples <- samples.vec[which(groups == control.group)]
-        print(paste("control.samples: ", head(control.samples)))
         treat.samples <- samples.vec[which(groups == treat.group)]
-        print(paste("treat.samples: ", head(treat.samples)))
         comp.samples <- c(control.samples,treat.samples)
-        print(paste("comp.samples: ", head(comp.samples)))
 
         comp.results <- results(dds,contrast=c("condition",c(control.group,treat.group)))
         comp.df <- as.data.frame(comp.results)
         comp.table <- cbind(interval.table, as.data.frame(comp.df), raw.counts[,paste(comp.samples,'raw',sep='.')], pseudo.counts[,paste(comp.samples,'pseudo',sep='.')])
-        print(paste("comp.table: ", head(comp.table)))
 
         ## WRITE RESULTS FILE
-        CompResultsFile <- snakemake@output[["deseq2_results"]]
+        CompResultsFile <- snakemake@output[["results"]]
         write.table(comp.table, file=CompResultsFile, col.names=TRUE, row.names=FALSE, sep='\t', quote=FALSE)
 
         ## FILTER RESULTS BY FDR & LOGFC AND WRITE RESULTS FILE
-        pdf(file=snakemake@output[["deseq2_plots"]],width=10,height=8)
+        # pdf(file=snakemake@output[["deseq2_plots"]],width=10,height=8) # AVI: splitted in separate pdf files
         if (length(comp.samples) > 2) {
             for (MIN_FDR in c(0.01,0.05)) {
 
@@ -282,19 +285,28 @@ if (file.exists(ResultsFile) == FALSE) {
 
                 ## WRITE RESULTS FILE
                 if (MIN_FDR == 0.01) {
-                    CompResultsFile <- snakemake@output[["deseq2_FDR_1_perc_res"]]
-                    CompBEDFile <- snakemake@output[["deseq2_FDR_1_perc_bed"]]
+                    CompResultsFile <- snakemake@output[["FDR_1_perc_res"]]
+                    CompBEDFile <- snakemake@output[["FDR_1_perc_bed"]]
+                    MAplotFile <- snakemake@output[["plot_FDR_1_perc_MA"]]  # AVI: added to create separate pdf files
+                    VolcanoPlotFile <- snakemake@output[["plot_FDR_1_perc_volcano"]]  # AVI: added to create separate pdf files
                 }
                 if (MIN_FDR == 0.05) {
-                    CompResultsFile <- snakemake@output[["deseq2_FDR_5_perc_res"]]
-                    CompBEDFile <- snakemake@output[["deseq2_FDR_5_perc_bed"]]
+                    CompResultsFile <- snakemake@output[["FDR_5_perc_res"]]
+                    CompBEDFile <- snakemake@output[["FDR_5_perc_bed"]]
+                    MAplotFile <- snakemake@output[["plot_FDR_5_perc_MA"]]  # AVI: added to create separate pdf files
+                    VolcanoPlotFile <- snakemake@output[["plot_FDR_5_perc_volcano"]]  # AVI: added to create separate pdf files
                 }
                 write.table(pass.fdr.table, file=CompResultsFile, col.names=TRUE, row.names=FALSE, sep='\t', quote=FALSE)
                 write.table(pass.fdr.table[,c("Chr","Start","End","Geneid","log2FoldChange","Strand")], file=CompBEDFile, col.names=FALSE, row.names=FALSE, sep='\t', quote=FALSE)
 
                 ## MA PLOT & VOLCANO PLOT
+                pdf(file=MAplotFile,width=10,height=8)  # AVI: added to create separate pdf files
                 DESeq2::plotMA(comp.results, main=paste("MA plot FDR <= ",MIN_FDR,sep=""), ylim=c(-2,2),alpha=MIN_FDR)
+                dev.off()  # AVI: added to create separate pdf files
+
+                pdf(file=VolcanoPlotFile,width=10,height=8)  # AVI: added to create separate pdf files
                 plot(comp.table$log2FoldChange, -1*log10(comp.table$padj), col=ifelse(comp.table$padj<=MIN_FDR, "red", "black"), xlab="logFC", ylab="-1*log10(FDR)", main=paste("Volcano plot FDR <=",MIN_FDR,sep=" "), pch=20)
+                dev.off()  # AVI: added to create separate pdf files
 
                 ## ADD COUNTS TO LOGFILE
                 cat(CompPrefix," genes with FDR <= ",MIN_FDR,": ",nrow(pass.fdr.table)," (up=",nrow(pass.fdr.up.table),", down=",nrow(pass.fdr.down.table),")","\n",file=LogFile,append=TRUE,sep="")
@@ -305,10 +317,10 @@ if (file.exists(ResultsFile) == FALSE) {
         # AVI: creates required output files with message
         } else {
             write("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC.", stdout())
-            outfiles <- c(snakemake@output[["deseq2_FDR_1_perc_res"]],
-                          snakemake@output[["deseq2_FDR_1_perc_bed"]],
-                          snakemake@output[["deseq2_FDR_5_perc_res"]],
-                          snakemake@output[["deseq2_FDR_5_perc_bed"]]
+            outfiles <- c(snakemake@output[["FDR_1_perc_res"]],
+                          snakemake@output[["FDR_1_perc_bed"]],
+                          snakemake@output[["FDR_5_perc_res"]],
+                          snakemake@output[["FDR_5_perc_bed"]]
                           )
             for (f in outfiles) {
                 writeLines(paste0("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC."), f)
@@ -316,13 +328,16 @@ if (file.exists(ResultsFile) == FALSE) {
         }
 
         ## SAMPLE CORRELATION HEATMAP
+        pdf(file=snakemake@output[["plot_sample_corr_heatmap"]],width=10,height=8)  # AVI: added to create separate pdf files
         rld.subset <- assay(rld)[,comp.samples]
         sampleDists <- dist(t(rld.subset))
         sampleDistMatrix <- as.matrix(sampleDists)
         colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
         pheatmap(sampleDistMatrix,clustering_distance_rows=sampleDists,clustering_distance_cols=sampleDists,col=colors)
+        dev.off()  # AVI: added to create separate pdf files
 
         ## SCATTER PLOT FOR RLOG COUNTS
+        pdf(file=snakemake@output[["plot_scatter"]],width=10,height=8)  # AVI: added to create separate pdf files
         combs <- combn(comp.samples,2,simplify=FALSE)
         clabels <- sapply(combs,function(x){paste(x,collapse=' & ')})
         plotdat <- data.frame(x=unlist(lapply(combs, function(x){rld.subset[, x[1] ]})),y=unlist(lapply(combs, function(y){rld.subset[, y[2] ]})),comp=rep(clabels, each=nrow(rld.subset)))
@@ -333,7 +348,7 @@ if (file.exists(ResultsFile) == FALSE) {
                        },
                        par.strip.text=list(cex=0.5))
         print(plot)
-        dev.off()
+        dev.off()  # AVI: added to create separate pdf files
 
         colnames(comp.df) <- paste(CompPrefix,".",colnames(comp.df),sep="")
         deseq2_results_list[[idx]] <- comp.df

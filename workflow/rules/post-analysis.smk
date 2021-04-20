@@ -124,6 +124,7 @@ rule compute_matrix:
         extra="--regionBodyLength 1000 "
               "--beforeRegionStartLength 3000 "
               "--afterRegionStartLength 3000 "
+              "--missingDataAsZero " # added to prevent black output in the heatmap (plot_heatmap rule) https://github.com/deeptools/deepTools/issues/793
               "--skipZeros "
               "--smartLabels "
               "--numberOfProcessors 2 "

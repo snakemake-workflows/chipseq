@@ -133,7 +133,9 @@ rule merge_bool_and_annotatepeaks:
 
 rule feature_counts:
     input:
-        sam=lambda wc: expand("results/filtered/{sample}.sorted.bam", sample=get_samples_of_antibody(wc.antibody)),
+        sam=lambda wc: expand(["results/filtered/{sample}.sorted.bam", "results/filtered/{control}.sorted.bam"],
+            sample=get_samples_of_antibody(wc.antibody),
+            control=get_controls_of_antibody(wc.antibody)),
         annotation="results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.saf"
     output:
         multiext("results/feature_counts/{antibody}.consensus_{peak}-peaks",
@@ -169,36 +171,52 @@ rule featurecounts_deseq2:
         "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"
     output:
         dds="results/deseq2/dss_rld/{antibody}.consensus_{peak}-peaks.dds.rld.RData",
-        plots=report("results/deseq2/plots/{antibody}.consensus_{peak}-peaks.plots.pdf",
-            caption = "../report/plot_pca_corr_heatmap_deseq2.rst", category = "DESeq2"),
-        pca_data="results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
+        plot_pca=report("results/deseq2/plots/{antibody}.consensus_{peak}-peaks.pca_plot.pdf", #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_pca.rst", category = "DESeq2"),
+        plot_heatmap=report("results/deseq2/plots/{antibody}.consensus_{peak}-peaks.heatmap_plot.pdf",  #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_heatmap.rst", category = "DESeq2"),
+        pca_data="results/deseq2/pca_vals/{antibody}.consensus_{peak}-peaks.pca.vals.txt",
         dist_data="results/deseq2/dists/{antibody}.consensus_{peak}-peaks.sample.dists.txt",
         size_factors_rdata="results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.RData",
         size_factors_res="results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.sizeFactor.txt",
-        deseq2_results="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.txt",
-        deseq2_FDR_1_perc_res="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.txt",
-        deseq2_FDR_5_perc_res="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
-        deseq2_FDR_1_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
-        deseq2_FDR_5_perc_bed="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
-        deseq2_plots=report("results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf",
-            caption = "../report/plot_scatter_heatmap_deseq2.rst", category = "DESeq2")
+        results="results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.txt",
+        FDR_1_perc_res="results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.txt",
+        FDR_5_perc_res="results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
+        FDR_1_perc_bed="results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
+        FDR_5_perc_bed="results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
+        plot_FDR_1_perc_MA=report("results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.01_MA_plot.pdf", #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_FDR_1_perc_MA.rst", category = "DESeq2-FDR"),
+        plot_FDR_5_perc_MA=report("results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.05_MA_plot.pdf", #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_FDR_5_perc_MA.rst", category = "DESeq2-FDR"),
+        plot_FDR_1_perc_volcano=report("results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.01_volcano_plot.pdf", #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_FDR_1_perc_volcano.rst", category = "DESeq2-FDR"),
+        plot_FDR_5_perc_volcano=report("results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.05_volcano_plot.pdf", #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_FDR_5_perc_volcano.rst", category = "DESeq2-FDR"),
+        plot_sample_corr_heatmap=report("results/deseq2/plots/{antibody}.consensus_{peak}-peaks_sample_corr_heatmap.pdf", #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_sample_corr_heatmap.rst", category = "DESeq2"),
+        plot_scatter=report("results/deseq2/plots/{antibody}.consensus_{peak}-peaks_scatter_plots.pdf", #ToDo: add description to report caption
+            caption = "../report/plot_deseq2_scatter.rst", category = "DESeq2")
+        #
+        #
+        # deseq2_plots=report("results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf", #ToDo: add description to report caption
+        #     caption = "../report/plot_scatter_heatmap_deseq2.rst", category = "DESeq2")
     threads:
         2
     params:
-        vst = config["params"]["deseq2"]["vst"]["activate"]
+        vst = config["params"]["deseq2"]["vst"]
     log:
         "logs/deseq2/{antibody}.consensus_{peak}-peaks.featureCounts.log"
     conda:
         "../envs/featurecounts_deseq2.yaml"
     script:
         "../scripts/featurecounts_deseq2.R"
-#
-# rule create_deseq2_igv:
-#     input:
-#         "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed"
-#     output:
-#         "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.txt"
-#     log:
-#         "logs/igv/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.log"
-#     shell:
-#         "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.deseq2.FDR_0.05.results.bed' -exec echo -e 'results/IGV/consensus/{wildcards.antibody}/deseq2/\"{{}}\"\t255,0,0' \; > {output} 2> {log}"
+
+rule create_deseq2_igv:
+    input:
+        "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed"
+    output:
+        "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.txt"
+    log:
+        "logs/igv/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.log"
+    shell:
+        "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.deseq2.FDR_0.05.results.bed' -exec echo -e 'results/IGV/consensus/{wildcards.antibody}/deseq2/\"{{}}\"\t255,0,0' \; > {output} 2> {log}"

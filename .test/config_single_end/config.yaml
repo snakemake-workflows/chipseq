@@ -30,14 +30,15 @@ params:
   peak-analysis: "broad"
   # Number of biological replicates required from a given condition for a peak to contribute to a consensus peak
   min-reps-consensus: 1
+  deeptools-plots: # when activated the plot profile and heatmap plot are generated, this involves a matrix calculation that requires a lot of working memory.
+    activate: False
   lc_extrap:
     activate: True
   picard_metrics:
     activate: True
   deseq2:
     # optional to run vst transform instead of rlog
-    vst:
-      activate: True
+    vst: True
   peak-annotation-analysis:
     activate: True
   peak-qc:
