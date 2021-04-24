@@ -35,42 +35,41 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+
+    - name: Test minimized single end workflow (on local reduced SRA files for chromosome 14)
+      uses: snakemake/snakemake-github-action@v1.17.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config_single_end_reduced/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        stagein: |
+          export TMPDIR=/tmp
+          rm -rf .test/resources .test/results
+          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+
+#    - name: Test single end workflow (test data sra-download)
+#      uses: snakemake/snakemake-github-action@v1.17.0
+#      with:
+#        directory: .test
+#        snakefile: workflow/Snakefile
+#        args: "--configfile .test/config_single_end/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 #        stagein: |
-#           pwd; ls -al
 #          export TMPDIR=/tmp
 #          rm -rf .test/resources .test/results
 #          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
 #          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
-    
-    - name: Test minimized single end workflow (on local reduced SRA files)
-      uses: snakemake/snakemake-github-action@v1.17.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--configfile .test/config_single_end_reduced/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
-    - name: Test single end workflow (test data sra-download)
-      uses: snakemake/snakemake-github-action@v1.17.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--configfile .test/config_single_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
-#        stagein: |
-#          export TMPDIR=/tmp
-#          rm -rf .test/resources .test/results
-#          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
-#          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
-
-    - uses: actions/checkout@v1
-    - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@2.0.0
-
-    - name: Test paired end workflow (submodule test data)
-      uses: snakemake/snakemake-github-action@v1.17.0
-      with:
-        directory: .test
-        snakefile: workflow/Snakefile
-        args: "--configfile .test/config_paired_end/config.yaml --use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+#    - uses: actions/checkout@v1
+#    - name: Checkout submodules
+#      uses: textbook/git-checkout-submodule-action@2.0.0
+#
+#    - name: Test paired end workflow (submodule test data)
+#      uses: snakemake/snakemake-github-action@v1.17.0
+#      with:
+#        directory: .test
+#        snakefile: workflow/Snakefile
+#        args: "--configfile .test/config_paired_end/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 #        stagein: |
 #          export TMPDIR=/tmp
 #          rm -rf .test/resources .test/results
@@ -83,5 +82,5 @@ jobs:
         directory: .test
         snakefile: workflow/Snakefile
         args: "--report report.zip"
-#        stagein: |
-#          export TMPDIR=/tmp
+        stagein: |
+          export TMPDIR=/tmp

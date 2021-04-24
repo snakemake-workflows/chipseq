@@ -1,7 +1,7 @@
 sample	unit	fragment_len_mean	fragment_len_sd	fq1	fq2	sra_accession	platform
-A	1			resources/ref/sra-se-reads/reduced_samples/SRR1635455.fastq			ILLUMINA
-B	1			resources/ref/sra-se-reads/reduced_samples/SRR1635456.fastq			ILLUMINA
-C	1			resources/ref/sra-se-reads/reduced_samples/SRR1635457.fastq			ILLUMINA
-C	2			resources/ref/sra-se-reads/reduced_samples/SRR1635458.fastq			ILLUMINA
-D	1			resources/ref/sra-se-reads/reduced_samples/SRR1635439.fastq			ILLUMINA
-E	1			resources/ref/sra-se-reads/reduced_samples/SRR1635441.fastq			ILLUMINA
+A	1			resources/ref/sra-se-reads/reduced_samples/A-1_chr14.fastq.gz			ILLUMINA
+B	1			resources/ref/sra-se-reads/reduced_samples/B-1_chr14.fastq.gz			ILLUMINA
+C	1			resources/ref/sra-se-reads/reduced_samples/C-1_chr14.fastq.gz			ILLUMINA
+C	2			resources/ref/sra-se-reads/reduced_samples/C-2_chr14.fastq.gz			ILLUMINA
+D	1			resources/ref/sra-se-reads/reduced_samples/D-1_chr14.fastq.gz			ILLUMINA
+E	1			resources/ref/sra-se-reads/reduced_samples/E-1_chr14.fastq.gz			ILLUMINA

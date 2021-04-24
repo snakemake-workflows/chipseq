@@ -21,7 +21,7 @@ resources:
     # Genome build
     build: GRCh38
     # for testing data only chromosome 21 is selected
-    chromosome:
+    chromosome: 14
     # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
     macs-gsize:
 
@@ -33,7 +33,7 @@ params:
   deeptools-plots: # when activated the plot profile and heatmap plot are generated, this involves a matrix calculation that requires a lot of working memory.
     activate: True
   lc_extrap:
-    activate: False
+    activate: True
   picard_metrics:
     activate: True
   deseq2:
