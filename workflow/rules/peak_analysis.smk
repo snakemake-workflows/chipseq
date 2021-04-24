@@ -54,7 +54,7 @@ rule macs2_callpeak_broad:
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params: # ToDo: move to config?
-        "--broad-cutoff 0.1 -f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(
+        "--broad-cutoff 0.1 -f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.5".format(
             gsize=get_gsize(),
             bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
@@ -80,7 +80,7 @@ rule macs2_callpeak_narrow:
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params: # ToDo: move to config?
-        "-f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.1".format(
+        "-f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.5".format(
             gsize=get_gsize(),
             bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:

@@ -296,13 +296,7 @@ if (file.exists(ResultsFile) == FALSE) {
                     MAplotFile <- snakemake@output[["plot_FDR_5_perc_MA"]]  # AVI: added to create separate pdf files
                     VolcanoPlotFile <- snakemake@output[["plot_FDR_5_perc_volcano"]]  # AVI: added to create separate pdf files
                 }
-                ##########################Debug-Mode##########################
-                this.wd <- getwd()
-                setwd("/home/tarja/Schreibtisch/workspace/workspace_bioinformatik/Debugging/")
-                save.image("debug.info")
-                setwd(this.wd)
-                # load("/home/tarja/Schreibtisch/workspace/workspace_bioinformatik/Debugging/debug.info")
-                ##############################################################
+
                 write.table(pass.fdr.table, file=CompResultsFile, col.names=TRUE, row.names=FALSE, sep='\t', quote=FALSE)
                 write.table(pass.fdr.table[,c("Chr","Start","End","Geneid","log2FoldChange","Strand")], file=CompBEDFile, col.names=FALSE, row.names=FALSE, sep='\t', quote=FALSE)
 
