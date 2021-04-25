@@ -163,7 +163,7 @@ rule plot_heatmap:
 
 rule phantompeakqualtools:
     input:
-         "results/filtered/{sample}.sorted.bam"
+        "results/filtered/{sample}.sorted.bam"
     output:  #ToDo: add description to report caption
         res_phantom="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
         r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",

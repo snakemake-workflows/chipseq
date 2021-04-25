@@ -1,0 +1,6 @@
+sample	unit	fragment_len_mean	fragment_len_sd	fq1	fq2	sra_accession	platform
+A	1			data/paired_end_test_data/A-1_vii_1.fastq.gz	data/paired_end_test_data/A-1_vii_2.fastq.gz		ILLUMINA
+B	1			data/paired_end_test_data/B-1_vii_1.fastq.gz	data/paired_end_test_data/B-1_vii_2.fastq.gz		ILLUMINA
+C	1	300	14	data/paired_end_test_data/C-1_vii_1.fastq.gz	data/paired_end_test_data/C-1_vii_2.fastq.gz		ILLUMINA
+D	1			data/paired_end_test_data/D-1_vii_1.fastq.gz	data/paired_end_test_data/D-1_vii_2.fastq.gz		ILLUMINA
+E	1			data/paired_end_test_data/E-1_vii_1.fastq.gz	data/paired_end_test_data/E-1_vii_2.fastq.gz		ILLUMINA

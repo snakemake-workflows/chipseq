@@ -1,8 +1,8 @@
 # This file should contain everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
-samples: "config_paired_end/samples.tsv"
-units: "config_paired_end/units.tsv"
+samples: "config_paired_end_reduced/samples.tsv"
+units: "config_paired_end_reduced/units.tsv"
 single_end: False
 
 # config for paired end data set for testing
@@ -24,7 +24,7 @@ resources:
 
 params:
   # choose "narrow" or "broad" for macs2 callpeak analysis, for documentation and source code please see https://github.com/macs3-project/MACS
-  peak-analysis: "broad"
+  peak-analysis: "narrow"
   # Number of biological replicates required from a given condition for a peak to contribute to a consensus peak
   min-reps-consensus: 1
   deeptools-plots: # when activated the plot profile and heatmap plot are generated, this involves a matrix calculation that requires a lot of working memory.
