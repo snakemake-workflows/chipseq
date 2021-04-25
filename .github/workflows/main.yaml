@@ -47,7 +47,7 @@ jobs:
           rm -rf .test/resources .test/results
           export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
           mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
-
+#
 #    - name: Test single end workflow (test data sra-download)
 #      uses: snakemake/snakemake-github-action@v1.17.0
 #      with:
@@ -68,10 +68,9 @@ jobs:
         args: "--configfile .test/config_paired_end_reduced/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
           export TMPDIR=/tmp
-#          rm -rf .test/resources .test/results
           export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
           mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
-
+#
 #    - uses: actions/checkout@v1
 #    - name: Checkout submodules
 #      uses: textbook/git-checkout-submodule-action@2.0.0
