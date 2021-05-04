@@ -9,8 +9,8 @@ def remove_header(igenomes_link, igenomes_path):
     with open(igenomes_link) as fin:
         with open(igenomes_path, 'w') as fout:
             for line in fin:
-                if not line.strip().startswith('*'):
-                    if not line.strip().startswith('/*') and not line.strip().startswith('//'):
+                if not line.strip().startswith(r"*"):
+                    if not line.strip().startswith(r"/*") and not line.strip().startswith(r"//"):
                         fout.write(line)
 
 
@@ -76,3 +76,4 @@ def get_blacklist_path(build, chromosome, igenomes_path, igenomes):
                                                                     chr=chromosome, build=build)
         return "{bl_dir}/{build}-blacklist.bed".format(bl_dir=os.path.dirname(igenomes_path), build=build)
     return ""
+
