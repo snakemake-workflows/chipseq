@@ -8,7 +8,7 @@ def remove_header(igenomes_link, igenomes_path):
     with open(igenomes_link) as fin:
         with open(igenomes_path,'w') as fout:
             for line in fin:
-                if not line.strip().startswith('*') and not line.strip().startswith('/*') and not line.strip().startswith('//'):
+                if not line.strip().startswith('*') and not line.strip().startswith('/' + '*') and not line.strip().startswith('//'):
                     fout.write(line)
 
 
