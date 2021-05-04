@@ -1,7 +1,7 @@
 from snakemake.utils import validate
 import pandas as pd
 import os
-include: "blacklists.smk"
+include: "../scripts/generate_blacklist.py"
 
 # this container defines the underlying OS for each job when using the workflow
 # with --use-conda --use-singularity
