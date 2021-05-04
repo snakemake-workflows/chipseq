@@ -1,6 +1,6 @@
 rule bedtools_merge_broad:
     input:
-        get_plot_macs_qc_input()
+        get_macs2_peaks()
     output:
         "results/bedtools/merged/{antibody}.consensus_broad-peaks.txt"
     params:
@@ -13,7 +13,7 @@ rule bedtools_merge_broad:
 
 rule bedtools_merge_narrow:
     input:
-        get_plot_macs_qc_input()
+        get_macs2_peaks()
     output:
         "results/bedtools/merged/{antibody}.consensus_narrow-peaks.txt"
     params:
@@ -32,7 +32,7 @@ rule macs2_merged_expand:
         bool_intersect="results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.intersect.txt"
     params:
         sample_control_peak=get_sample_control_peak_combinations_list(),
-        narrow_param=get_narrow_flag(),
+        narrow_param="--is_narrow_peak" if config["params"]["peak-analysis"] == "narrow" else "",
         min_reps_consensus=config["params"]["min-reps-consensus"]
     log:
         "logs/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.log"
@@ -165,7 +165,6 @@ rule featurecounts_modified_colnames:
     script:
         "../scripts/col_mod_featurecounts.py"
 
-# ToDo: integrate in workflow
 rule featurecounts_deseq2:
     input:
         "results/feature_counts/{antibody}.consensus_{peak}-peaks_modified.featureCounts"
@@ -196,10 +195,6 @@ rule featurecounts_deseq2:
             caption = "../report/plot_deseq2_sample_corr_heatmap.rst", category = "DESeq2"),
         plot_scatter=report("results/deseq2/plots/{antibody}.consensus_{peak}-peaks_scatter_plots.pdf", #ToDo: add description to report caption
             caption = "../report/plot_deseq2_scatter.rst", category = "DESeq2")
-        #
-        #
-        # deseq2_plots=report("results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.pdf", #ToDo: add description to report caption
-        #     caption = "../report/plot_scatter_heatmap_deseq2.rst", category = "DESeq2")
     threads:
         2
     params:

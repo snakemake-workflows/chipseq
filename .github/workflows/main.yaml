@@ -19,12 +19,12 @@ jobs:
         directory: .
         snakefile: workflow/Snakefile
         args: "--lint"
-#        stagein: |
-#          export TMPDIR=/tmp
+        stagein: |
+          export TMPDIR=/tmp
 
   Testing:
     runs-on: ubuntu-latest
-#    needs: Linting
+    needs: Linting
     steps:
     - name: Checkout repository
       uses: actions/checkout@v1
@@ -48,6 +48,8 @@ jobs:
           export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
           mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
 #
+#    # Test for single end reads with larger data sets and download of SRA files. It can be included for heavy duty testing on dedicated machines.
+#
 #    - name: Test single end workflow (test data sra-download)
 #      uses: snakemake/snakemake-github-action@v1.17.0
 #      with:
@@ -70,6 +72,8 @@ jobs:
           export TMPDIR=/tmp
           export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
           mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+#
+#    # Test for paired end reads with larger datasets from git submodules. It can be included for heavy duty testing on dedicated machines.
 #
 #    - uses: actions/checkout@v1
 #    - name: Checkout submodules

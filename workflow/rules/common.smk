@@ -1,6 +1,7 @@
 from snakemake.utils import validate
 import pandas as pd
-import yaml
+import os
+include: "blacklists.smk"
 
 # this container defines the underlying OS for each job when using the workflow
 # with --use-conda --use-singularity
@@ -21,14 +22,35 @@ units.index = units.index.set_levels(
     [i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
 
-with open('config/igenomes.yaml') as f:
-    igenomes = yaml.load(f, Loader=yaml.FullLoader)
-
 ##### wildcard constraints #####
 
 wildcard_constraints:
     sample = "|".join(samples.index),
     unit = "|".join(units["unit"])
+
+####### download igenomes file and blacklist ########
+
+igenomes_path = "resources/ref/igenomes.yaml"
+if not os.path.exists(os.path.dirname(igenomes_path)):
+    os.makedirs(os.path.dirname(igenomes_path))
+build = config["resources"]["ref"]["build"]
+chromosome = config["resources"]["ref"]["chromosome"]
+igenomes_release = config["resources"]["ref"]["igenomes_release"]
+
+if not config["resources"]["ref"]["blacklist"]:
+    if igenomes_release:
+        igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/{version}/conf/igenomes.config".format(
+            version=igenomes_release
+        )
+    else:
+        igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/1.2.2/conf/igenomes.config"
+
+    parse_igenomes(igenomes_link, igenomes_path)
+    generate_blacklist(build, chromosome, igenomes_path)
+
+igenomes = get_igenomes(igenomes_path)
+
+blacklist = get_blacklist_path(build, chromosome, igenomes_path, igenomes)
 
 ####### helpers ###########
 
@@ -45,15 +67,15 @@ def is_single_end(sample, unit):
         )
     return fq2_present
 
-def has_sra_accession(sample, unit):
+def has_only_sra_accession(sample, unit):
     return pd.isnull(units.loc[(sample, unit), "fq1"]) and pd.isnull(units.loc[(sample, unit), "fq2"]) \
            and not pd.isnull(units.loc[(sample, unit), "sra_accession"])
 
 def is_sra_se(sample, unit):
-    return has_sra_accession(sample, unit) and config["single_end"]
+    return has_only_sra_accession(sample, unit) and config["single_end"]
 
 def is_sra_pe(sample, unit):
-    return has_sra_accession(sample, unit) and not config["single_end"]
+    return has_only_sra_accession(sample, unit) and not config["single_end"]
 
 def get_se_pe_branches_input(wildcards):
     if config["single_end"]:
@@ -112,11 +134,11 @@ def get_peaks_count_plot_input():
 
 def get_frip_score_input():
     return expand(
-        "results/bedtools/intersect/{sam_contr_peak}.peaks_frip.tsv",
+        "results/bedtools_intersect/{sam_contr_peak}.peaks_frip.tsv",
         sam_contr_peak = get_sample_control_peak_combinations_list()
     )
 
-def get_plot_macs_qc_input():
+def get_macs2_peaks():
     return expand(
         "results/macs2_callpeak/{sam_contr_peak}_peaks.{peak}Peak",
         sam_contr_peak = get_sample_control_peak_combinations_list(), peak =config["params"]["peak-analysis"]
@@ -127,62 +149,24 @@ def get_plot_homer_annotatepeaks_input():
         sam_contr_peak = get_sample_control_peak_combinations_list()
     )
 
-def get_narrow_flag():
-    if config["params"]["peak-analysis"] == "narrow":
-        return "--is_narrow_peak"
-    return ""
-
-def samples_without_controls():
-    sam = []
-    for sample in samples.index:
-        if not is_control(sample):
-            sam.append(sample)
-    return sam
-
 def get_gsize():
-    build = config["resources"]["ref"]["build"]
     if build:
-        if igenomes["genomes"][build]:
-            if "macs-gsize" in igenomes["genomes"][build]:
-                return igenomes["genomes"][build]["macs-gsize"]
+        if igenomes["params"]["genomes"][build]:
+            if "macs_gsize" in igenomes["params"]["genomes"][build]:
+                return "-g {}".format(igenomes["params"]["genomes"][build]["macs_gsize"])
     if config["resources"]["ref"]["macs-gsize"]:
-        return config["resources"]["ref"]["macs-gsize"]
+        return "-g {}".format(config["resources"]["ref"]["macs-gsize"])
     return ""
-
-def get_chromosome():
-    if config["resources"]["ref"]["chromosome"]:
-        return "chr{}_".format(config["resources"]["ref"]["chromosome"])
-    return ""
-
-def has_blacklist():
-    return "blacklist" in igenomes["genomes"][config["resources"]["ref"]["build"]]
 
 def get_blacklist():
-    print(igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])
-    return igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"]
+    return blacklist
 
-def get_blacklist_filter():
-    if has_blacklist():
-        return "resources/ref/sorted_complement_{chrom}{blacklist}".format(chrom=get_chromosome(),
-                      blacklist=igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])
-    return ""
-
-def get_blacklist_option():
-    if has_blacklist():
-        return "-L"
-    return ""
-
-def get_samtools_view_input(wildcards):
-    if has_blacklist():
-        if get_chromosome():
-            return ["results/picard_dedup/{sample}.bam", "resources/ref/sorted_complement_{chrom}{blacklist}".format(chrom=get_chromosome(),
-                          blacklist=igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])]
-        else:
-            return ["results/picard_dedup/{sample}.bam", "resources/ref/sorted_complement_{blacklist}".format(
-                          blacklist=igenomes["genomes"][config["resources"]["ref"]["build"]]["blacklist"])]
+def get_samtools_view_filter_input(wildcards):
+    if blacklist:
+        return ["results/picard_dedup/{sample}.bam", "resources/ref/{blacklist}.sorted.complement".format(
+            blacklist=os.path.basename(blacklist))]
     else:
         return "results/picard_dedup/{sample}.bam"
-
 
 def exists_multiple_groups(antibody):
     return len(samples[samples["antibody"] == antibody]["group"].unique()) > 1
@@ -192,7 +176,7 @@ def exists_replicates(antibody):
 
 def get_controls_of_antibody(antibody):
     groups = samples[samples["antibody"] == antibody]["group"]
-    controls = samples[samples["control"] != samples["control"]]
+    controls = samples[pd.isnull(samples["control"])]
     return controls[controls["group"].isin(list(groups))]["sample"]
 
 def get_samples_of_antibody(antibody):

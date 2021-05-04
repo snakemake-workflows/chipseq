@@ -22,15 +22,23 @@ resources:
     build: GRCh38
     # for testing data a specific chromosome can be selected
     chromosome: 14
+    # specify release version number of igenomes list to use (see https://github.com/nf-core/chipseq/releases), default: 1.2.2
+    igenomes_release: 1.2.2
     # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
     macs-gsize:
+    # if igenomes.yaml cannot be used, a path to an own blacklist can be specified here
+    blacklist:
 
 params:
   # choose "narrow" or "broad" for macs2 callpeak analysis, for documentation and source code please see https://github.com/macs3-project/MACS
-  peak-analysis: "broad"
+  peak-analysis: "narrow"
   # Number of biological replicates required from a given condition for a peak to contribute to a consensus peak
   min-reps-consensus: 1
-  deeptools-plots: # when activated the plot profile and heatmap plot are generated, this involves a matrix calculation that requires a lot of working memory.
+  callpeak:
+    p-value: 0.5
+    q-value:
+  deeptools-plots:
+    # when activated the plot profile and heatmap plot are generated, this involves a matrix calculation that requires a lot of working memory.
     activate: True
   lc_extrap:
     activate: True

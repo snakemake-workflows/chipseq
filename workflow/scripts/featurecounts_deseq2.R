@@ -317,15 +317,7 @@ if (file.exists(ResultsFile) == FALSE) {
             cat("\n",file=LogFile,append=TRUE,sep="")
         # AVI: creates required output files with message
         } else {
-            write("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC.", stdout())
-            outfiles <- c(snakemake@output[["FDR_1_perc_res"]],
-                          snakemake@output[["FDR_1_perc_bed"]],
-                          snakemake@output[["FDR_5_perc_res"]],
-                          snakemake@output[["FDR_5_perc_bed"]]
-                          )
-            for (f in outfiles) {
-                writeLines(paste0("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC."), f)
-            }
+            stop("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC.")
         }
 
         ## SAMPLE CORRELATION HEATMAP
@@ -368,13 +360,7 @@ if (file.exists(ResultsFile) == FALSE) {
 #################################################
 #################################################
 
-RLogFile <- snakemake@log[[1]]  # AVI: adapted to snakemake
-if (file.exists(RLogFile) == FALSE) {
-    sink(RLogFile)
-    a <- sessionInfo()
-    print(a)
-    sink()
-}
+cat(unlist(sessionInfo()),file=LogFile,append=TRUE,sep='')
 
 #################################################
 #################################################

@@ -54,8 +54,12 @@ rule macs2_callpeak_broad:
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params: # ToDo: move to config?
-        "--broad-cutoff 0.1 -f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.5".format(
+        "--broad-cutoff 0.1 -f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
             gsize=get_gsize(),
+            pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"][
+                "p-value"] else "",
+            qvalue="-p {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
+                "q-value"] else "",
             bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
         "0.68.0/bio/macs2/callpeak"
@@ -80,8 +84,12 @@ rule macs2_callpeak_narrow:
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params: # ToDo: move to config?
-        "-f {bam_format} -g {gsize} -B --SPMR --keep-dup all -p 0.5".format(
+        "-f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
             gsize=get_gsize(),
+            pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"][
+                "p-value"] else "",
+            qvalue="-p {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
+                "q-value"] else "",
             bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
         "0.68.0/bio/macs2/callpeak"
@@ -118,7 +126,7 @@ rule bedtools_intersect:
         left="results/filtered/{sample}.sorted.bam",
         right="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
-        pipe("results/bedtools/intersect/{sample}-{control}.{peak}.intersected.bed")
+        pipe("results/bedtools_intersect/{sample}-{control}.{peak}.intersected.bed")
     params:
         extra="-bed -c -f 0.20"
     log:
@@ -128,11 +136,11 @@ rule bedtools_intersect:
 
 rule frip_score:
     input:
-        intersect="results/bedtools/intersect/{sample}-{control}.{peak}.intersected.bed",
+        intersect="results/bedtools_intersect/{sample}-{control}.{peak}.intersected.bed",
         flagstats=expand("results/{step}/{{sample}}.sorted.{step}.flagstat", step= "bamtools_filtered" if config["single_end"]
         else "orph_rm_pe")
     output:
-        "results/bedtools/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
+        "results/bedtools_intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
     log:
         "logs/bedtools/intersect/{sample}-{control}.{peak}.peaks_frip.log"
     conda:
@@ -185,7 +193,7 @@ rule homer_annotatepeaks:
 
 rule plot_macs_qc:
     input:
-        get_plot_macs_qc_input()
+        get_macs2_peaks()
     output:  #ToDo: add description to report caption
         summmary="results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
         plot=report("results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf", caption="../report/plot_macs2_qc.rst", category="CallPeaks")

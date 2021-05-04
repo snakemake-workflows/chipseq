@@ -19,9 +19,14 @@ rule collect_multiple_metrics:
         # so that it is not necessary to specify them under params with the "PROGRAM" option.
         # Usable extensions (and which tools they implicitly call) are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/picard/collectmultiplemetrics.html.
-        [expand("{{path}}{{sample}}{ext}", ext=".insert_size_metrics"),
-        report(expand("{{path}}{{sample}}{ext}", ext=".insert_size_histogram.pdf"), caption = "../report/plot_insert_size_histogram_picard_mm.rst",
-            category = "MulitpleMetrics")] if not config["single_end"] else [],
+        [
+           "{path}{sample}.insert_size_metrics",
+            report(
+                "{path}{sample}.insert_size_histogram.pdf",
+                caption="../report/plot_insert_size_histogram_picard_mm.rst",
+                category="MulitpleMetrics"
+            )
+        ] if not config["single_end"] else [],
         multiext("{path}{sample}",
                  ".alignment_summary_metrics",
                  ".base_distribution_by_cycle_metrics",

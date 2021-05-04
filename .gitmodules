@@ -1,4 +1,4 @@
-
+# For testing the workflow with larger datasets for paired end reads once a dedicated GitHub actions machine is set up.
 [submodule ".test/data/atacseq/test-datasets"]
 	path = .test/data/atacseq/test-datasets
 	url = https://github.com/nf-core/test-datasets.git

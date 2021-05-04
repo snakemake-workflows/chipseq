@@ -1,6 +1,6 @@
-rule samtools_view:
+rule samtools_view_filter:
     input:
-         get_samtools_view_input
+         get_samtools_view_filter_input
     output:
         temp("results/sam-view/{sample}.bam")
     params:
@@ -9,9 +9,9 @@ rule samtools_view:
         # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
         # the -L option is automatically activated if a path to a blacklist of the given genome exists in
         # ".test/config/igenomes.yaml" or has been entered there
-        lambda wc, input: "-b -F 0x004 {pe_params} {bl}".format(
+        lambda wc, input: "-b -F 0x004 {pe_params} {blacklist}".format(
             pe_params="" if config["single_end"] else "-G 0x009 -f 0x001",
-            bl="" if len(input) == 1 else "-L {}".format(list(input)[1])
+            blacklist="" if len(input) == 1 else "-L {}".format(list(input)[1])
         )
     log:
         "logs/samtools-view/{sample}.log"

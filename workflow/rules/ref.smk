@@ -101,27 +101,27 @@ rule chromosome_size:
 
 rule bedtools_sort_blacklist:
     input:
-        in_file="../workflow/blacklists/{blacklist}",
+        in_file=get_blacklist(),
         genome="resources/ref/genome.chrom.sizes"
     output:
-        "resources/ref/sorted_{blacklist}"
+        "resources/ref/{blacklist}.sorted"
     params:
         extra=""
     log:
-        "logs/ref/sorted_{blacklist}.log"
+        "logs/ref/{blacklist}.sorted.log"
     wrapper:
         "0.68.0/bio/bedtools/sort"
 
 rule bedtools_complement_blacklist:
     input:
-        in_file="resources/ref/sorted_{blacklist}",
+        in_file="resources/ref/{blacklist}.sorted",
         genome="resources/ref/genome.chrom.sizes"
     output:
-        "resources/ref/sorted_complement_{blacklist}"
+        "resources/ref/{blacklist}.sorted.complement"
     params:
         extra=""
     log:
-        "logs/ref/sorted_complement_{blacklist}.log"
+        "logs/ref/{blacklist}.sorted.complement.log"
     wrapper:
         "0.68.0/bio/bedtools/complement"
 
