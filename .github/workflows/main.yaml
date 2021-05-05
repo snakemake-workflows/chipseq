@@ -24,7 +24,7 @@ jobs:
 
   Testing:
     runs-on: ubuntu-latest
-#    needs: Linting
+    needs: Linting
     steps:
     - name: Checkout repository
       uses: actions/checkout@v1

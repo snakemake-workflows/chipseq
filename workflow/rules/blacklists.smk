@@ -6,12 +6,16 @@ from smart_open import open
 # download igenomes file and blacklist
 
 def remove_header(igenomes_link, igenomes_path):
+    no_header = False
     with open(igenomes_link) as fin:
         with open(igenomes_path, 'w') as fout:
             for line in fin:
                 if not line.strip().startswith(r"*"):
-                    if not line.strip().startswith(r"/*") and not line.strip().startswith(r"//"):
-                        fout.write(line)
+                    if line.startswith("params {"):
+                        no_header = True
+                    if no_header:
+                        if not line.strip().startswith(r"//"):
+                            fout.write(line)
 
 
 def parse_to_yaml(igenomes):
