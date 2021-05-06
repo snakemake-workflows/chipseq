@@ -1,6 +1,6 @@
 rule samtools_view_filter:
     input:
-         get_samtools_view_filter_input
+        get_samtools_view_filter_input
     output:
         temp("results/sam-view/{sample}.bam")
     params:
@@ -82,9 +82,7 @@ rule merge_se_pe:
         "results/filtered/{sample}.sorted.bam"
     params:
         ""
-        # path="results/filtered"
     log:
         "logs/filtered/{sample}.sorted.log"
     shell:
         "ln -sr {input} {output}"
-        # "cd {path}; ln -s ../filtered/{input.nodir} {output.nodir}"

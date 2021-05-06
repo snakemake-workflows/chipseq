@@ -1,7 +1,8 @@
 from snakemake.utils import validate
 import pandas as pd
 import os
-include: "blacklists.smk"
+from smart_open import open
+import yaml
 
 # this container defines the underlying OS for each job when using the workflow
 # with --use-conda --use-singularity
@@ -22,35 +23,15 @@ units.index = units.index.set_levels(
     [i.astype(str) for i in units.index.levels])  # enforce str in index
 validate(units, schema="../schemas/units.schema.yaml")
 
+igenomes_path = "resources/ref/igenomes.yaml"
+build = config["resources"]["ref"]["build"]
+chromosome = config["resources"]["ref"]["chromosome"]
+
 ##### wildcard constraints #####
 
 wildcard_constraints:
     sample = "|".join(samples.index),
     unit = "|".join(units["unit"])
-
-####### download igenomes file and blacklist ########
-
-igenomes_path = "resources/ref/igenomes.yaml"
-if not os.path.exists(os.path.dirname(igenomes_path)):
-    os.makedirs(os.path.dirname(igenomes_path))
-build = config["resources"]["ref"]["build"]
-chromosome = config["resources"]["ref"]["chromosome"]
-igenomes_release = config["resources"]["ref"]["igenomes_release"]
-
-if not config["resources"]["ref"]["blacklist"]:
-    if igenomes_release:
-        igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/{version}/conf/igenomes.config".format(
-            version=igenomes_release
-        )
-    else:
-        igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/1.2.2/conf/igenomes.config"
-
-    parse_igenomes(igenomes_link, igenomes_path)
-    generate_blacklist(build, chromosome, igenomes_path)
-
-igenomes = get_igenomes(igenomes_path)
-
-blacklist = get_blacklist_path(build, chromosome, igenomes_path, igenomes)
 
 ####### helpers ###########
 
@@ -149,24 +130,54 @@ def get_plot_homer_annotatepeaks_input():
         sam_contr_peak = get_sample_control_peak_combinations_list()
     )
 
-def get_gsize():
-    if build:
-        if igenomes["params"]["genomes"][build]:
-            if "macs_gsize" in igenomes["params"]["genomes"][build]:
-                return "-g {}".format(igenomes["params"]["genomes"][build]["macs_gsize"])
-    if config["resources"]["ref"]["macs-gsize"]:
-        return "-g {}".format(config["resources"]["ref"]["macs-gsize"])
+def get_igenomes():
+    if os.path.isfile(igenomes_path):
+        with open(igenomes_path) as f:
+            return yaml.load(f, Loader=yaml.FullLoader)
     return ""
 
+def get_igenomes_blacklist():
+    return expand("resources/ref/{prefix}{build}-blacklist.bed",
+        prefix="chr{chr}_".format(chr=chromosome) if chromosome else "",
+        build=build)
+
 def get_blacklist():
-    return blacklist
+    if config["resources"]["ref"]["blacklist"]:
+        return config["resources"]["ref"]["blacklist"]
+    return expand("resources/ref/{prefix}{build}-blacklist.bed",
+        prefix="chr{chr}_".format(chr=chromosome) if chromosome else "",
+        build=build)
+
+def get_blacklist_regions():
+    if config["resources"]["ref"]["blacklist"]:
+        return "{}.sorted.complement".format(config["resources"]["ref"]["blacklist"])
+    if os.path.isfile(igenomes_path):
+        with open(igenomes_path) as f:
+            igenomes = yaml.load(f, Loader=yaml.FullLoader)
+            if igenomes:
+                if igenomes["params"]["genomes"][build]:
+                    if "blacklist" in igenomes["params"]["genomes"][build]:
+                        return expand("resources/ref/{prefix}{build}-blacklist.bed.sorted.complement",
+                            prefix="chr{chr}_".format(chr=chromosome) if chromosome else "",
+                            build=build)
+    return "resources/ref/genome.chrom.sizes.filter"
+
+def get_gsize():
+    if build:
+        igenomes = get_igenomes()
+        if igenomes:
+            if igenomes["params"]["genomes"][build]:
+                if "macs_gsize" in igenomes["params"]["genomes"][build]:
+                    return "-g {}".format(igenomes["params"]["genomes"][build]["macs_gsize"])
+                if config["resources"]["ref"]["macs-gsize"]:
+                    return "-g {}".format(config["resources"]["ref"]["macs-gsize"])
+    return ""
 
 def get_samtools_view_filter_input(wildcards):
-    if blacklist:
-        return ["results/picard_dedup/{sample}.bam", "resources/ref/{blacklist}.sorted.complement".format(
-            blacklist=os.path.basename(blacklist))]
-    else:
-        return "results/picard_dedup/{sample}.bam"
+    return ["results/picard_dedup/{sample}.bam", "resources/ref/{prefix}{build}.regions".format(
+        prefix="chr{chr}_".format(chr=chromosome) if chromosome else "",
+        build=build
+    )]
 
 def exists_multiple_groups(antibody):
     return len(samples[samples["antibody"] == antibody]["group"].unique()) > 1

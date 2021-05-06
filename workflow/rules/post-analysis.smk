@@ -24,7 +24,7 @@ rule collect_multiple_metrics:
             report(
                 "{path}{sample}.insert_size_histogram.pdf",
                 caption="../report/plot_insert_size_histogram_picard_mm.rst",
-                category="MulitpleMetrics"
+                category="Multiple Metrics (picard)"
             )
         ] if not config["single_end"] else [],
         multiext("{path}{sample}",
@@ -33,9 +33,9 @@ rule collect_multiple_metrics:
                  ".quality_by_cycle_metrics",
                  ".quality_distribution_metrics",
                  ),
-        report("{path}{sample}.base_distribution_by_cycle.pdf", caption="../report/plot_base_distribution_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
-        report("{path}{sample}.quality_by_cycle.pdf", caption="../report/plot_quality_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
-        report("{path}{sample}.quality_distribution.pdf", caption="../report/plot_quality_distribution_picard_mm.rst", category="MulitpleMetrics")
+        report("{path}{sample}.base_distribution_by_cycle.pdf", caption="../report/plot_base_distribution_by_cycle_picard_mm.rst", category="Multiple Metrics (picard)"),
+        report("{path}{sample}.quality_by_cycle.pdf", caption="../report/plot_quality_by_cycle_picard_mm.rst", category="Multiple Metrics (picard)"),
+        report("{path}{sample}.quality_distribution.pdf", caption="../report/plot_quality_distribution_picard_mm.rst", category="Multiple Metrics (picard)")
     resources:
         # This parameter (default 3 GB) can be used to limit the total resources a pipeline is allowed to use, see:
         #     https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources

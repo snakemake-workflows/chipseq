@@ -91,13 +91,42 @@ rule bwa_index:
 
 rule chromosome_size:
     input:
-        "resources/ref/genome.fasta.fai"
+        genome="resources/ref/genome.fasta.fai",
+        requires=igenomes_path
     output:
         "resources/ref/genome.chrom.sizes"
     log:
         "logs/ref/chromosome_size.log"
     shell:
-        "cut -f 1,2 {input} > {output} 2> {log}"
+        "cut -f 1,2 {input.genome} > {output} 2> {log}"
+
+rule generate_igenomes:
+    output:
+        igenomes_path
+    params:
+        igenomes_release = config["resources"]["ref"]["igenomes_release"],
+        blacklist = config["resources"]["ref"]["blacklist"]
+    log:
+        "logs/ref/igenomes.log"
+    conda:
+        ""
+    script:
+        "../scripts/generate_igenomes.py"
+
+rule generate_igenomes_blacklist:
+    input:
+        "resources/ref/igenomes.yaml"
+    output:
+        get_igenomes_blacklist()
+    params:
+        build = config["resources"]["ref"]["build"],
+        chromosome = config["resources"]["ref"]["chromosome"]
+    log:
+        "logs/ref/blacklist.log"
+    conda:
+        ""
+    script:
+        "../scripts/generate_blacklist.py"
 
 rule bedtools_sort_blacklist:
     input:
@@ -127,7 +156,7 @@ rule bedtools_complement_blacklist:
 
 rule without_blacklists:
     input:
-        "resources/ref/genome.chrom.sizes"
+        chr_size="resources/ref/genome.chrom.sizes"
     output:
         "resources/ref/genome.chrom.sizes.filter"
     log:
@@ -135,4 +164,18 @@ rule without_blacklists:
     conda:
         "../envs/gawk.yaml"
     shell:
-        "gawk '{{print \$1, \"0\" , \$2}}' OFS='\t' {input} > {output} 2> {log}"
+        "gawk '{{print $1, \"0\" , $2}}' OFS='\t' {input.chr_size} > {output} 2> {log}"
+
+rule merge_regions_from_blacklist_generation:
+    input:
+        regions=get_blacklist_regions()
+    output:
+        expand("resources/ref/{prefix}{build}.regions",
+            prefix="chr{chr}_".format(chr=config["resources"]["ref"]["chromosome"]) if config["resources"]["ref"]["chromosome"] else "",
+            build=config["resources"]["ref"]["build"])
+    log:
+        "logs/ref/regions.log"
+    conda:
+        "../envs/gawk.yaml"
+    shell:
+        "ln -sr {input.regions} {output}"

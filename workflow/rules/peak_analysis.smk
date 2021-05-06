@@ -37,7 +37,8 @@ rule plot_fingerprint:
 rule macs2_callpeak_broad:
     input:
         treatment="results/filtered/{sample}.sorted.bam",
-        control="results/filtered/{control}.sorted.bam"
+        control="results/filtered/{control}.sorted.bam",
+        requires=igenomes_path
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -50,7 +51,8 @@ rule macs2_callpeak_broad:
                  # these output extensions internally set the --broad option:
                  "_peaks.broadPeak",
                  "_peaks.gappedPeak"
-                 )
+                 ),
+
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params: # ToDo: move to config?
@@ -67,7 +69,8 @@ rule macs2_callpeak_broad:
 rule macs2_callpeak_narrow:
     input:
         treatment="results/filtered/{sample}.sorted.bam",
-        control="results/filtered/{control}.sorted.bam"
+        control="results/filtered/{control}.sorted.bam",
+        requires=igenomes_path
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
