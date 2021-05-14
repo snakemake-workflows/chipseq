@@ -47,12 +47,11 @@ igenomes_path = snakemake.output[0]
 igenomes_release = snakemake.params.get("igenomes_release", "")
 blacklist = snakemake.params.get("blacklist", "")
 
-if not blacklist:
-    if igenomes_release:
-        igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/{version}/conf/igenomes.config".format(
-            version=igenomes_release
-        )
-    else:
-        igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/1.2.2/conf/igenomes.config"
+if igenomes_release:
+    igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/{version}/conf/igenomes.config".format(
+        version=igenomes_release
+    )
+else:
+    igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/1.2.2/conf/igenomes.config"
 
-    parse_igenomes()
+parse_igenomes()

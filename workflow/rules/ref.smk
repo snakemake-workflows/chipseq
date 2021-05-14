@@ -91,8 +91,7 @@ rule bwa_index:
 
 rule chromosome_size:
     input:
-        genome="resources/ref/genome.fasta.fai",
-        requires=igenomes_path
+        genome="resources/ref/genome.fasta.fai"
     output:
         "resources/ref/genome.chrom.sizes"
     log:
@@ -102,10 +101,9 @@ rule chromosome_size:
 
 rule generate_igenomes:
     output:
-        igenomes_path
+        "resources/ref/igenomes.yaml"
     params:
-        igenomes_release = config["resources"]["ref"]["igenomes_release"],
-        blacklist = config["resources"]["ref"]["blacklist"]
+        igenomes_release = config["resources"]["ref"]["igenomes_release"]
     log:
         "logs/ref/igenomes.log"
     conda:
@@ -115,12 +113,14 @@ rule generate_igenomes:
 
 rule generate_igenomes_blacklist:
     input:
-        "resources/ref/igenomes.yaml"
+        blacklist_path_or_igenomes()
     output:
-        get_igenomes_blacklist()
+        blacklist_path="resources/ref/blacklist.bed"
     params:
         build = config["resources"]["ref"]["build"],
-        chromosome = config["resources"]["ref"]["chromosome"]
+        chromosome = config["resources"]["ref"]["chromosome"],
+        blacklist = config["resources"]["ref"]["blacklist"],
+        gsize = config["resources"]["ref"]["macs-gsize"]
     log:
         "logs/ref/blacklist.log"
     conda:
@@ -130,52 +130,48 @@ rule generate_igenomes_blacklist:
 
 rule bedtools_sort_blacklist:
     input:
-        in_file=get_blacklist(),
-        genome="resources/ref/genome.chrom.sizes"
+        in_file="resources/ref/blacklist.bed"
     output:
-        "resources/ref/{blacklist}.sorted"
+        "resources/ref/blacklist.sorted"
     params:
         extra=""
     log:
-        "logs/ref/{blacklist}.sorted.log"
+        "logs/ref/blacklist.sorted.log"
     wrapper:
         "0.68.0/bio/bedtools/sort"
 
 rule bedtools_complement_blacklist:
     input:
-        in_file="resources/ref/{blacklist}.sorted",
+        in_file="resources/ref/blacklist.sorted",
         genome="resources/ref/genome.chrom.sizes"
     output:
-        "resources/ref/{blacklist}.sorted.complement"
+        "resources/ref/blacklist.sorted.complement"
     params:
         extra=""
     log:
-        "logs/ref/{blacklist}.sorted.complement.log"
+        "logs/ref/blacklist.sorted.complement.log"
     wrapper:
         "0.68.0/bio/bedtools/complement"
 
-rule without_blacklists:
+checkpoint get_gsize:
     input:
-        chr_size="resources/ref/genome.chrom.sizes"
+        "resources/ref/igenomes.yaml"
     output:
-        "resources/ref/genome.chrom.sizes.filter"
+        "resources/ref/gsize.txt"
+    params:
+        extra=config["resources"]["ref"]["macs-gsize"],
+        build=config["resources"]["ref"]["build"]
     log:
-        "logs/ref/genome.chrom.sizes.log"
+        "logs/ref/gsize.log"
     conda:
-        "../envs/gawk.yaml"
-    shell:
-        "gawk '{{print $1, \"0\" , $2}}' OFS='\t' {input.chr_size} > {output} 2> {log}"
+        ""
+    script:
+        "../scripts/get_gsize.py"
 
-rule merge_regions_from_blacklist_generation:
+rule aggregate:
     input:
-        regions=get_blacklist_regions()
+        aggregate_input
     output:
-        expand("resources/ref/{prefix}{build}.regions",
-            prefix="chr{chr}_".format(chr=config["resources"]["ref"]["chromosome"]) if config["resources"]["ref"]["chromosome"] else "",
-            build=config["resources"]["ref"]["build"])
-    log:
-        "logs/ref/regions.log"
-    conda:
-        "../envs/gawk.yaml"
+        "resources/ref/gsize.txt"
     shell:
-        "ln -sr {input.regions} {output}"
+        "touch {output}"
