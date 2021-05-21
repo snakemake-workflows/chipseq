@@ -1,3 +1,7 @@
+from snakemake.utils import min_version
+
+min_version("6.4.0")
+
 # The main entry point of workflow.
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
 

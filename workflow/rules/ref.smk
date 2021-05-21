@@ -168,10 +168,10 @@ checkpoint get_gsize:
     script:
         "../scripts/get_gsize.py"
 
-rule aggregate:
-    input:
-        aggregate_input
-    output:
-        "resources/ref/gsize.txt"
-    shell:
-        "touch {output}"
+# rule aggregate:
+#     input:
+#         aggregate_input
+#     output:
+#         "resources/ref/gsize.txt"
+#     shell:
+#         "touch {output}"

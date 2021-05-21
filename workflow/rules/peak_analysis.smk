@@ -38,7 +38,7 @@ rule macs2_callpeak_broad:
     input:
         treatment="results/filtered/{sample}.sorted.bam",
         control="results/filtered/{control}.sorted.bam",
-        gsize_path=aggregate_input
+        gsizepath="resources/ref/gsize.txt"
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -55,12 +55,12 @@ rule macs2_callpeak_broad:
 
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
-    params: # ToDo: move to config?
-        expand("--broad-cutoff 0.1 -f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}",
-            gsize=lambda w, input: "{}".format(open(input.gsize_path).read().strip()),
+    params:
+        "--broad-cutoff 0.1 -f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
+            gsize="{}".format(open("resources/ref/gsize.txt").read().strip()),
             pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"][
                 "p-value"] else "",
-            qvalue="-p {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
+            qvalue="-q {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
                 "q-value"] else "",
             bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
@@ -70,7 +70,7 @@ rule macs2_callpeak_narrow:
     input:
         treatment="results/filtered/{sample}.sorted.bam",
         control="results/filtered/{control}.sorted.bam",
-        gsize_path=aggregate_input
+        gsizepath="resources/ref/gsize.txt"
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -86,12 +86,12 @@ rule macs2_callpeak_narrow:
                  )
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
-    params: # ToDo: move to config?
-        expand("-f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}",
-            gsize=lambda w, input: "{}".format(open(input.gsize_path).read().strip()),
+    params:
+        "-f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
+            gsize="{}".format(open("resources/ref/gsize.txt").read().strip()),
             pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"][
                 "p-value"] else "",
-            qvalue="-p {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
+            qvalue="-q {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
                 "q-value"] else "",
             bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
