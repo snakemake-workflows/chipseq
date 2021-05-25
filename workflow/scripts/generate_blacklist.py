@@ -4,11 +4,13 @@ from smart_open import open
 
 # download blacklist and trim it for a specific chromosome
 
+
 def copy_blacklist(igenomes_or_blacklist, blacklist_path):
     with open(igenomes_or_blacklist) as fin:
-        with open(blacklist_path) as fout:
+        with open(blacklist_path, 'w') as fout:
             for line in fin:
                 fout.write(line)
+
 
 def get_blacklist_from_igenomes(igenomes_or_blacklist, blacklist_path):
     with open(igenomes_or_blacklist) as f:
@@ -31,7 +33,6 @@ def get_blacklist_from_igenomes(igenomes_or_blacklist, blacklist_path):
 
 igenomes_or_blacklist = snakemake.input[0]
 blacklist_path = snakemake.output.get("blacklist_path", "")
-gsize = snakemake.output.get("gsize", "")
 
 build = snakemake.params.get("build", "")
 chromosome = snakemake.params.get("chromosome", "")

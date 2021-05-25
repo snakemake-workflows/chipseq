@@ -1,6 +1,6 @@
 import yaml
 
-def get_gsize_from_igenomes(igenomes):
+def get_gsize_from_igenomes(igenomes, build):
     if build:
         with open(igenomes) as f:
             igenomes = yaml.load(f, Loader=yaml.FullLoader)
@@ -19,10 +19,10 @@ build = snakemake.params.get("build", "")
 
 if config_gsize:
     with open(gsize_out, 'w') as f:
-        f.write("-g {}".build(config_gsize))
+        f.write("-g {}".format(config_gsize))
 else:
     with open(gsize_out, 'w') as f:
-        macs_gsize = get_gsize_from_igenomes(igenomes)
+        macs_gsize = get_gsize_from_igenomes(igenomes, build)
         if macs_gsize:
             f.write("-g {}".format(macs_gsize))
         else:

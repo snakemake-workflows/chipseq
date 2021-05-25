@@ -119,8 +119,7 @@ rule generate_igenomes_blacklist:
     params:
         build = config["resources"]["ref"]["build"],
         chromosome = config["resources"]["ref"]["chromosome"],
-        blacklist = config["resources"]["ref"]["blacklist"],
-        gsize = config["resources"]["ref"]["macs-gsize"]
+        blacklist = config["resources"]["ref"]["blacklist"]
     log:
         "logs/ref/blacklist.log"
     conda:
@@ -167,11 +166,3 @@ checkpoint get_gsize:
         ""
     script:
         "../scripts/get_gsize.py"
-
-# rule aggregate:
-#     input:
-#         aggregate_input
-#     output:
-#         "resources/ref/gsize.txt"
-#     shell:
-#         "touch {output}"

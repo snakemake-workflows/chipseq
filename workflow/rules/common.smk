@@ -129,16 +129,6 @@ def get_plot_homer_annotatepeaks_input():
         sam_contr_peak = get_sample_control_peak_combinations_list()
     )
 
-# def get_gsize():
-#     return "{}".format(shell("cat {}".format("resources/ref/gsize.txt")))
-
-# def get_gsize():
-#     with open("resources/ref/gsize.txt") as f:
-#         if f.read().strip() != "":
-#             return f.read().strip()
-#         else:
-#             return ""
-
 def aggregate_input(wildcards):
     with checkpoints.get_gsize.get().output[0].open() as f:
         return "resources/ref/gsize.txt"

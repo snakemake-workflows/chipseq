@@ -56,8 +56,8 @@ rule macs2_callpeak_broad:
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params:
-        "--broad-cutoff 0.1 -f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
-            gsize="{}".format(open("resources/ref/gsize.txt").read().strip()),
+        lambda w, input:"--broad-cutoff 0.1 -f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
+            gsize="{}".format(open(input.gsizepath).read().strip()),
             pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"][
                 "p-value"] else "",
             qvalue="-q {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
@@ -87,8 +87,8 @@ rule macs2_callpeak_narrow:
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params:
-        "-f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
-            gsize="{}".format(open("resources/ref/gsize.txt").read().strip()),
+        lambda w, input: "-f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
+            gsize="{}".format(open(input.gsizepath).read().strip()),
             pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"][
                 "p-value"] else "",
             qvalue="-q {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"][
