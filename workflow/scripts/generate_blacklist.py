@@ -20,16 +20,14 @@ def get_blacklist_from_igenomes(igenomes_or_blacklist, blacklist_path):
             blacklist_link = igenomes["params"]["genomes"][build]["blacklist"]
             with open(blacklist_link) as fin:
                 with open(blacklist_path, 'w') as fout:
+                    pattern = re.compile(r'^chr')
                     for line in fin:
+                        formatted_line = re.sub(pattern, "", line)
                         if chromosome:
-                            if line.startswith("{}\t".format(chromosome)):
-                                fout.write(line)
-                            elif line.startswith("chr{}\t".format(chromosome)):
-                                pattern = re.compile(r'^chr')
-                                fout.write(re.sub(pattern, "", line))
+                            if formatted_line.startswith("{}\t".format(chromosome)):
+                                fout.write(formatted_line)
                         else:
-                            pattern = re.compile(r'^chr')
-                            fout.write(re.sub(pattern, "", line))
+                            fout.write(formatted_line)
         else:
             open(blacklist_path, 'a').close()
 
