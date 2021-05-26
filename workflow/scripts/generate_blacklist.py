@@ -28,7 +28,8 @@ def get_blacklist_from_igenomes(igenomes_or_blacklist, blacklist_path):
                                 pattern = re.compile(r'^chr')
                                 fout.write(re.sub(pattern, "", line))
                         else:
-                            fout.write(line)
+                            pattern = re.compile(r'^chr')
+                            fout.write(re.sub(pattern, "", line))
         else:
             open(blacklist_path, 'a').close()
 
