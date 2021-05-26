@@ -36,7 +36,7 @@ jobs:
         snakefile: workflow/Snakefile
         args: "--use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
 
-    - name: Test minimized single end workflow (on local reduced SRA files for chromosome 14 homo sapiens)
+    - name: Test minimized single end workflow (on local reduced SRA files for a single chromosome - homo sapiens)
       uses: snakemake/snakemake-github-action@v1.19.0
       with:
         directory: .test
@@ -62,7 +62,7 @@ jobs:
 #          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
 #          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
 
-    - name: Test minimized paired end workflow (on local reduced SRA files for chromosome VII saccharomyces cerevisiae)
+    - name: Test minimized paired end workflow (on local reduced SRA files for a single chromosome - saccharomyces cerevisiae)
       uses: snakemake/snakemake-github-action@v1.19.0
       with:
         directory: .test
