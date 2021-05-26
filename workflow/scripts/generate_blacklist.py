@@ -1,4 +1,5 @@
 import os
+import re
 import yaml
 from smart_open import open
 
@@ -24,7 +25,8 @@ def get_blacklist_from_igenomes(igenomes_or_blacklist, blacklist_path):
                             if line.startswith("{}\t".format(chromosome)):
                                 fout.write(line)
                             elif line.startswith("chr{}\t".format(chromosome)):
-                                fout.write(line)
+                                pattern = re.compile(r'^chr')
+                                fout.write(re.sub(pattern, "", line))
                         else:
                             fout.write(line)
         else:
