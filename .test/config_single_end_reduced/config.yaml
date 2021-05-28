@@ -39,7 +39,7 @@ params:
     q-value:
   deeptools-plots:
     # when activated the plot profile and heatmap plot are generated, this involves a matrix calculation that requires a lot of working memory.
-    activate: True
+    activate: False
   lc_extrap:
     activate: True
   picard_metrics:
