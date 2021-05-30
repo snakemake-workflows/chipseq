@@ -100,3 +100,4 @@ jobs:
         args: "--report report.zip --configfile .test/config_paired_end_reduced/config.yaml"
         stagein: |
           export TMPDIR=/tmp
+          rm -rf .test/resources .test/results
