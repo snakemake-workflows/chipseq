@@ -113,7 +113,7 @@ rule generate_igenomes:
 
 rule generate_igenomes_blacklist:
     input:
-        blacklist_path_or_igenomes()
+        "resources/ref/igenomes.yaml"
     output:
         blacklist_path="resources/ref/blacklist.bed"
     params:

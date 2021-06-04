@@ -7,8 +7,9 @@ rule samtools_view_filter:
         # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
         # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
         # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
-        # the -L option is automatically activated if a path to a blacklist of the given genome exists in
-        # ".test/config/igenomes.yaml" or has been entered there
+        # the -L option is automatically activated if a path to a blacklist of the given genome exists in the
+        # downloaded "resources/ref/igenomes.yaml" or has been provided via the "config/config.yaml"
+        # parameter "config['resources']['ref']['blacklist']"
         lambda wc, input: "-b -F 0x004 {pe_params} {blacklist}".format(
             pe_params="" if config["single_end"] else "-G 0x009 -f 0x001",
             blacklist="" if len(input) == 1 else "-L {}".format(list(input)[1])

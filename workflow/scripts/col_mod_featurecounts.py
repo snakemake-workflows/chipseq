@@ -4,9 +4,7 @@ import os.path
 
 sys.stderr = open(snakemake.log[0], "w")
 
-fcounts = snakemake.input.get("featurecounts")
 samples = pd.read_csv(snakemake.input.get("samples_file"), sep="\t")
-bam = snakemake.input.get("bam", "")
 
 
 def get_group_control_combination(bam_path):
@@ -20,10 +18,10 @@ def get_group_control_combination(bam_path):
 
 
 def modify_header(old_header):
-    return [get_group_control_combination(i) if i in bam else i for i in old_header]
+    return [get_group_control_combination(i) if i in snakemake.input["bam"] else i for i in old_header]
 
 
-f_counts_tab = pd.read_csv(fcounts, sep="\t", skiprows=1)
+f_counts_tab = pd.read_csv(snakemake.input["featurecounts"], sep="\t", skiprows=1)
 header = list(f_counts_tab.columns.values)
 header_mod = modify_header(header)
 f_counts_frame = pd.DataFrame(f_counts_tab.values)

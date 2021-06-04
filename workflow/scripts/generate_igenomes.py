@@ -5,16 +5,6 @@ from smart_open import open
 # download and parse igenomes file
 
 
-def remove_header():
-    with open(igenomes_link) as fin:
-        with open(igenomes_path, 'w') as fout:
-            for line in fin:
-                if not line.strip().startswith('*'):
-                    if not line.strip().startswith('/*'):
-                        if not line.strip().startswith('//'):
-                            fout.write(line)
-
-
 def parse_to_yaml(igenomes):
     params = {"=": ":", " { ": ": {", "\"": "\'", " ": "", "fasta:": "\'fasta\':", "bwa:": "\'bwa\':",
               "bowtie2:": "\'bowtie2\':", "star:": "\'star\':", "bismark:": "\'bismark\':", "gtf:": "\'gtf\':",
@@ -35,14 +25,6 @@ def add_links(igenomes):
     )
 
 
-def parse_igenomes():
-    remove_header()
-    with open(igenomes_path) as f:
-        igenomes = yaml.load(add_links(parse_to_yaml(yaml.load(f, Loader=yaml.FullLoader))), Loader=yaml.FullLoader)
-    with open(igenomes_path, 'w') as f:
-        yaml.dump(igenomes, f)
-
-
 igenomes_path = snakemake.output[0]
 igenomes_release = snakemake.params.get("igenomes_release", "")
 blacklist = snakemake.params.get("blacklist", "")
@@ -52,6 +34,20 @@ if igenomes_release:
         version=igenomes_release
     )
 else:
-    igenomes_link = "https://raw.githubusercontent.com/nf-core/chipseq/1.2.2/conf/igenomes.config"
+    sys.exit("The igenomes_release to use must be specified in the config.yaml file. "
+             "Please see https://github.com/nf-core/chipseq/releases for available releases. ")
 
-parse_igenomes()
+# removing header
+with open(igenomes_link) as fin:
+    with open(igenomes_path, 'w') as fout:
+        for line in fin:
+            if not line.strip().startswith('*'):
+                if not line.strip().startswith('/*'):
+                    if not line.strip().startswith('//'):
+                        fout.write(line)
+
+# parsing igenomes file to yaml format
+with open(igenomes_path) as f:
+    igenomes = yaml.load(add_links(parse_to_yaml(yaml.load(f, Loader=yaml.FullLoader))), Loader=yaml.FullLoader)
+with open(igenomes_path, 'w') as f:
+    yaml.dump(igenomes, f)

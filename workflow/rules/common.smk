@@ -129,15 +129,6 @@ def get_plot_homer_annotatepeaks_input():
         sam_contr_peak = get_sample_control_peak_combinations_list()
     )
 
-def aggregate_input(wildcards):
-    with checkpoints.get_gsize.get().output[0].open() as f:
-        return "resources/ref/gsize.txt"
-
-def blacklist_path_or_igenomes():
-    if config["resources"]["ref"]["blacklist"]:
-        return config["resources"]["ref"]["blacklist"]
-    return "resources/ref/igenomes.yaml"
-
 def get_samtools_view_filter_input(wildcards):
     return ["results/picard_dedup/{sample}.bam", "resources/ref/blacklist.sorted.complement".format(
         prefix="chr{chr}_".format(chr=chromosome) if chromosome else "",
