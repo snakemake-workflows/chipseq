@@ -1,0 +1,7 @@
+sample	unit	fragment_len_mean	fragment_len_sd	fq1	fq2	sra_accession	platform
+A	1			data/atacseq/test-datasets/testdata/SRR1822153_1.fastq.gz	data/atacseq/test-datasets/testdata/SRR1822153_2.fastq.gz		ILLUMINA
+B	1			data/atacseq/test-datasets/testdata/SRR1822154_1.fastq.gz	data/atacseq/test-datasets/testdata/SRR1822154_2.fastq.gz		ILLUMINA
+C	1	300	14	data/atacseq/test-datasets/testdata/SRR1822157_1.fastq.gz	data/atacseq/test-datasets/testdata/SRR1822157_2.fastq.gz		ILLUMINA
+D	1			data/atacseq/test-datasets/testdata/SRR1822158_1.fastq.gz	data/atacseq/test-datasets/testdata/SRR1822158_2.fastq.gz		ILLUMINA
+E	1			data/chipseq/test-datasets/testdata/SRR5204809_Spt5-ChIP_Input1_SacCer_ChIP-Seq_ss100k_R1.fastq.gz	data/chipseq/test-datasets/testdata/SRR5204809_Spt5-ChIP_Input1_SacCer_ChIP-Seq_ss100k_R2.fastq.gz		ILLUMINA
+F	1			data/chipseq/test-datasets/testdata/SRR5204810_Spt5-ChIP_Input2_SacCer_ChIP-Seq_ss100k_R1.fastq.gz	data/chipseq/test-datasets/testdata/SRR5204810_Spt5-ChIP_Input2_SacCer_ChIP-Seq_ss100k_R2.fastq.gz		ILLUMINA

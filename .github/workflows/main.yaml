@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.9.0
+      uses: snakemake/snakemake-github-action@v1.19.0
       with:
         directory: .
         snakefile: workflow/Snakefile
@@ -26,27 +26,78 @@ jobs:
     runs-on: ubuntu-latest
     needs: Linting
     steps:
-    - uses: actions/checkout@v1
-    - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@2.0.0
+    - name: Checkout repository
+      uses: actions/checkout@v1
 
-    - name: Test workflow (local test data)
-      uses: snakemake/snakemake-github-action@v1.9.0
+    - name: Test dry run for a large single end workflow
+      uses: snakemake/snakemake-github-action@v1.19.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+        args: "--use-conda -n --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+
+    - name: Test minimized single end workflow (on local reduced SRA files for a single chromosome - homo sapiens)
+      uses: snakemake/snakemake-github-action@v1.19.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--configfile .test/config_single_end_reduced/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
           export TMPDIR=/tmp
           rm -rf .test/resources .test/results
           export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
           mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+#
+#    # Test for single end reads with larger data sets and download of SRA files. It can be included for heavy duty testing on dedicated machines.
+#
+#    - name: Test single end workflow (test data sra-download)
+#      uses: snakemake/snakemake-github-action@v1.19.0
+#      with:
+#        directory: .test
+#        snakefile: workflow/Snakefile
+#        args: "--configfile .test/config_single_end/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+#        stagein: |
+#          export TMPDIR=/tmp
+#          rm -rf .test/resources .test/results
+#          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+#          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
 
-    - name: Test report
-      uses: snakemake/snakemake-github-action@v1.9.0
+    - name: Test minimized paired end workflow (on local reduced SRA files for a single chromosome - saccharomyces cerevisiae)
+      uses: snakemake/snakemake-github-action@v1.19.0
       with:
         directory: .test
         snakefile: workflow/Snakefile
-        args: "--report report.zip"
+        args: "--configfile .test/config_paired_end_reduced/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
         stagein: |
           export TMPDIR=/tmp
+          rm -rf .test/resources .test/results
+          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+#
+#    # Test for paired end reads with larger datasets from git submodules. It can be included for heavy duty testing on dedicated machines.
+#
+#    - uses: actions/checkout@v1
+#    - name: Checkout submodules
+#      uses: textbook/git-checkout-submodule-action@2.0.0
+#
+#    - name: Test paired end workflow (submodule test data)
+#      uses: snakemake/snakemake-github-action@v1.19.0
+#      with:
+#        directory: .test
+#        snakefile: workflow/Snakefile
+#        args: "--configfile .test/config_paired_end/config.yaml --use-conda --cache --show-failed-logs -j 10 --conda-cleanup-pkgs cache --conda-frontend mamba"
+#        stagein: |
+#          export TMPDIR=/tmp
+#          rm -rf .test/resources .test/results
+#          export SNAKEMAKE_OUTPUT_CACHE=/snakemake-cache
+#          mkdir -p -m a+rw $SNAKEMAKE_OUTPUT_CACHE
+
+    - name: Test report
+      uses: snakemake/snakemake-github-action@v1.19.0
+      with:
+        directory: .test
+        snakefile: workflow/Snakefile
+        args: "--report report.zip --configfile .test/config_paired_end_reduced/config.yaml"
+        stagein: |
+          export TMPDIR=/tmp
+          rm -rf .test/resources .test/results

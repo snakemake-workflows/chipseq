@@ -1,0 +1,6 @@
+sample	group	batch_effect	control	antibody
+A	T0	batch1	E	SPT5
+B	T0	batch2	E	SPT5
+C	T15	batch1	E	SPT5
+D	T15	batch2	E	SPT5
+E	T0	batch1

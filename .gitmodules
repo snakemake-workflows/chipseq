@@ -1,4 +1,9 @@
- 
-[submodule ".test/ngs-test-data"]
-	path = .test/ngs-test-data
-	url = https://github.com/snakemake-workflows/ngs-test-data
+# For testing the workflow with larger datasets for paired end reads once a dedicated GitHub actions machine is set up.
+[submodule ".test/data/atacseq/test-datasets"]
+	path = .test/data/atacseq/test-datasets
+	url = https://github.com/nf-core/test-datasets.git
+	branch = atacseq
+[submodule ".test/data/chipseq/test-datasets"]
+	path = .test/data/chipseq/test-datasets
+	url = https://github.com/nf-core/test-datasets.git
+	branch = chipseq

@@ -2,24 +2,60 @@
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
 samples: "config/samples.tsv"
-units: "config/units.tsv"
+units: "config/units.tsv"  # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in units.tsv
+single_end: False
 
 resources:
   ref:
     # Number of chromosomes to consider for calling.
     # The first n entries of the FASTA will be considered.
-    n_chromosomes: 25
+    n_chromosomes: 16
     # Ensembl species name
-    species: homo_sapiens
+    species: saccharomyces_cerevisiae
     # Ensembl release
     release: 101
     # Genome build
-    build: GRCh38
+    build: R64-1-1
+    # for testing data only chromosome 21 is selected
+    chromosome:
+    # specify release version number of igenomes list to use (see https://github.com/nf-core/chipseq/releases), default: 1.2.2
+    igenomes_release: 1.2.2
+    # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
+    macs-gsize:
+    # if igenomes.yaml cannot be used, a path to an own blacklist can be specified here
+    blacklist:
 
 params:
-  lc_extrap: True
   # choose "narrow" or "broad" for macs2 callpeak analysis, for documentation and source code please see https://github.com/macs3-project/MACS
   peak-analysis: "broad"
+  # Number of biological replicates required from a given condition for a peak to contribute to a consensus peak
+  min-reps-consensus: 1
+  callpeak:
+    p-value: 0.5
+    q-value:
+  deeptools-plots:
+    # when activated the plot profile and heatmap plot are generated, this involves a matrix calculation that requires a lot of working memory.
+    activate: False
+  lc_extrap:
+    activate: True
+  picard_metrics:
+    activate: True
+  deseq2:
+    # optional to run vst transform instead of rlog
+    vst: False
+  peak-annotation-analysis:
+    activate: True
+  peak-qc:
+    activate: True
+  consensus-peak-analysis:
+    activate: True
+  # samtools view parameters:
+  # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
+  # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
+  # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
+  # the -L option is automatically activated if a path to a blacklist of the given genome exists in "config/igenomes.yaml" or has been entered there
+  samtools-view-se: "-b -F 0x004"
+  samtools-view-pe: "-b -F 0x004 -G 0x009 -f 0x001"
   # TODO: move adapter parameters into a `adapter` column in units.tsv and check for its presence via the units.schema.yaml -- this enables unit-specific adapters, e.g. when integrating multiple datasets
   # these cutadapt parameters need to contain the required flag(s) for
   # the type of adapter(s) to trim, i.e.:

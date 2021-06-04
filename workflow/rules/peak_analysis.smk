@@ -1,8 +1,11 @@
 rule plot_fingerprint:
     input:
-        bam_files=["results/orphan_rm_sorted/{sample}.bam", "results/orphan_rm_sorted/{control}.bam"],
-        bam_idx=["results/orphan_rm_sorted/{sample}.bam.bai", "results/orphan_rm_sorted/{control}.bam.bai"],
-        jsd_sample="results/orphan_rm_sorted/{control}.bam"
+        bam_files=["results/filtered/{sample}.sorted.bam", "results/filtered/{control}.sorted.bam"],
+        bam_idx=["results/filtered/{sample}.sorted.bam.bai", "results/filtered/{control}.sorted.bam.bai"],
+        jsd_sample="results/filtered/{control}.sorted.bam",
+        stats=expand("results/{step}/{{sample}}.sorted.{step}.stats.txt",
+            step="bamtools_filtered" if config["single_end"]
+            else "orph_rm_pe")
     output:  #ToDo: add description to report caption
         # https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotfingerprint.html.
         fingerprint=report("results/deeptools/{sample}-{control}.plot_fingerprint.pdf", caption="../report/plot_fingerprint_deeptools.rst", category="QC"),
@@ -14,6 +17,18 @@ rule plot_fingerprint:
         "--labels {sample} {control}",
         "--skipZeros ",
         "--numberOfSamples 500000 ", # ToDo: to config?
+        lambda w, input:
+            "{se_option}{fragment_size}".format(
+                se_option="--extendReads " if config["single_end"] else "",
+                # Estimated fragment size used to extend single-end reads
+                fragment_size=
+                "$(grep ^SN {stats} | "
+                "cut -f 2- | "
+                "grep -m1 'average length:' | "
+                "awk '{{print $NF}}') ".format(
+                    stats=input.stats)
+                if config["single_end"] else ""
+            )
     threads:
         8
     wrapper:
@@ -21,8 +36,9 @@ rule plot_fingerprint:
 
 rule macs2_callpeak_broad:
     input:
-        treatment="results/orphan_rm_sorted/{sample}.bam",
-        control="results/orphan_rm_sorted/{control}.bam"
+        treatment="results/filtered/{sample}.sorted.bam",
+        control="results/filtered/{control}.sorted.bam",
+        gsizepath="resources/ref/gsize.txt"
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -35,20 +51,24 @@ rule macs2_callpeak_broad:
                  # these output extensions internally set the --broad option:
                  "_peaks.broadPeak",
                  "_peaks.gappedPeak"
-                 )
+                 ),
+
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
-    params: # ToDo: move to config?
-        "--broad --broad-cutoff 0.1 -f BAMPE -g hs --SPMR --qvalue 0.05 --keep-dup all"
-        # ToDo: Update wrapper to check for " --broad$" or " --broad " instead of only "--broad" (line 47),
-        #  then "--broad" in params can be removed here in params
+    params:
+        lambda w, input:"--broad-cutoff 0.1 -f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
+            gsize="{}".format(open(input.gsizepath).read().strip()),
+            pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"]["p-value"] else "",
+            qvalue="-q {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"]["q-value"] else "",
+            bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
-        "0.66.0/bio/macs2/callpeak"
+        "0.68.0/bio/macs2/callpeak"
 
 rule macs2_callpeak_narrow:
     input:
-        treatment="results/orphan_rm_sorted/{sample}.bam",
-        control="results/orphan_rm_sorted/{control}.bam"
+        treatment="results/filtered/{sample}.sorted.bam",
+        control="results/filtered/{control}.sorted.bam",
+        gsizepath="resources/ref/gsize.txt"
     output:
         # all output-files must share the same basename and only differ by it's extension
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -64,10 +84,14 @@ rule macs2_callpeak_narrow:
                  )
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
-    params: # ToDo: move to config?
-        "-f BAMPE -g hs --SPMR --qvalue 0.05 --keep-dup all"
+    params:
+        lambda w, input: "-f {bam_format} {gsize} -B --SPMR --keep-dup all {pvalue} {qvalue}".format(
+            gsize="{}".format(open(input.gsizepath).read().strip()),
+            pvalue="-p {}".format(config["params"]["callpeak"]["p-value"]) if config["params"]["callpeak"]["p-value"] else "",
+            qvalue="-q {}".format(config["params"]["callpeak"]["q-value"]) if config["params"]["callpeak"]["q-value"] else "",
+            bam_format="BAM" if config["single_end"] else "BAMPE")
     wrapper:
-        "0.66.0/bio/macs2/callpeak"
+        "0.68.0/bio/macs2/callpeak"
 
 rule peaks_count:
     input:
@@ -98,25 +122,26 @@ rule sm_report_peaks_count_plot:
 
 rule bedtools_intersect:
     input:
-        left="results/orphan_rm_sorted/{sample}.bam",
+        left="results/filtered/{sample}.sorted.bam",
         right="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
-        pipe("results/intersect/{sample}-{control}.{peak}.intersected.bed")
+        pipe("results/bedtools_intersect/{sample}-{control}.{peak}.intersected.bed")
     params:
         extra="-bed -c -f 0.20"
     log:
-        "logs/intersect/{sample}-{control}.{peak}.intersected.log"
+        "logs/bedtools/intersect/{sample}-{control}.{peak}.intersected.log"
     wrapper:
         "0.66.0/bio/bedtools/intersect"
 
 rule frip_score:
     input:
-        intersect="results/intersect/{sample}-{control}.{peak}.intersected.bed",
-        flagstats="results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat"
+        intersect="results/bedtools_intersect/{sample}-{control}.{peak}.intersected.bed",
+        flagstats=expand("results/{step}/{{sample}}.sorted.{step}.flagstat", step= "bamtools_filtered" if config["single_end"]
+        else "orph_rm_pe")
     output:
-        "results/intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
+        "results/bedtools_intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
     log:
-        "logs/intersect/{sample}-{control}.{peak}.peaks_frip.log"
+        "logs/bedtools/intersect/{sample}-{control}.{peak}.peaks_frip.log"
     conda:
         "../envs/gawk.yaml"
     shell:
@@ -132,7 +157,7 @@ rule sm_rep_frip_score:
     output:
         report("results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf", caption="../report/plot_frip_score_macs2_bedtools.rst", category="CallPeaks")
     log:
-        "logs/intersect/plot_{peak}_peaks_frip_score.log"
+        "logs/bedtools/intersect/plot_{peak}_peaks_frip_score.log"
     conda:
         "../envs/r_plots.yaml"
     script:
@@ -142,7 +167,7 @@ rule create_igv_peaks:
     input:
         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
-        "results/IGV/macs2_callpeak/{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
+        "results/IGV/macs2_callpeak-{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
     log:
         "logs/igv/create_igv_peaks/merged_library.{sample}-{control}.{peak}_peaks.log"
     shell:
@@ -152,7 +177,7 @@ rule homer_annotatepeaks:
     input:
         peaks="results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
         genome="resources/ref/genome.fasta",
-        gtf="resources/ref/annotation.gtf",
+        gtf="resources/ref/annotation.gtf"
     output:
         annotations="results/homer/annotate_peaks/{sample}-{control}.{peak}_peaks.annotatePeaks.txt"
     threads:
@@ -162,17 +187,12 @@ rule homer_annotatepeaks:
         extra="-gid"
     log:
         "logs/homer/annotate_peaks/{sample}-{control}.{peak}.log"
-    conda:
-        "../envs/temp_annotatepeaks.yaml"
-    script:
-        "../scripts/temp_annotatepeaks_wrapper.py"
-    #  #TODO: add wrapper and remove script, env and conda statement in this rule
-    # wrapper:
-    #     "xxx/bio/homer/annotatePeaks"
+    wrapper:
+        "0.68.0/bio/homer/annotatePeaks"
 
 rule plot_macs_qc:
     input:
-        get_plot_macs_qc_input()
+        get_macs2_peaks()
     output:  #ToDo: add description to report caption
         summmary="results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
         plot=report("results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf", caption="../report/plot_macs2_qc.rst", category="CallPeaks")

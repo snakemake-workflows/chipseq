@@ -1,0 +1,26 @@
+{
+  "filters" : [
+      {
+          "id" : "paired_end",
+          "isPaired" : "true"
+      },
+
+      {
+          "id" : "mismatch",
+          "tag" : "NM:<=4"
+      },
+
+      {
+          "id" : "min_size",
+          "insertSize" : ">=-2000"
+      },
+
+      {
+          "id" : "max_size",
+          "insertSize" : "<=2000"
+      }
+  ],
+
+    "rule" : " (paired_end & mismatch & min_size & max_size) | (!paired_end & mismatch) "
+
+}

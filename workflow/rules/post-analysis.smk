@@ -4,7 +4,7 @@ rule preseq_lc_extrap:
     output:
         "results/preseq/{sample}.lc_extrap"
     params:
-        "-v -seed 1"
+         "-v {} -seed 1".format( "" if config["single_end"] else "-pe" )
     log:
         "logs/preseq/{sample}.log"
     wrapper:
@@ -12,24 +12,30 @@ rule preseq_lc_extrap:
 
 rule collect_multiple_metrics:
     input:
-         bam="results/orphan_rm_sorted/{sample}.bam",
+         bam="results/filtered/{sample}.sorted.bam",
          ref="resources/ref/genome.fasta"
     output: #ToDo: add descriptions to report captions
         # Through the output file extensions the different tools for the metrics can be selected
         # so that it is not necessary to specify them under params with the "PROGRAM" option.
         # Usable extensions (and which tools they implicitly call) are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/picard/collectmultiplemetrics.html.
+        [
+           "{path}{sample}.insert_size_metrics",
+            report(
+                "{path}{sample}.insert_size_histogram.pdf",
+                caption="../report/plot_insert_size_histogram_picard_mm.rst",
+                category="Multiple Metrics (picard)"
+            )
+        ] if not config["single_end"] else [],
         multiext("{path}{sample}",
                  ".alignment_summary_metrics",
                  ".base_distribution_by_cycle_metrics",
-                 ".insert_size_metrics",
                  ".quality_by_cycle_metrics",
                  ".quality_distribution_metrics",
                  ),
-        report("{path}{sample}.base_distribution_by_cycle.pdf", caption="../report/plot_base_distribution_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
-        report("{path}{sample}.insert_size_histogram.pdf", caption="../report/plot_insert_size_histogram_picard_mm.rst", category="MulitpleMetrics"),
-        report("{path}{sample}.quality_by_cycle.pdf", caption="../report/plot_quality_by_cycle_picard_mm.rst", category="MulitpleMetrics"),
-        report("{path}{sample}.quality_distribution.pdf", caption="../report/plot_quality_distribution_picard_mm.rst", category="MulitpleMetrics")
+        report("{path}{sample}.base_distribution_by_cycle.pdf", caption="../report/plot_base_distribution_by_cycle_picard_mm.rst", category="Multiple Metrics (picard)"),
+        report("{path}{sample}.quality_by_cycle.pdf", caption="../report/plot_quality_by_cycle_picard_mm.rst", category="Multiple Metrics (picard)"),
+        report("{path}{sample}.quality_distribution.pdf", caption="../report/plot_quality_distribution_picard_mm.rst", category="Multiple Metrics (picard)")
     resources:
         # This parameter (default 3 GB) can be used to limit the total resources a pipeline is allowed to use, see:
         #     https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources
@@ -44,14 +50,31 @@ rule collect_multiple_metrics:
 
 rule genomecov:
     input:
-        "results/orphan_rm_sorted/{sample}.bam",
-        "results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat"
+        "results/filtered/{sample}.sorted.bam",
+        flag_stats=expand("results/{step}/{{sample}}.sorted.{step}.flagstat",
+            step= "bamtools_filtered" if config["single_end"]
+            else "orph_rm_pe"),
+        stats=expand("results/{step}/{{sample}}.sorted.{step}.stats.txt",
+            step= "bamtools_filtered" if config["single_end"]
+            else "orph_rm_pe"),
     output:
         pipe("results/bed_graph/{sample}.bedgraph")
     log:
         "logs/bed_graph/{sample}.log"
-    params: #-fs option was not used because there are no single end reads any more
-        "-bg -pc -scale $(grep 'mapped (' results/orphan_rm_sorted/{sample}.orphan_rm_sorted.flagstat | awk '{print 1000000/$1}')"
+    params:
+        lambda w, input:
+            "-bg -scale $(grep 'mapped (' {flagstats_file} | awk '{{print 1000000/$1}}') {pe_fragment} {extend}".format(
+            flagstats_file=input.flag_stats,
+            pe_fragment="" if config["single_end"] else "-pc",
+            # Estimated fragment size used to extend single-end reads
+            extend=
+                "-fs $(grep ^SN {stats} | "
+                "cut -f 2- | "
+                "grep -m1 'average length:' | "
+                "awk '{{print $NF}}')".format(
+                stats=input.stats)
+            if config["single_end"] else ""
+        )
     wrapper:
         "0.64.0/bio/bedtools/genomecov"
 
@@ -106,6 +129,7 @@ rule compute_matrix:
         extra="--regionBodyLength 1000 "
               "--beforeRegionStartLength 3000 "
               "--afterRegionStartLength 3000 "
+              "--missingDataAsZero " # added to prevent black output in the heatmap (plot_heatmap rule) https://github.com/deeptools/deepTools/issues/793
               "--skipZeros "
               "--smartLabels "
               "--numberOfProcessors 2 "
@@ -144,7 +168,7 @@ rule plot_heatmap:
 
 rule phantompeakqualtools:
     input:
-         "results/orphan_rm_sorted/{sample}.bam"
+        "results/filtered/{sample}.sorted.bam"
     output:  #ToDo: add description to report caption
         res_phantom="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
         r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",

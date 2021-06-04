@@ -1,5 +1,15 @@
+from snakemake.utils import min_version
+
+min_version("6.4.0")
+
 # The main entry point of workflow.
 # After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
+
+configfile: "config/config.yaml"
+
+report: "report/workflow.rst"
+
+container: "docker://continuumio/miniconda3"
 
 include: "rules/common.smk"
 include: "rules/ref.smk"
@@ -11,6 +21,7 @@ include: "rules/stats.smk"
 include: "rules/utils.smk"
 include: "rules/post-analysis.smk"
 include: "rules/peak_analysis.smk"
+include: "rules/consensus_peak_analysis.smk"
 
 rule all:
     input: all_input

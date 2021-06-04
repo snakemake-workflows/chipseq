@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+dependencies:
+  - r-base =4.0
+  - r-upsetr =1.4
+  - r-optparse =1.6

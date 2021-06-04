@@ -14,7 +14,18 @@ properties:
   fq2:
     type: string
     description: path to second FASTQ file (leave empty in case of single-end)
+  sra_accession:
+    type: string
+    description: accession numbers of samples for sra download
+  platform:
+    type: string
+    description: name of the sequencing platform used
+  anyOf:
+    - required:
+      - fq1
+    - required:
+      - sra_accession
 required:
   - sample
   - unit
-  - fq1
+  - platform

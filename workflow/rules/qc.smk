@@ -4,12 +4,14 @@ rule fastqc:
     output:
         html="results/qc/fastqc/{sample}.{unit}.{read}.html",
         zip="results/qc/fastqc/{sample}.{unit}.{read}_fastqc.zip"
+    params:
+        ""
     log:
         "logs/fastqc/{sample}.{unit}.{read}.log"
+    threads: 6
     wrapper:
-        "0.64.0/bio/fastqc"
+        "0.72.0/bio/fastqc"
 
-# ToDo: add wrapper again and remove temporary script and env after wrapper release with matplotlib dependency
 rule multiqc:
     input:
         get_multiqc_input

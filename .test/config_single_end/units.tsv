@@ -1,0 +1,7 @@
+sample	unit	fragment_len_mean	fragment_len_sd	fq1	fq2	sra_accession	platform
+A	1					SRR1635455	ILLUMINA
+B	1					SRR1635456	ILLUMINA
+C	1					SRR1635457	ILLUMINA
+C	2					SRR1635458	ILLUMINA
+D	1					SRR1635439	ILLUMINA
+E	1					SRR1635441	ILLUMINA

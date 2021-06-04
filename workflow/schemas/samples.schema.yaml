@@ -7,9 +7,9 @@ properties:
   sample:
     type: string
     description: sample name/identifier
-  condition:
+  group:
     type: string
-    description: sample condition that will be compared during differential analysis (e.g. a treatment, a tissue time, a disease)
+    description: sample condition that will be compared during differential analysis (e.g. a treatment, a tissue time, a disease), replicates of a sample have the same group, control and antibody
   control:
     type: string
     description: control associated with the sample, entries that don't have a control are themselves controls
@@ -20,4 +20,4 @@ properties:
 # columns that the config/samples.tsv file must have to pass schema validation
 required:
   - sample
-  - condition
+  - group
