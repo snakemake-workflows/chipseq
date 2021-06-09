@@ -1,1 +1,5 @@
- 
+**`MA plot <https://bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf#Rfn.plotMA>`_ (FDR 0.01)**
+shows the log2 fold changes versus the mean of normalized counts from
+`DESeq2 <https://bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf>`_ analysis filtered on a false
+discovery rate (FDR) threshold of 0.01 for all samples of each antibody. For more information about DESeq2 please see
+`documentation <https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html>`_.
