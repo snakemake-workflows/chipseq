@@ -387,21 +387,22 @@ def all_input(wildcards):
                                                 "results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.RData",
                                                 "results/deseq2/sizeFactors/{antibody}.consensus_{peak}-peaks.sizeFactors.sizeFactor.txt",
                                                 "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2_results.txt",
-                                                "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.txt",
-                                                "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.txt",
-                                                "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.01.results.bed",
-                                                "results/deseq2/FDR/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed",
-                                                "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.01_MA_plot.pdf",
-                                                "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.05_MA_plot.pdf",
-                                                "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.01_volcano_plot.pdf",
-                                                "results/deseq2/plots/FDR/{antibody}.consensus_{peak}-peaks_FDR_0.05_volcano_plot.pdf",
-                                                "results/deseq2/plots/{antibody}.consensus_{peak}-peaks_sample_corr_heatmap.pdf",
-                                                "results/deseq2/plots/{antibody}.consensus_{peak}-peaks_scatter_plots.pdf"
+                                                "results/deseq2/FDR/results/FDR_0.01_{antibody}.consensus_{peak}-peaks",
+                                                "results/deseq2/FDR/results/FDR_0.05_{antibody}.consensus_{peak}-peaks",
+                                                "results/deseq2/FDR/bed_files/FDR_0.01_{antibody}.consensus_{peak}-peaks",
+                                                "results/deseq2/FDR/bed_files/FDR_0.05_{antibody}.consensus_{peak}-peaks",
+                                                "results/deseq2/comparison_plots/MA_plots/FDR_0.01_{antibody}consensus_{peak}-peaks",
+                                                "results/deseq2/comparison_plots/MA_plots/FDR_0.05_{antibody}consensus_{peak}-peaks",
+                                                "results/deseq2/comparison_plots/volcano_plots/FDR_0.01_{antibody}consensus_{peak}-peaks",
+                                                "results/deseq2/comparison_plots/volcano_plots/FDR_0.05_{antibody}consensus_{peak}-peaks",
+                                                "results/deseq2/comparison_plots/correlation_heatmaps_{antibody}consensus_{peak}-peaks",
+                                                "results/deseq2/comparison_plots/scatter_plots_{antibody}consensus_{peak}-peaks"
                                             ],
                                             peak = config["params"]["peak-analysis"],
                                             antibody = antibody
                                         )
                                     )
+
             wanted_input.extend(
                 expand(
                     [

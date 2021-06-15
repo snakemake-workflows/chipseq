@@ -17,9 +17,9 @@ resources:
     release: 101
     # Genome build
     build: R64-1-1
-    # for testing data only chromosome 21 is selected
+    # for testing data a single chromosome can be selected
     chromosome:
-    # specify release version number of igenomes list to use (see https://github.com/nf-core/chipseq/releases), default: 1.2.2
+    # specify release version number of igenomes list to use (see https://github.com/nf-core/chipseq/releases), e.g. 1.2.2
     igenomes_release: 1.2.2
     # if igenomes.yaml cannot be used, a value for the mappable or effective genome size can be specified here, e.g. macs-gsize: 2.7e9
     macs-gsize:
@@ -42,7 +42,7 @@ params:
   picard_metrics:
     activate: True
   deseq2:
-    # optional to run vst transform instead of rlog
+    # set to True to use the vst transformation instead of the rlog transformation for the DESeq2 analysis
     vst: True
   peak-annotation-analysis:
     activate: True
@@ -50,6 +50,21 @@ params:
     activate: True
   consensus-peak-analysis:
     activate: True
+  # samtools view parameters:
+  # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
+  # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
+  # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
+  # the -L option is automatically activated if a path to a blacklist of the given genome exists in the
+  # downloaded "resources/ref/igenomes.yaml" or has been provided via the parameter
+  # "config['resources']['ref']['blacklist']" in this configuration file
+  samtools-view-se: "-b -F 0x004"
+  samtools-view-pe: "-b -F 0x004 -G 0x009 -f 0x001"
+  plotfingerprint:
+    # Number of bins that sampled from the genome, for which the overlapping number of reads is computed for fingerprint plot
+    number-of-samples: 500000
+  # optional parameters for picard's CollectMultipleMetrics from sorted, filtered and merged bam files in post analysis step
+  # see https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-
+  collect-multiple-metrics: VALIDATION_STRINGENCY=LENIENT
   # TODO: move adapter parameters into a `adapter` column in units.tsv and check for its presence via the units.schema.yaml -- this enables unit-specific adapters, e.g. when integrating multiple datasets
   # these cutadapt parameters need to contain the required flag(s) for
   # the type of adapter(s) to trim, i.e.:

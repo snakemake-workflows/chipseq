@@ -11,10 +11,11 @@ def get_group_control_combination(bam_path):
     sample = os.path.basename(bam_path.split(".sorted.bam")[0])
     sample_row = samples.loc[samples["sample"] == sample]
     group = sample_row["group"].iloc[0]
+    antibody = sample_row["antibody"].iloc[0]
     control = sample_row["control"].iloc[0]
     if pd.isnull(control):
         control = sample
-    return "{}_{}_{}".format(group, control, sample)
+    return "{}_{}_{}_{}".format(group, antibody, control, sample)
 
 
 def modify_header(old_header):

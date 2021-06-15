@@ -285,16 +285,28 @@ if (file.exists(ResultsFile) == FALSE) {
 
                 ## WRITE RESULTS FILE
                 if (MIN_FDR == 0.01) {
-                    CompResultsFile <- snakemake@output[["FDR_1_perc_res"]]
-                    CompBEDFile <- snakemake@output[["FDR_1_perc_bed"]]
-                    MAplotFile <- snakemake@output[["plot_FDR_1_perc_MA"]]  # AVI: added to create separate pdf files
-                    VolcanoPlotFile <- snakemake@output[["plot_FDR_1_perc_volcano"]]  # AVI: added to create separate pdf files
+                    # AVI: dynamically file name extensions added
+                    dirs <- c(snakemake@output[["FDR_1_perc_res"]],snakemake@output[["FDR_1_perc_bed"]],snakemake@output[["plot_FDR_1_perc_MA"]],
+                              snakemake@output[["plot_FDR_1_perc_volcano"]],snakemake@output[["FDR_5_perc_res"]],snakemake@output[["FDR_5_perc_bed"]],
+                              snakemake@output[["plot_FDR_5_perc_MA"]],snakemake@output[["plot_FDR_5_perc_volcano"]],snakemake@output[["plot_sample_corr_heatmap"]],
+                              snakemake@output[["plot_scatter"]])
+                    for (dir in dirs) {
+                        if (file.exists(dir) == FALSE) {
+                            dir.create(dir,recursive=TRUE)
+                        }
+                    }
+
+                    CompResultsFile <- paste(snakemake@output[["FDR_1_perc_res"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.01_results.txt", sep="")
+                    CompBEDFile <- paste(snakemake@output[["FDR_1_perc_bed"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.01_results.bed", sep="")
+                    MAplotFile <- paste(snakemake@output[["plot_FDR_1_perc_MA"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".MA-plot_FDR_0.01.pdf", sep="")  # AVI: added to create separate pdf files
+                    VolcanoPlotFile <- paste(snakemake@output[["plot_FDR_1_perc_volcano"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".volcano_FDR_0.01.pdf", sep="") # AVI: added to create separate pdf files
                 }
                 if (MIN_FDR == 0.05) {
-                    CompResultsFile <- snakemake@output[["FDR_5_perc_res"]]
-                    CompBEDFile <- snakemake@output[["FDR_5_perc_bed"]]
-                    MAplotFile <- snakemake@output[["plot_FDR_5_perc_MA"]]  # AVI: added to create separate pdf files
-                    VolcanoPlotFile <- snakemake@output[["plot_FDR_5_perc_volcano"]]  # AVI: added to create separate pdf files
+                    # AVI: dynamically file name extensions added
+                    CompResultsFile <- paste(snakemake@output[["FDR_5_perc_res"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.05_results.txt", sep="")
+                    CompBEDFile <- paste(snakemake@output[["FDR_5_perc_bed"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.05_results.bed", sep="")
+                    MAplotFile <- paste(snakemake@output[["plot_FDR_5_perc_MA"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".MA-plot_FDR_0.05.pdf", sep="")   # AVI: added to create separate pdf files
+                    VolcanoPlotFile <- paste(snakemake@output[["plot_FDR_5_perc_volcano"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".volcano_FDR_0.05.pdf", sep="")  # AVI: added to create separate pdf files
                 }
 
                 write.table(pass.fdr.table, file=CompResultsFile, col.names=TRUE, row.names=FALSE, sep='\t', quote=FALSE)
@@ -317,11 +329,12 @@ if (file.exists(ResultsFile) == FALSE) {
             cat("\n",file=LogFile,append=TRUE,sep="")
         # AVI: creates required output files with message
         } else {
-            stop("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC.")
+            warning("More than 2 samples treated with the same antibody are needed to calculate the FDR & LOGFC.")
         }
 
         ## SAMPLE CORRELATION HEATMAP
-        pdf(file=snakemake@output[["plot_sample_corr_heatmap"]],width=10,height=8)  # AVI: added to create separate pdf files
+        CorrHeatmapFile <- paste(snakemake@output[["plot_sample_corr_heatmap"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".correlation_heatmap.pdf", sep="")  # AVI: dynamically file name extensions added
+        pdf(file=CorrHeatmapFile,width=10,height=8)  # AVI: added to create separate pdf files
         rld.subset <- assay(rld)[,comp.samples]
         sampleDists <- dist(t(rld.subset))
         sampleDistMatrix <- as.matrix(sampleDists)
@@ -330,7 +343,8 @@ if (file.exists(ResultsFile) == FALSE) {
         dev.off()  # AVI: added to create separate pdf files
 
         ## SCATTER PLOT FOR RLOG COUNTS
-        pdf(file=snakemake@output[["plot_scatter"]],width=10,height=8)  # AVI: added to create separate pdf files
+        ScatterPlotFile <- paste(snakemake@output[["plot_scatter"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".scatter_plots.pdf", sep="")  # AVI: dynamically file name extensions added
+        pdf(file=ScatterPlotFile,width=10,height=8)  # AVI: added to create separate pdf files
         combs <- combn(comp.samples,2,simplify=FALSE)
         clabels <- sapply(combs,function(x){paste(x,collapse=' & ')})
         plotdat <- data.frame(x=unlist(lapply(combs, function(x){rld.subset[, x[1] ]})),y=unlist(lapply(combs, function(y){rld.subset[, y[2] ]})),comp=rep(clabels, each=nrow(rld.subset)))
