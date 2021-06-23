@@ -22,6 +22,7 @@ include: "rules/utils.smk"
 include: "rules/post-analysis.smk"
 include: "rules/peak_analysis.smk"
 include: "rules/consensus_peak_analysis.smk"
+include: "rules/igv_session.smk"
 
 rule all:
     input: all_input

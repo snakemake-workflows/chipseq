@@ -16,7 +16,7 @@ rule multiqc:
     input:
         get_multiqc_input
     output:
-        "results/qc/multiqc/multiqc.html"
+        report("results/qc/multiqc/multiqc.html", category="MultiQC report")
     log:
         "logs/multiqc.log"
     wrapper:

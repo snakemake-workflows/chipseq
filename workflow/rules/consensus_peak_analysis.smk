@@ -1,3 +1,7 @@
+import os
+
+from snakemake import rules
+
 rule bedtools_merge_broad:
     input:
         get_macs2_peaks()
@@ -43,7 +47,7 @@ rule create_consensus_bed:
     input:
         "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.txt"
     output:
-        "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.bed"
+        report("results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.bed", category="accessory files")
     conda:
         "../envs/gawk.yaml"
     log:
@@ -89,7 +93,9 @@ rule create_consensus_igv:
         "logs/igv/consensus/merged_library.{antibody}.consensus_{peak}-peaks.igv.log"
     shell:
         "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.boolean.bed' -exec "
-        "echo -e 'results/IGV/consensus/{wildcards.antibody}/\"{{}}\"\t0,0,0' \; > {output} 2> {log}"
+        "echo -e '{{}}\t0,0,0' \; > {output} 2> {log}"
+        # "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.boolean.bed' -exec "
+        # "echo -e 'results/IGV/consensus/{wildcards.antibody}/\"{{}}\"\t0,0,0' \; > {output} 2> {log}"
 
 rule homer_consensus_annotatepeaks:
     input:
@@ -186,7 +192,11 @@ rule featurecounts_deseq2:
         FDR_1_perc_res=directory("results/deseq2/FDR/results/FDR_0.01_{antibody}.consensus_{peak}-peaks"),
         FDR_5_perc_res=directory("results/deseq2/FDR/results/FDR_0.05_{antibody}.consensus_{peak}-peaks"),
         FDR_1_perc_bed=directory("results/deseq2/FDR/bed_files/FDR_0.01_{antibody}.consensus_{peak}-peaks"),
-        FDR_5_perc_bed=directory("results/deseq2/FDR/bed_files/FDR_0.05_{antibody}.consensus_{peak}-peaks"),
+        FDR_5_perc_bed=report(
+            directory("results/deseq2/FDR/bed_files/FDR_0.05_{antibody}.consensus_{peak}-peaks"),
+            patterns=["{antibody}.{{group_1_vs_group_2}}.FDR_0.05_results.bed"],
+            category="accessory files"),
+        igv_FDR_5_bed="results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.txt",
         plot_FDR_1_perc_MA=report(
             directory("results/deseq2/comparison_plots/MA_plots/FDR_0.01_{antibody}consensus_{peak}-peaks"),
             patterns=["{antibody}.{{group_1_vs_group_2}}.MA-plot_FDR_0.01.pdf"],
@@ -228,14 +238,3 @@ rule featurecounts_deseq2:
         "../envs/featurecounts_deseq2.yaml"
     script:
         "../scripts/featurecounts_deseq2.R"
-
-rule create_deseq2_igv:
-    input:
-        "results/deseq2/results/{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.results.bed"
-    output:
-        "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.txt"
-    log:
-        "logs/igv/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.log"
-    shell:
-        "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.deseq2.FDR_0.05.results.bed' -exec "
-        "echo -e 'results/IGV/consensus/{wildcards.antibody}/deseq2/\"{{}}\"\t255,0,0' \; > {output} 2> {log}"

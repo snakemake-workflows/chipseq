@@ -305,6 +305,8 @@ if (file.exists(ResultsFile) == FALSE) {
                     # AVI: dynamically file name extensions added
                     CompResultsFile <- paste(snakemake@output[["FDR_5_perc_res"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.05_results.txt", sep="")
                     CompBEDFile <- paste(snakemake@output[["FDR_5_perc_bed"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.05_results.bed", sep="")
+                    # AVI: write paths of FDR 0.05 bed files to igv file
+                    cat(paste0(CompBEDFile, "\t255,0,0\n"),file=snakemake@output[["igv_FDR_5_bed"]],append=TRUE)
                     MAplotFile <- paste(snakemake@output[["plot_FDR_5_perc_MA"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".MA-plot_FDR_0.05.pdf", sep="")   # AVI: added to create separate pdf files
                     VolcanoPlotFile <- paste(snakemake@output[["plot_FDR_5_perc_volcano"]], "/", snakemake@params[["antibody"]], ".", CompPrefix, ".volcano_FDR_0.05.pdf", sep="")  # AVI: added to create separate pdf files
                 }

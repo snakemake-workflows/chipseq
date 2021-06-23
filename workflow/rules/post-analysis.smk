@@ -102,7 +102,7 @@ rule bedGraphToBigWig:
         bedGraph="results/bed_graph/{sample}.sorted.bedgraph",
         chromsizes="resources/ref/genome.chrom.sizes"
     output:
-        "results/big_wig/{sample}.bigWig"
+        report("results/big_wig/{sample}.bigWig", category="accessory files")
     log:
         "logs/big_wig/{sample}.log"
     params:
@@ -120,7 +120,7 @@ rule create_igv_bigwig:
         "logs/igv/create_igv_bigwig.log"
     shell:
         "find {input} -type f -name '*.bigWig' -exec "
-        "echo -e 'results/IGV/big_wig/\"{{}}\"\t0,0,178' \;  > {output} 2> {log}"
+        "echo -e '{{}}\t0,0,178' \;  > {output} 2> {log}"
 
 rule compute_matrix:
     input:

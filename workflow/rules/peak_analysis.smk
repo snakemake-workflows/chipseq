@@ -52,9 +52,9 @@ rule macs2_callpeak_broad:
                  "_treat_pileup.bdg",
                  "_control_lambda.bdg",
                  # these output extensions internally set the --broad option:
-                 "_peaks.broadPeak",
                  "_peaks.gappedPeak"
                  ),
+        report("results/macs2_callpeak/{sample}-{control}.broad_peaks.broadPeak", category="accessory files")
 
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
@@ -82,9 +82,9 @@ rule macs2_callpeak_narrow:
                  "_treat_pileup.bdg",
                  "_control_lambda.bdg",
                  # these output extensions internally set the --broad option:
-                 "_peaks.narrowPeak",
                  "_summits.bed"
-                 )
+                 ),
+        report("results/macs2_callpeak/{sample}-{control}.narrow_peaks.narrowPeak", category="accessory files")
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params:
@@ -182,7 +182,7 @@ rule create_igv_peaks:
         "logs/igv/create_igv_peaks/merged_library.{sample}-{control}.{peak}_peaks.log"
     shell:
         " find {input} -type f -name '*_peaks.{wildcards.peak}Peak' -exec "
-        "echo -e 'results/IGV/macs2_callpeak/{wildcards.peak}/\"{{}}\"\t0,0,178' \; > {output} 2> {log}"
+        "echo -e '{{}}\t0,0,178' \; > {output} 2> {log}"
 
 rule homer_annotatepeaks:
     input:
