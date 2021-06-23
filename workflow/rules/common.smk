@@ -161,8 +161,8 @@ def get_read_group(wildcards):
         unit=wildcards.unit,
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"])
 
-# def get_deseq2_igv_input():
-#     return [file for file in os.listdir("results/deseq2/FDR/bed_files/FDR_0.05_{antibody}.consensus_{peak}-peaks")]
+def get_unique_antibodies():
+    return set([antibody for antibody in samples["antibody"] if not pd.isnull(antibody)])
 
 def get_igv_input():
     igv_input = []
@@ -179,8 +179,8 @@ def get_igv_input():
             peak=config["params"]["peak-analysis"]
         )
     )
-    unique_antibodies = set([antibody for antibody in samples["antibody"] if not pd.isnull(antibody)])
-    for antibody in unique_antibodies:
+
+    for antibody in get_unique_antibodies():
         igv_input.extend(
             expand(
                 [
@@ -192,6 +192,31 @@ def get_igv_input():
             )
         )
     return igv_input
+
+def get_files_for_igv():
+    igv_files = []
+    for sample in samples.index:
+        igv_files.extend(
+            expand(
+                [
+                    "results/big_wig/{sample}.bigWig"
+                ],
+                sample=sample
+            )
+        )
+
+    igv_files.extend(
+        expand(
+            [
+                "results/macs2_callpeak/{sample_control_peak}_peaks.{peak}Peak",
+                "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.bed"
+            ],
+            sample_control_peak=get_sample_control_peak_combinations_list(),
+            peak=config["params"]["peak-analysis"],
+            antibody=get_unique_antibodies()
+        )
+    )
+    return igv_files
 
 def get_multiqc_input(wildcards):
     multiqc_input = []
@@ -312,7 +337,8 @@ def all_input(wildcards):
     # QC with fastQC and multiQC, igv session
     wanted_input.extend([
         "results/qc/multiqc/multiqc.html",
-        "results/IGV/igv_session.xml"
+        "results/IGV/igv_session.xml",
+        "results/IGV/report_igv_session.zip"
     ])
 
     # trimming reads
@@ -345,7 +371,6 @@ def all_input(wildcards):
         wanted_input.extend(
             expand (
                 [
-                    # "results/IGV/big_wig/merged_library.bigWig.igv.txt",
                     "results/phantompeakqualtools/{sample}.phantompeak.pdf"
                 ],
                 sample = sample
@@ -396,8 +421,7 @@ def all_input(wildcards):
                                     expand(
                                         [
                                             "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.saf",
-                                            "results/macs2_merged_expand/plots/{antibody}.consensus_{peak}-peaks.boolean.intersect.plot.pdf",
-                                            # "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.igv.txt"
+                                            "results/macs2_merged_expand/plots/{antibody}.consensus_{peak}-peaks.boolean.intersect.plot.pdf"
                                         ],
                                         peak = config["params"]["peak-analysis"],
                                         antibody = antibody
@@ -443,7 +467,6 @@ def all_input(wildcards):
                         "results/macs2_callpeak/{sample}-{control}.{peak}_treat_pileup.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_control_lambda.bdg",
                         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak",
-                        # "results/IGV/macs2_callpeak-{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
                         "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf"

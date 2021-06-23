@@ -102,7 +102,7 @@ rule bedGraphToBigWig:
         bedGraph="results/bed_graph/{sample}.sorted.bedgraph",
         chromsizes="resources/ref/genome.chrom.sizes"
     output:
-        report("results/big_wig/{sample}.bigWig", category="accessory files")
+        "results/big_wig/{sample}.bigWig"
     log:
         "logs/big_wig/{sample}.log"
     params:

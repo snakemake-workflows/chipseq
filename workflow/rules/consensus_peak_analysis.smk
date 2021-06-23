@@ -47,7 +47,7 @@ rule create_consensus_bed:
     input:
         "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.txt"
     output:
-        report("results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.bed", category="accessory files")
+        "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.bed"
     conda:
         "../envs/gawk.yaml"
     log:
@@ -94,8 +94,6 @@ rule create_consensus_igv:
     shell:
         "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.boolean.bed' -exec "
         "echo -e '{{}}\t0,0,0' \; > {output} 2> {log}"
-        # "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.boolean.bed' -exec "
-        # "echo -e 'results/IGV/consensus/{wildcards.antibody}/\"{{}}\"\t0,0,0' \; > {output} 2> {log}"
 
 rule homer_consensus_annotatepeaks:
     input:
@@ -192,10 +190,7 @@ rule featurecounts_deseq2:
         FDR_1_perc_res=directory("results/deseq2/FDR/results/FDR_0.01_{antibody}.consensus_{peak}-peaks"),
         FDR_5_perc_res=directory("results/deseq2/FDR/results/FDR_0.05_{antibody}.consensus_{peak}-peaks"),
         FDR_1_perc_bed=directory("results/deseq2/FDR/bed_files/FDR_0.01_{antibody}.consensus_{peak}-peaks"),
-        FDR_5_perc_bed=report(
-            directory("results/deseq2/FDR/bed_files/FDR_0.05_{antibody}.consensus_{peak}-peaks"),
-            patterns=["{antibody}.{{group_1_vs_group_2}}.FDR_0.05_results.bed"],
-            category="accessory files"),
+        FDR_5_perc_bed=directory("results/deseq2/FDR/bed_files/FDR_0.05_{antibody}.consensus_{peak}-peaks"),
         igv_FDR_5_bed="results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.txt",
         plot_FDR_1_perc_MA=report(
             directory("results/deseq2/comparison_plots/MA_plots/FDR_0.01_{antibody}consensus_{peak}-peaks"),

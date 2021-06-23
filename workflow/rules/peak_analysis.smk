@@ -52,10 +52,9 @@ rule macs2_callpeak_broad:
                  "_treat_pileup.bdg",
                  "_control_lambda.bdg",
                  # these output extensions internally set the --broad option:
+                 "_peaks.broadPeak",
                  "_peaks.gappedPeak"
-                 ),
-        report("results/macs2_callpeak/{sample}-{control}.broad_peaks.broadPeak", category="accessory files")
-
+                 )
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params:
@@ -82,9 +81,9 @@ rule macs2_callpeak_narrow:
                  "_treat_pileup.bdg",
                  "_control_lambda.bdg",
                  # these output extensions internally set the --broad option:
+                 "_peaks.narrowPeak",
                  "_summits.bed"
-                 ),
-        report("results/macs2_callpeak/{sample}-{control}.narrow_peaks.narrowPeak", category="accessory files")
+                 )
     log:
         "logs/macs2/callpeak.{sample}-{control}.narrow.log"
     params:
