@@ -71,6 +71,6 @@ rule zip_igv_report_session:
     log:
         "logs/igv/collect_igv_report_session_files.log"
     conda:
-        "../envs/gzip.yaml"
+        "../envs/zip.yaml"
     shell:
         "cd $(dirname {input}); zip $(basename {output}) $(basename {input})/*"
