@@ -1,4 +1,4 @@
-**`MACS2 <https://github.com/macs3-project/MACS/blob/master/README.md>`_ callpeak quality control plots** show for all
+`MACS2 <https://github.com/macs3-project/MACS/blob/master/README.md>`_ **callpeak quality control plots** show for all
 samples and their associated controls the number of peaks and their distributions of peak length, fold-change, FDR and
 p-value from the results of the
 `MACS callpeak analysis <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`_.

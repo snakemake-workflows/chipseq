@@ -1,4 +1,4 @@
-**`MA plot <https://bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf#Rfn.plotMA>`_ (FDR 0.05)**
+`MA plot <https://bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf#Rfn.plotMA>`_ **(FDR 0.05)**
 shows the log2 fold changes versus the mean of normalized counts from
 `DESeq2 <https://bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf>`_ analysis filtered on a false
 discovery rate (FDR) threshold of 0.05 for pairwise comparisons of samples across the groups from a particular antibody.
