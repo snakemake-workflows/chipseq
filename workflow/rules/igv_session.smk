@@ -65,10 +65,12 @@ rule collect_igv_report_session_files:
 # igv session that can be downloaded from generated report
 rule zip_igv_report_session:
     input:
-        directory("results/IGV/report_igv_session")
+        rules.collect_igv_report_session_files.output
     output:
         report("results/IGV/report_igv_session.zip", caption = "../report/igv_session.rst", category="IGV session")
     log:
         "logs/igv/collect_igv_report_session_files.log"
+    conda:
+        "../envs/gzip.yaml"
     shell:
         "cd $(dirname {input}); zip $(basename {output}) $(basename {input})/*"
