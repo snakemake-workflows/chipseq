@@ -5,7 +5,7 @@ To configure this workflow, modify ``config/config.yaml`` according to your need
 # Sample sheet
 
 Add samples to `config/samples.tsv`. For each sample, the columns `sample`, `group`, `control`, and `antibody` have to be defined. 
-* Samples / IP (immunoprecipitations) within the same `group` represents replicates and must have the same antibody and the same control.
+* Samples / IP (immunoprecipitations) within the same `group` represent replicates and must have the same antibody and the same control.
 * Controls / Input are listed like samples, but they do not have entries in the columns for `control` and `antibody`.
 * The identifiers of each control has to be noted in the column `sample`.
 * For all samples, the identifiers of the corresponding controls have to be given in the `control` column (see example below).

@@ -1,4 +1,4 @@
-# This file should contain everything to configure the workflow on a global scale.
+# This file should contains everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
 # one row per sample. It can be parsed easily via pandas.
 samples: "config_paired_end_reduced/samples.tsv"
@@ -17,7 +17,7 @@ resources:
     release: 101
     # Genome build
     build: R64-1-1
-    # for testing data a single chromosome can be selected
+    # for testing data a single chromosome can be selected (leave empty for a regular analysis)
     chromosome:
     # specify release version number of igenomes list to use (see https://github.com/nf-core/chipseq/releases), e.g. 1.2.2
     igenomes_release: 1.2.2
@@ -50,7 +50,7 @@ params:
     activate: True
   consensus-peak-analysis:
     activate: True
-  # samtools view parameters:
+  # samtools view parameter suggestions (for full parameters, see: https://www.htslib.org/doc/samtools-view.html):
   # if duplicates should be removed in this filtering, add "-F 0x0400" to the params
   # if for each read, you only want to retain a single (best) mapping, add "-q 1" to params
   # if you would like to restrict analysis to certain regions (e.g. excluding other "blacklisted" regions),
@@ -60,7 +60,7 @@ params:
   samtools-view-se: "-b -F 0x004"
   samtools-view-pe: "-b -F 0x004 -G 0x009 -f 0x001"
   plotfingerprint:
-    # Number of bins that sampled from the genome, for which the overlapping number of reads is computed for fingerprint plot
+    # --numberOfSamples parameter of deeptools plotFingerprint, see: https://deeptools.readthedocs.io/en/develop/content/tools/plotFingerprint.html#Optional%20arguments
     number-of-samples: 500000
   # optional parameters for picard's CollectMultipleMetrics from sorted, filtered and merged bam files in post analysis step
   # see https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-

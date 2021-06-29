@@ -194,39 +194,38 @@ rule featurecounts_deseq2:
         igv_FDR_5_bed="results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.deseq2.FDR_0.05.igv.txt",
         plot_FDR_1_perc_MA=report(
             directory("results/deseq2/comparison_plots/MA_plots/FDR_0.01_{antibody}consensus_{peak}-peaks"),
-            patterns=["{antibody}.{{group_1_vs_group_2}}.MA-plot_FDR_0.01.pdf"],
+            patterns=["{antibody}.{group_1}_{antibody_1}_{control_1}vs{group_2}_{antibody_2}_{control_2}.MA-plot_FDR_0.01.pdf"],
             caption = "../report/plot_deseq2_FDR_1_perc_MA.rst",
             category = "DESeq2"),
         plot_FDR_5_perc_MA=report(
             directory("results/deseq2/comparison_plots/MA_plots/FDR_0.05_{antibody}consensus_{peak}-peaks"),
-            patterns=["{antibody}.{{group_1_vs_group_2}.MA-plot_FDR_0.05.pdf"],
+            patterns=["{antibody}.{group_1}_{antibody_1}_{control_1}vs{group_2}_{antibody_2}_{control_2}.MA-plot_FDR_0.05.pdf"],
             caption = "../report/plot_deseq2_FDR_5_perc_MA.rst",
             category = "DESeq2"),
         plot_FDR_1_perc_volcano=report(
             directory("results/deseq2/comparison_plots/volcano_plots/FDR_0.01_{antibody}consensus_{peak}-peaks"),
-            patterns=["{antibody}.{{group_1_vs_group_2}}.volcano-plot_FDR_0.01.pdf"],
+            patterns=["{antibody}.{group_1}_{antibody_1}_{control_1}vs{group_2}_{antibody_2}_{control_2}.volcano_FDR_0.01.pdf"],
             caption = "../report/plot_deseq2_FDR_1_perc_volcano.rst",
             category = "DESeq2"),
         plot_FDR_5_perc_volcano=report(
             directory("results/deseq2/comparison_plots/volcano_plots/FDR_0.05_{antibody}consensus_{peak}-peaks"),
-            patterns=["{antibody}.{{group_1_vs_group_2}}.volcano-plot_FDR_0.05.pdf"],
+            patterns=["{antibody}.{group_1}_{antibody_1}_{control_1}vs{group_2}_{antibody_2}_{control_2}.volcano_FDR_0.05.pdf"],
             caption = "../report/plot_deseq2_FDR_5_perc_volcano.rst",
             category = "DESeq2"),
         plot_sample_corr_heatmap=report(
             directory("results/deseq2/comparison_plots/correlation_heatmaps_{antibody}consensus_{peak}-peaks"),
-            patterns=["{antibody}.{{group_1_vs_group_2}}.correlation_heatmap.pdf"],
+            patterns=["{antibody}.{group_1}_{antibody_1}_{control_1}vs{group_2}_{antibody_2}_{control_2}.correlation_heatmap.pdf"],
             caption = "../report/plot_deseq2_sample_corr_heatmap.rst",
             category = "DESeq2"),
         plot_scatter=report(
             directory("results/deseq2/comparison_plots/scatter_plots_{antibody}consensus_{peak}-peaks"),
-            patterns=["{antibody}.{{group_1_vs_group_2}}.scatter_plots.pdf"],
+            patterns=["{antibody}.{group_1}_{antibody_1}_{control_1}vs{group_2}_{antibody_2}_{control_2}.scatter_plots.pdf"],
             caption = "../report/plot_deseq2_scatter.rst",
             category = "DESeq2")
     threads:
         2
     params:
-        vst = config["params"]["deseq2"]["vst"],
-        antibody = lambda w: w.antibody
+        vst = config["params"]["deseq2"]["vst"]
     log:
         "logs/deseq2/{antibody}.consensus_{peak}-peaks.featureCounts.log"
     conda:

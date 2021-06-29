@@ -11,7 +11,7 @@ rule plot_fingerprint:
         fingerprint=report(
             "results/deeptools/{sample}-{control}.plot_fingerprint.pdf",
             caption="../report/plot_fingerprint_deeptools.rst",
-            category="QC"),
+            category="other QC"),
         counts="results/deeptools/{sample}-{control}.fingerprint_counts.txt",
         qc_metrics="results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt"
     log:
