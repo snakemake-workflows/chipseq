@@ -112,15 +112,16 @@ rule bedGraphToBigWig:
 
 rule create_igv_bigwig:
     input:
-        "resources/ref/genome.bed",
-        expand("results/big_wig/{sample}.bigWig", sample=samples.index)
+        genome="resources/ref/genome.bed",
+        bigwig=expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
         "results/IGV/big_wig/merged_library.bigWig.igv.txt"
+    params:
+        lambda w, input: "\n".join(["{}\t0,0,178".format(path) for path in input.bigwig])
     log:
         "logs/igv/create_igv_bigwig.log"
     shell:
-        "find {input} -type f -name '*.bigWig' -exec "
-        "echo -e '{{}}\t0,0,178' \;  > {output} 2> {log}"
+        "echo -e '{params}' > {output} 2> {log}"
 
 rule compute_matrix:
     input:

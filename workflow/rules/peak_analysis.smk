@@ -177,11 +177,12 @@ rule create_igv_peaks:
         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
         "results/IGV/macs2_callpeak-{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
+    params:
+        lambda w, input: "\n".join(["{}\t0,0,178".format(path) for path in input])
     log:
         "logs/igv/create_igv_peaks/merged_library.{sample}-{control}.{peak}_peaks.log"
     shell:
-        " find {input} -type f -name '*_peaks.{wildcards.peak}Peak' -exec "
-        "echo -e '{{}}\t0,0,178' \; > {output} 2> {log}"
+        "echo -e '{params}' > {output} 2> {log}"
 
 rule homer_annotatepeaks:
     input:

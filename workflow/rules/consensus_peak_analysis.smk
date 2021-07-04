@@ -89,11 +89,12 @@ rule create_consensus_igv:
         "results/macs2_merged_expand/{antibody}.consensus_{peak}-peaks.boolean.bed"
     output:
         "results/IGV/consensus/merged_library.{antibody}.consensus_{peak}-peaks.igv.txt"
+    params:
+        lambda w, input: "\n".join(["{}\t0,0,0".format(path) for path in input])
     log:
         "logs/igv/consensus/merged_library.{antibody}.consensus_{peak}-peaks.igv.log"
     shell:
-        "find {input} -type f -name '*.consensus_{wildcards.peak}-peaks.boolean.bed' -exec "
-        "echo -e '{{}}\t0,0,0' \; > {output} 2> {log}"
+        "echo -e '{params}' > {output} 2> {log}"
 
 rule homer_consensus_annotatepeaks:
     input:
