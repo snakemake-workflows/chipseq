@@ -1,6 +1,6 @@
 # This file contains everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
-# one row per sample. It can be parsed easily via pandas.
+# one row per sample. It is parsed in common.smk using pandas (https://pandas.pydata.org/).
 samples: "config/samples.tsv"
 # to download reads from SRA the accession numbers (see https://www.ncbi.nlm.nih.gov/sra) of samples must be given in
 # units.tsv dataset for testing this workflow with single end reads:
