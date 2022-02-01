@@ -1,6 +1,6 @@
 # This file contains everything to configure the workflow on a global scale.
 # In case of sample based data, it should be complemented by a samples.tsv file that contains
-# one row per sample. It can be parsed easily via pandas.
+# one row per sample. It is parsed in common.smk using pandas (https://pandas.pydata.org/).
 samples: "config_paired_end_reduced/samples.tsv"
 units: "config_paired_end_reduced/units.tsv"
 single_end: False
