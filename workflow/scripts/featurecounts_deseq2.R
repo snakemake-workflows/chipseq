@@ -383,7 +383,10 @@ if (file.exists(ResultsFile) == FALSE) {
         dev.off()  # AVI: added to create separate pdf files
 
         ## SCATTER PLOT FOR RLOG COUNTS
-        ScatterPlotFile <- file.path(snakemake@output[["plot_scatter"]], paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".scatter_plots.pdf", sep=""))  # AVI: dynamically file name extensions added
+        ScatterPlotFile <- file.path(
+            snakemake@output[["plot_scatter"]],
+            paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".scatter_plots.pdf", sep="")
+        )  # AVI: dynamically create file names
         pdf(file=ScatterPlotFile,width=10,height=8)  # AVI: added to create separate pdf files
         combs <- combn(comp.samples,2,simplify=FALSE)
         clabels <- sapply(combs,function(x){paste(x,collapse=' & ')})
