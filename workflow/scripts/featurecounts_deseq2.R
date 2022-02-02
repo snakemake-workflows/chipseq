@@ -370,7 +370,10 @@ if (file.exists(ResultsFile) == FALSE) {
         }
 
         ## SAMPLE CORRELATION HEATMAP
-        CorrHeatmapFile <- file.path(snakemake@output[["plot_sample_corr_heatmap"]], paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".correlation_heatmap.pdf", sep=""))  # AVI: dynamically file name extensions added
+        CorrHeatmapFile <- file.path(
+            snakemake@output[["plot_sample_corr_heatmap"]],
+            paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".correlation_heatmap.pdf", sep="")
+        )  # AVI: dynamically create file names
         pdf(file=CorrHeatmapFile,width=10,height=8)  # AVI: added to create separate pdf files
         rld.subset <- assay(rld)[,comp.samples]
         sampleDists <- dist(t(rld.subset))
