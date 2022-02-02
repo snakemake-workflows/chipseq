@@ -286,10 +286,18 @@ if (file.exists(ResultsFile) == FALSE) {
                 ## WRITE RESULTS FILE
                 if (MIN_FDR == 0.01) {
                     # AVI: dynamically generated file name extensions added
-                    dirs <- c(snakemake@output[["FDR_1_perc_res"]],snakemake@output[["FDR_1_perc_bed"]],snakemake@output[["plot_FDR_1_perc_MA"]],
-                              snakemake@output[["plot_FDR_1_perc_volcano"]],snakemake@output[["FDR_5_perc_res"]],snakemake@output[["FDR_5_perc_bed"]],
-                              snakemake@output[["plot_FDR_5_perc_MA"]],snakemake@output[["plot_FDR_5_perc_volcano"]],snakemake@output[["plot_sample_corr_heatmap"]],
-                              snakemake@output[["plot_scatter"]])
+                    dirs <- c(
+                        snakemake@output[["FDR_1_perc_res"]],
+                        snakemake@output[["FDR_1_perc_bed"]],
+                        snakemake@output[["plot_FDR_1_perc_MA"]],
+                        snakemake@output[["plot_FDR_1_perc_volcano"]],
+                        snakemake@output[["FDR_5_perc_res"]],
+                        snakemake@output[["FDR_5_perc_bed"]],
+                        snakemake@output[["plot_FDR_5_perc_MA"]],
+                        snakemake@output[["plot_FDR_5_perc_volcano"]],
+                        snakemake@output[["plot_sample_corr_heatmap"]],
+                        snakemake@output[["plot_scatter"]]
+                    )
                     for (dir in dirs) {
                         if (file.exists(dir) == FALSE) {
                             dir.create(dir,recursive=TRUE)
