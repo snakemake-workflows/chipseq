@@ -304,10 +304,22 @@ if (file.exists(ResultsFile) == FALSE) {
                         }
                     }
 
-                    CompResultsFile <- file.path(snakemake@output[["FDR_1_perc_res"]], paste(snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.01_results.txt", sep=""))
-                    CompBEDFile <- file.path(snakemake@output[["FDR_1_perc_bed"]], paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".FDR_0.01_results.bed", sep=""))
-                    MAplotFile <- file.path(snakemake@output[["plot_FDR_1_perc_MA"]], paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".MA-plot_FDR_0.01.pdf", sep=""))  # AVI: added to create separate pdf files
-                    VolcanoPlotFile <- file.path(snakemake@output[["plot_FDR_1_perc_volcano"]], paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".volcano_FDR_0.01.pdf", sep="")) # AVI: added to create separate pdf files
+                    CompResultsFile <- file.path(
+                        snakemake@output[["FDR_1_perc_res"]],
+                        paste(snakemake@params[["antibody"]], ".", CompPrefix, ".FDR_0.01_results.txt", sep="")
+                    )
+                    CompBEDFile <- file.path(
+                        snakemake@output[["FDR_1_perc_bed"]],
+                        paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".FDR_0.01_results.bed", sep="")
+                    )
+                    MAplotFile <- file.path(
+                        snakemake@output[["plot_FDR_1_perc_MA"]],
+                        paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".MA-plot_FDR_0.01.pdf", sep="")
+                    )  # AVI: added to create separate pdf files
+                    VolcanoPlotFile <- file.path(
+                        snakemake@output[["plot_FDR_1_perc_volcano"]],
+                        paste(snakemake@wildcards[["antibody"]], ".", CompPrefix, ".volcano_FDR_0.01.pdf", sep="")
+                    ) # AVI: added to create separate pdf files
                 }
                 if (MIN_FDR == 0.05) {
                     # AVI: dynamically file name extensions added
