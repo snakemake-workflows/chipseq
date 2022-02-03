@@ -112,7 +112,6 @@ rule bedGraphToBigWig:
 
 rule create_igv_bigwig:
     input:
-        genome="resources/ref/genome.bed",
         bigwig=expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
         "results/IGV/big_wig/merged_library.bigWig.igv.txt"
