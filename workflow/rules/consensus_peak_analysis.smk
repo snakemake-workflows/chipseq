@@ -1,7 +1,3 @@
-import os
-
-from snakemake import rules
-
 rule bedtools_merge_broad:
     input:
         get_macs2_peaks()
