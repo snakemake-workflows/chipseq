@@ -6,36 +6,35 @@ D	E2	batch2	AJ	ERa
 E	TNFa	batch1	AK	ERa
 F	TNFa	batch2	AL	ERa
 G	E2_TNFa	batch1	AM	ERa
-H	E2_TNFa	batch2	AN	ERa
-I	Veh	batch1	AG	p65
-J	Veh	batch2	AH	p65
-K	E2	batch1	AI	p65
-L	E2	batch2	AJ	p65
-M	TNFa	batch1	AK	p65
-N	TNFa	batch2	AL	p65
-O	E2_TNFa	batch1	AM	p65
-P	E2_TNFa	batch2	AN	p65
-Q	Veh	batch1	AG	FoxA1
-R	Veh	batch2	AH	FoxA1
-S	E2	batch1	AI	FoxA1
-T	E2	batch2	AJ	FoxA1
-U	TNFa	batch1	AK	FoxA1
-V	TNFa	batch2	AL	FoxA1
-W	E2_TNFa	batch1	AM	FoxA1
-X	E2_TNFa	batch2	AM	FoxA1
+H	Veh	batch1	AG	p65
+I	Veh	batch2	AH	p65
+J	E2	batch1	AI	p65
+K	E2	batch2	AJ	p65
+L	TNFa	batch1	AK	p65
+M	TNFa	batch2	AL	p65
+N	E2_TNFa	batch1	AM	p65
+O	E2_TNFa	batch2	AN	p65
+P	Veh	batch1	AG	FoxA1
+Q	Veh	batch2	AH	FoxA1
+R	E2	batch1	AI	FoxA1
+S	E2	batch2	AJ	FoxA1
+T	TNFa	batch1	AK	FoxA1
+U	TNFa	batch2	AL	FoxA1
+V	E2_TNFa	batch1	AM	FoxA1
+W	E2_TNFa	batch2	AM	FoxA1
+X	E2_TNFa	batch1	AM	ERa
 Y	E2_TNFa	batch1	AM	ERa
 Z	E2_TNFa	batch1	AM	ERa
 AA	E2_TNFa	batch1	AM	ERa
-AB	E2_TNFa	batch1	AM	ERa
+AB	E2_TNFa	batch2	AN	ERa
 AC	E2_TNFa	batch2	AN	ERa
 AD	E2_TNFa	batch2	AN	ERa
 AE	E2_TNFa	batch2	AN	ERa
-AF	E2_TNFa	batch2	AN	ERa
-AG	Veh	batch1
-AH	Veh	batch2
-AI	E2	batch1
-AJ	E2	batch2
-AK	TNFa	batch1
-AL	TNFa	batch2
-AM	E2_TNFa	batch1
-AN	E2_TNFa	batch2
+AF	Veh	batch1
+AG	Veh	batch2
+AH	E2	batch1
+AI	E2	batch2
+AJ	TNFa	batch1
+AK	TNFa	batch2
+AL	E2_TNFa	batch1
+AM	E2_TNFa	batch2

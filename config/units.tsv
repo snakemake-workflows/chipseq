@@ -1,6 +1,1 @@
-sample	unit	fragment_len_mean	fragment_len_sd	fq1	fq2	sra_accession	platform
-A	1			resources/reads/a.chr21.1.fq	resources/reads/a.chr21.2.fq		ILLUMINA
-B	1			resources/reads/b.chr21.1.fq	resources/reads/b.chr21.2.fq		ILLUMINA
-B	2	300	14	resources/reads/b.chr21.1.fq			ILLUMINA
-C	1			resources/reads/a.chr21.1.fq	resources/reads/a.chr21.2.fq		ILLUMINA
-D	1			resources/reads/b.chr21.1.fq	resources/reads/b.chr21.2.fq		ILLUMINA
+sample	unit	fq1	fq2	sra_accession	platform

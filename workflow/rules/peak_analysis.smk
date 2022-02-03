@@ -6,9 +6,12 @@ rule plot_fingerprint:
         stats=expand("results/{step}/{{sample}}.sorted.{step}.stats.txt",
             step="bamtools_filtered" if config["single_end"]
             else "orph_rm_pe")
-    output:  #ToDo: add description to report caption
+    output:
         # https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotfingerprint.html.
-        fingerprint=report("results/deeptools/{sample}-{control}.plot_fingerprint.pdf", caption="../report/plot_fingerprint_deeptools.rst", category="QC"),
+        fingerprint=report(
+            "results/deeptools/{sample}-{control}.plot_fingerprint.pdf",
+            caption="../report/plot_fingerprint_deeptools.rst",
+            category="other QC"),
         counts="results/deeptools/{sample}-{control}.fingerprint_counts.txt",
         qc_metrics="results/deeptools/{sample}-{control}.fingerprint_qcmetrics.txt"
     log:
@@ -16,7 +19,7 @@ rule plot_fingerprint:
     params:
         "--labels {sample} {control}",
         "--skipZeros ",
-        "--numberOfSamples 500000 ", # ToDo: to config?
+        "--numberOfSamples {} ".format(config["params"]["plotfingerprint"]["number-of-samples"]),
         lambda w, input:
             "{se_option}{fragment_size}".format(
                 se_option="--extendReads " if config["single_end"] else "",
@@ -51,8 +54,7 @@ rule macs2_callpeak_broad:
                  # these output extensions internally set the --broad option:
                  "_peaks.broadPeak",
                  "_peaks.gappedPeak"
-                 ),
-
+                 )
     log:
         "logs/macs2/callpeak.{sample}-{control}.broad.log"
     params:
@@ -112,7 +114,10 @@ rule sm_report_peaks_count_plot:
     input:
         get_peaks_count_plot_input()
     output:
-        report("results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf", caption="../report/plot_peaks_count_macs2.rst", category="CallPeaks")
+        report(
+            "results/macs2_callpeak/plots/plot_{peak}_peaks_count.pdf",
+            caption="../report/plot_peaks_count_macs2.rst",
+            category="CallPeaks")
     log:
         "logs/macs2_callpeak/plot_{peak}_peaks_count.log"
     conda:
@@ -136,8 +141,9 @@ rule bedtools_intersect:
 rule frip_score:
     input:
         intersect="results/bedtools_intersect/{sample}-{control}.{peak}.intersected.bed",
-        flagstats=expand("results/{step}/{{sample}}.sorted.{step}.flagstat", step= "bamtools_filtered" if config["single_end"]
-        else "orph_rm_pe")
+        flagstats=expand(
+            "results/{step}/{{sample}}.sorted.{step}.flagstat",
+            step= "bamtools_filtered" if config["single_end"] else "orph_rm_pe")
     output:
         "results/bedtools_intersect/{sample}-{control}.{peak}.peaks_frip.tsv"
     log:
@@ -155,7 +161,10 @@ rule sm_rep_frip_score:
     input:
         get_frip_score_input()
     output:
-        report("results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf", caption="../report/plot_frip_score_macs2_bedtools.rst", category="CallPeaks")
+        report(
+            "results/macs2_callpeak/plots/plot_{peak}_peaks_frip_score.pdf",
+            caption="../report/plot_frip_score_macs2_bedtools.rst",
+            category="CallPeaks")
     log:
         "logs/bedtools/intersect/plot_{peak}_peaks_frip_score.log"
     conda:
@@ -168,10 +177,12 @@ rule create_igv_peaks:
         "results/macs2_callpeak/{sample}-{control}.{peak}_peaks.{peak}Peak"
     output:
         "results/IGV/macs2_callpeak-{peak}/merged_library.{sample}-{control}.{peak}_peaks.igv.txt"
+    params:
+        lambda w, input: "\n".join(["{}\t0,0,178".format(path) for path in input])
     log:
         "logs/igv/create_igv_peaks/merged_library.{sample}-{control}.{peak}_peaks.log"
     shell:
-        " find {input} -type f -name '*_peaks.{wildcards.peak}Peak' -exec echo -e 'results/IGV/macs2_callpeak/{wildcards.peak}/\"{{}}\"\t0,0,178' \; > {output} 2> {log}"
+        "echo -e '{params}' > {output} 2> {log}"
 
 rule homer_annotatepeaks:
     input:
@@ -193,9 +204,12 @@ rule homer_annotatepeaks:
 rule plot_macs_qc:
     input:
         get_macs2_peaks()
-    output:  #ToDo: add description to report caption
+    output:
         summmary="results/macs2_callpeak/plots/plot_{peak}_peaks_macs2_summary.txt",
-        plot=report("results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf", caption="../report/plot_macs2_qc.rst", category="CallPeaks")
+        plot=report(
+            "results/macs2_callpeak/plots/plot_{peak}_peaks_macs2.pdf",
+            caption="../report/plot_macs2_qc.rst",
+            category="CallPeaks")
     params:
         input = lambda wc, input: ','.join(input),
         sample_control_combinations = ','.join(get_sample_control_peak_combinations_list())
@@ -204,14 +218,18 @@ rule plot_macs_qc:
     conda:
         "../envs/plot_macs_annot.yaml"
     shell:
-        "Rscript ../workflow/scripts/plot_macs_qc.R -i {params.input} -s {params.sample_control_combinations}  -o {output.plot} -p {output.summmary} 2> {log}"
+        "Rscript ../workflow/scripts/plot_macs_qc.R -i {params.input} -s {params.sample_control_combinations}  "
+        "-o {output.plot} -p {output.summmary} 2> {log}"
 
 rule plot_homer_annotatepeaks:
     input:
         get_plot_homer_annotatepeaks_input()
     output:  #ToDo: add description to report caption
         summmary="results/homer/plots/plot_{peak}_annotatepeaks_summary.txt",
-        plot=report("results/homer/plots/plot_{peak}_annotatepeaks.pdf", caption="../report/plot_annotatepeaks_homer.rst", category="CallPeaks")
+        plot=report(
+            "results/homer/plots/plot_{peak}_annotatepeaks.pdf",
+            caption="../report/plot_annotatepeaks_homer.rst",
+            category="CallPeaks")
     params:
         input = lambda wc, input: ','.join(input),
         sample_control_combinations = ','.join(get_sample_control_peak_combinations_list())
@@ -220,13 +238,17 @@ rule plot_homer_annotatepeaks:
     conda:
         "../envs/plot_macs_annot.yaml"
     shell:
-        "Rscript ../workflow/scripts/plot_homer_annotatepeaks.R -i {params.input} -s {params.sample_control_combinations}  -o {output.plot} -p {output.summmary} 2> {log}"
+        "Rscript ../workflow/scripts/plot_homer_annotatepeaks.R -i {params.input} "
+        "-s {params.sample_control_combinations}  -o {output.plot} -p {output.summmary} 2> {log}"
 
 rule plot_sum_annotatepeaks:
     input:
         "results/homer/plots/plot_{peak}_annotatepeaks_summary.txt"
     output:
-        report("results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf", caption="../report/plot_annotatepeaks_summary_homer.rst", category="CallPeaks")
+        report(
+            "results/homer/plots/plot_{peak}_annotatepeaks_summary.pdf",
+            caption="../report/plot_annotatepeaks_summary_homer.rst",
+            category="CallPeaks")
     log:
         "logs/homer/plot_{peak}_annotatepeaks_summary.log"
     conda:

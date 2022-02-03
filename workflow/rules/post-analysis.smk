@@ -14,7 +14,7 @@ rule collect_multiple_metrics:
     input:
          bam="results/filtered/{sample}.sorted.bam",
          ref="resources/ref/genome.fasta"
-    output: #ToDo: add descriptions to report captions
+    output:
         # Through the output file extensions the different tools for the metrics can be selected
         # so that it is not necessary to specify them under params with the "PROGRAM" option.
         # Usable extensions (and which tools they implicitly call) are listed here:
@@ -33,9 +33,18 @@ rule collect_multiple_metrics:
                  ".quality_by_cycle_metrics",
                  ".quality_distribution_metrics",
                  ),
-        report("{path}{sample}.base_distribution_by_cycle.pdf", caption="../report/plot_base_distribution_by_cycle_picard_mm.rst", category="Multiple Metrics (picard)"),
-        report("{path}{sample}.quality_by_cycle.pdf", caption="../report/plot_quality_by_cycle_picard_mm.rst", category="Multiple Metrics (picard)"),
-        report("{path}{sample}.quality_distribution.pdf", caption="../report/plot_quality_distribution_picard_mm.rst", category="Multiple Metrics (picard)")
+        report(
+            "{path}{sample}.base_distribution_by_cycle.pdf",
+            caption="../report/plot_base_distribution_by_cycle_picard_mm.rst",
+            category="Multiple Metrics (picard)"),
+        report(
+            "{path}{sample}.quality_by_cycle.pdf",
+            caption="../report/plot_quality_by_cycle_picard_mm.rst",
+            category="Multiple Metrics (picard)"),
+        report(
+            "{path}{sample}.quality_distribution.pdf",
+            caption="../report/plot_quality_distribution_picard_mm.rst",
+            category="Multiple Metrics (picard)")
     resources:
         # This parameter (default 3 GB) can be used to limit the total resources a pipeline is allowed to use, see:
         #     https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources
@@ -43,8 +52,8 @@ rule collect_multiple_metrics:
     log:
         "logs/picard/{path}{sample}.log"
     params:
-        # optional parameters, TODO: move to config.yaml and load from there
-        "VALIDATION_STRINGENCY=LENIENT "
+        # optional parameters
+        "{} ".format(config["params"]["collect-multiple-metrics"])
     wrapper:
         "0.64.0/bio/picard/collectmultiplemetrics"
 
@@ -103,14 +112,15 @@ rule bedGraphToBigWig:
 
 rule create_igv_bigwig:
     input:
-        "resources/ref/genome.bed",
-        expand("results/big_wig/{sample}.bigWig", sample=samples.index)
+        bigwig=expand("results/big_wig/{sample}.bigWig", sample=samples.index)
     output:
         "results/IGV/big_wig/merged_library.bigWig.igv.txt"
+    params:
+        lambda w, input: "\n".join(["{}\t0,0,178".format(path) for path in input.bigwig])
     log:
         "logs/igv/create_igv_bigwig.log"
     shell:
-        "find {input} -type f -name '*.bigWig' -exec echo -e 'results/IGV/big_wig/\"{{}}\"\t0,0,178' \;  > {output} 2> {log}"
+        "echo -e '{params}' > {output} 2> {log}"
 
 rule compute_matrix:
     input:
@@ -139,10 +149,13 @@ rule compute_matrix:
 rule plot_profile:
     input:
          "results/deeptools/matrix_files/matrix.gz"
-    output: #ToDo: add description to report caption
+    output:
         # Usable output variables, their extensions and which option they implicitly call are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotprofile.html.
-        plot_img=report("results/deeptools/plot_profile.pdf", caption="../report/plot_profile_deeptools.rst", category="GenomicRegions"),
+        plot_img=report(
+            "results/deeptools/plot_profile.pdf",
+            caption="../report/plot_profile_deeptools.rst",
+            category="GenomicRegions"),
         data="results/deeptools/plot_profile_data.tab"
     log:
         "logs/deeptools/plot_profile.log"
@@ -154,10 +167,13 @@ rule plot_profile:
 rule plot_heatmap:
     input:
          "results/deeptools/matrix_files/matrix.gz"
-    output:  #ToDo: add description to report caption
+    output:
         # Usable output variables, their extensions and which option they implicitly call are listed here:
         #         https://snakemake-wrappers.readthedocs.io/en/stable/wrappers/deeptools/plotheatmap.html.
-        heatmap_img=report("results/deeptools/heatmap.pdf", caption="../report/plot_heatmap_deeptools.rst", category="Heatmaps"),
+        heatmap_img=report(
+            "results/deeptools/heatmap.pdf",
+            caption="../report/plot_heatmap_deeptools.rst",
+            category="Heatmaps"),
         heatmap_matrix="results/deeptools/heatmap_matrix.tab"
     log:
         "logs/deeptools/heatmap.log"
@@ -169,10 +185,13 @@ rule plot_heatmap:
 rule phantompeakqualtools:
     input:
         "results/filtered/{sample}.sorted.bam"
-    output:  #ToDo: add description to report caption
+    output:
         res_phantom="results/phantompeakqualtools/{sample}.phantompeak.spp.out",
         r_data="results/phantompeakqualtools/{sample}.phantompeak.Rdata",
-        plot=report("results/phantompeakqualtools/{sample}.phantompeak.pdf", caption="../report/plot_phantompeak_phantompeakqualtools.rst", category="Phantompeak")
+        plot=report(
+            "results/phantompeakqualtools/{sample}.phantompeak.pdf",
+            caption="../report/plot_phantompeak_phantompeakqualtools.rst",
+            category="Phantompeak")
     threads:
         8
     log:
